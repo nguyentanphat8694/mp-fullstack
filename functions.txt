@@ -1,0 +1,51 @@
+Tôi muốn thiết kế hệ thống REST API cho phần mềm quản lý cho thuê áo cưới, chụp ảnh pre-wedding / wedding. Hệ thống REST API sẽ sử dụng REST API được viết bằng plugin wordpress, kết hợp với plugin JWT Authentication for WP REST API để xác thực user, phần Front end sẽ được viết bằng reactjs. Hệ thống gồm các thành phần:
+Quản lý user:
+- Sử dụng user trong wordpress.
+- Các role: admin, manager, accountant, telesale, facebook, sale, photo-wedding, photo-pre-wedding, tailor.
+Quản lý khách hàng:
+- Khách gồm các thông tin: họ tên, số điện thoại, nguồn (Facebook, tiktok, YouTube, vãng lai),…
+- Khách được thêm vào hệ thống do admin, manager khi thu thập từ các nguồn social network.
+- Khách được thêm vào hệ thống do sale nếu khách đó là khách vãng lai đến trực tiếp cửa hàng.
+- Khách trong hệ thống được admin, sale phân công xuống telesale hoặc Facebook để chăm sóc và đặt lịch hẹn với khách.
+- Telesale, Facebook có thể hẹn được lịch và đưa khách vào danh sách lịch hẹn.
+- Sale ở tại cửa hàng có thể xem danh sách khách trong lịch hẹn để đón khách và tư vấn, khách trong lịch hẹn được sale gán cho bản thân mình khi chăm sóc.
+- Mỗi bước chăm sóc khách hàng cần được ghi lại lịch sử để theo dõi
+Quản lý nhân viên:
+- Nhân viên sẽ chấm công bằng wifi công ty (chỉ chấm công được khi kết nối bằng wifi công ty).
+- Admin, manager có thể thêm thưởng phạt với mỗi nhân viên.
+- Nhân viên có thể theo dõi ngày công và thưởng phạt.
+- Có thể tổng kết ngày công, thưởng phạt trong một tháng.
+- Admin, manager có thể tạo task công việc và gán cho nhân viên, nhân viên có thể theo dõi, comment và thay đổi trạng thái công việc thông qua task.
+- Các thông tin cần có lịch sử để theo dõi và quản lý.
+Quản lý sản phẩm
+- Sản phẩm sẽ có các danh mục: váy cưới, veston, phụ kiện, áo dài cưới.
+- Mỗi sản phẩm sẽ có mã do admin, manager tạo để người dùng có thể gán.
+- Các sản phẩm sẽ cho khách thuê chiếm 1 khoảng thời gian khi lên hợp đồng với khách.
+- Cần phải theo dõi thời gian và khả năng available của sản phẩm hay không để tư vấn khách.
+- Cần theo dõi được trạng thái, lịch sử cho thuê và hiện trạng của sản phẩm.
+Quản lý hợp đồng
+- Khách hàng ở bước đến cửa hàng gặp nhân viên sale có thể chốt hợp đồng.
+- Có 3 loại hợp đồng: hợp đồng váy cưới, hợp đồng chụp ảnh wedding, hợp đồng chụp ảnh pre-wedding.
+- Hợp đồng váy cưới sẽ liên quan đến mã sản phẩm và thời gian sản phẩm được khách mướn.
+- Hợp đồng chụp ảnh wedding và pre-wedding sẽ liên quan đến thời gian làm việc của nhân viên chụp hình có role photo-wedding, photo-pre-wedding.
+- Hợp đồng sẽ bao gồm thông tin khách hàng, thông tin đồ mượn và thông tin nhân viên chụp hình. 
+- Có thêm phần note trong hợp đồng để có thể ghi chú động thêm. Note chỉ được xác nhận lúc tạo hợp đồng bởi kế toán, sau khi tạo nhân viên quản lý khách hàng đó có thể sửa đổi nhưng cần nhân viên kế toán xác nhận mới có thể đính vào hợp đồng chính thức.
+- Cần lưu lại lịch sử các note thay đổi để theo dõi.
+- Hợp đồng sau khi kết thúc, nhân viên sẽ kiểm tra trang phục mượn và viết báo cáo để nhân viên kiểm tra và thông báo báo cáo này đến quản lý.
+- Hợp đồng có thể chia làm nhiều lần thanh toán tính trên phần trăm hợp đồng.
+- Có thông tin xác nhận thu chi bao nhiêu của hợp đồng rõ ràng.
+Quản lý thông báo
+- Thông báo cho người quản lý, nhân viên được gán task công việc.
+- Thông báo khi hết ngày công việc được gán chưa hoàn thành.
+- Thông báo cho khách facebook, telesale khi được admin, manager gán khách hàng cho.
+- Thông báo cho thưởng, phạt cho nhân viên liên quan.
+- Thông báo nếu hết ngày, khách trong lịch hẹn ngày đó chưa đến và chưa được nhân viên tiếp nhận.
+- Thông báo khi có hợp đồng được chốt.
+- Thông báo trước 1 ngày khi chuẩn bị hợp đồng đến ngày cho thuê.
+- Thông báo cho quản lý kiểm tra trang phục khi có báo cáo sau hợp đồng về trang phục mượn.
+- Thông báo nếu quá hạn nhưng hợp đồng chưa thanh toán toàn bộ.
+- Có thể tạo báo cáo để xin sửa chửa, mua thêm đồ cho công ty và gửi báo cáo tới quản lý để được duyệt hay không.
+Quản lý chi tiêu:
+- Thu có thể nhập thêm.
+- Thu từ các hợp đồng.
+- Chi có thể nhập thêm.
