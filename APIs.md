@@ -16,6 +16,7 @@
 - GET /wp-json/mb/v1/rewards - Lấy danh sách thưởng/phạt (có filter theo status)
 - PUT /wp-json/mb/v1/rewards/{id}/approve - Duyệt thưởng/phạt (chỉ admin/manager)
 - PUT /wp-json/mb/v1/rewards/{id}/reject - Từ chối thưởng/phạt (chỉ admin/manager)
+- GET /wp-json/mb/v1/users/{id}/monthly-summary - Tổng hợp chấm công và thưởng phạt theo tháng
 
 ## 3. Customer Management APIs
 - GET /wp-json/mb/v1/customers - Lấy danh sách khách hàng
@@ -27,6 +28,9 @@
 - POST /wp-json/mb/v1/appointments - Tạo lịch hẹn
 - GET /wp-json/mb/v1/appointments - Xem danh sách lịch hẹn
 - PUT /wp-json/mb/v1/appointments/{id} - Cập nhật lịch hẹn
+- GET /wp-json/mb/v1/customers/by-source - Lấy danh sách khách theo nguồn
+- GET /wp-json/mb/v1/customers/appointments/today - Lấy lịch hẹn trong ngày
+- PUT /wp-json/mb/v1/appointments/{id}/take - Sale tiếp nhận khách từ lịch hẹn
 
 ## 4. Product Management APIs
 - GET /wp-json/mb/v1/products - Lấy danh sách sản phẩm
@@ -35,6 +39,9 @@
 - DELETE /wp-json/mb/v1/products/{id} - Xóa sản phẩm
 - GET /wp-json/mb/v1/products/{id}/availability - Kiểm tra tình trạng có sẵn
 - GET /wp-json/mb/v1/products/{id}/history - Xem lịch sử cho thuê
+- GET /wp-json/mb/v1/products/by-category - Lấy sản phẩm theo danh mục
+- GET /wp-json/mb/v1/products/{id}/maintenance - Lấy lịch sử bảo trì/sửa chữa
+- POST /wp-json/mb/v1/products/maintenance-request - Tạo yêu cầu bảo trì/sửa chữa
 
 ## 5. Contract Management APIs
 - GET /wp-json/mb/v1/contracts - Lấy danh sách hợp đồng
@@ -46,6 +53,9 @@
 - GET /wp-json/mb/v1/contracts/{id}/notes - Xem lịch sử ghi chú
 - POST /wp-json/mb/v1/contracts/{id}/reports - Tạo báo cáo sau hợp đồng
 - POST /wp-json/mb/v1/contracts/{id}/payments - Thêm thanh toán
+- GET /wp-json/mb/v1/contracts/by-type - Lấy hợp đồng theo loại
+- GET /wp-json/mb/v1/contracts/overdue - Lấy hợp đồng quá hạn thanh toán
+- GET /wp-json/mb/v1/photographers/{id}/schedule - Lấy lịch của thợ chụp ảnh
 
 ## 6. Task Management APIs
 - GET /wp-json/mb/v1/tasks - Lấy danh sách công việc
@@ -64,7 +74,10 @@
 - POST /wp-json/mb/v1/finances/income - Thêm khoản thu
 - GET /wp-json/mb/v1/finances/expense - Xem danh sách chi
 - POST /wp-json/mb/v1/finances/expense - Thêm khoản chi
-- GET /wp-json/mb/v1/finances/reports - Xem báo cáo tài chính 
+- GET /wp-json/mb/v1/finances/reports - Xem báo cáo tài chính
+- GET /wp-json/mb/v1/finances/purchase-requests - Lấy danh sách yêu cầu mua sắm
+- POST /wp-json/mb/v1/finances/purchase-requests - Tạo yêu cầu mua sắm mới
+- PUT /wp-json/mb/v1/finances/purchase-requests/{id}/approve - Duyệt yêu cầu mua sắm
 
 ## 9. Product Inspection APIs
 - POST /wp-json/mb/v1/inspections - Tạo báo cáo kiểm tra sản phẩm mới
