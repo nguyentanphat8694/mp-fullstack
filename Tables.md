@@ -29,7 +29,7 @@
 - phone (varchar)
 - source (enum) - 'facebook', 'tiktok', 'youtube', 'walk_in'
 - assigned_to (bigint) - FK to wp_users (nullable)
-- status (enum)
+- status (enum) - 'new','contacted','appointment','contracted','completed'
 - created_by (bigint) - FK to wp_users
 - created_at (datetime)
 - updated_at (datetime)
