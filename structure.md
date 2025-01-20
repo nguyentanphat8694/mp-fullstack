@@ -10,17 +10,42 @@ mb-management/
 │   ├── class-mb-deactivator.php      # Plugin deactivation handler
 │   │
 │   ├── api/                          # REST API endpoints
-│   │   ├── class-mb-api.php          # Base API class
-│   │   ├── class-mb-user-api.php     # User management endpoints
-│   │   ├── class-mb-attendance-api.php   # Attendance management endpoints
-│   │   ├── class-mb-reward-api.php      # Reward/Penalty management endpoints
-│   │   ├── class-mb-customer-api.php # Customer management endpoints
-│   │   ├── class-mb-product-api.php  # Product management endpoints
-│   │   ├── class-mb-contract-api.php # Contract management endpoints
-│   │   ├── class-mb-task-api.php     # Task management endpoints
-│   │   ├── class-mb-notification-api.php  # Notification endpoints
-│   │   ├── class-mb-finance-api.php  # Financial management endpoints
-│   │   └── class-mb-inspection-api.php    # Product inspection endpoints
+│   │   ├── class-mb-api.php          # Base API class - includes JWT validation
+│   │   │
+│   │   ├── user/                     # User Management APIs
+│   │   │   ├── class-mb-user-api.php        # User CRUD endpoints
+│   │   │   ├── class-mb-attendance-api.php   # Attendance endpoints
+│   │   │   └── class-mb-reward-api.php      # Rewards/Penalties endpoints
+│   │   │
+│   │   ├── customer/                 # Customer Management APIs
+│   │   │   ├── class-mb-customer-api.php    # Customer CRUD endpoints
+│   │   │   ├── class-mb-appointment-api.php  # Appointment management
+│   │   │   └── class-mb-customer-history-api.php # Customer history tracking
+│   │   │
+│   │   ├── product/                  # Product Management APIs
+│   │   │   ├── class-mb-product-api.php     # Product CRUD endpoints
+│   │   │   ├── class-mb-category-api.php    # Product category endpoints
+│   │   │   ├── class-mb-maintenance-api.php  # Maintenance request endpoints
+│   │   │   └── class-mb-inspection-api.php   # Product inspection endpoints
+│   │   │
+│   │   ├── contract/                 # Contract Management APIs
+│   │   │   ├── class-mb-contract-api.php    # Contract CRUD endpoints
+│   │   │   ├── class-mb-contract-note-api.php # Contract notes endpoints
+│   │   │   ├── class-mb-contract-payment-api.php # Payment endpoints
+│   │   │   ├── class-mb-contract-report-api.php  # Post-contract reports
+│   │   │   └── class-mb-photographer-api.php # Photographer schedule endpoints
+│   │   │
+│   │   ├── task/                     # Task Management APIs
+│   │   │   ├── class-mb-task-api.php        # Task CRUD endpoints
+│   │   │   └── class-mb-task-comment-api.php # Task comments endpoints
+│   │   │
+│   │   ├── notification/             # Notification APIs
+│   │   │   └── class-mb-notification-api.php # Notification endpoints
+│   │   │
+│   │   └── finance/                  # Financial Management APIs
+│   │       ├── class-mb-finance-api.php      # Income/Expense endpoints
+│   │       ├── class-mb-purchase-api.php     # Purchase request endpoints
+│   │       └── class-mb-report-api.php       # Financial reports endpoints
 │   │
 │   ├── models/                       # Database models
 │   │   ├── class-mb-model.php        # Base model class
