@@ -31,15 +31,6 @@
 #### Custom Components
 - **LoadingSpinner** - Hiển thị khi loading data
 - **ErrorBoundary** - Xử lý lỗi
-- **Notifications** (@shadcn/ui toast) - Hiển thị thông báo
-- **ConfirmDialog** (@shadcn/ui alert-dialog) - Xác nhận các hành động quan trọng
-- **DataTable** (@shadcn/ui table + tanstack/react-table) - Bảng dữ liệu có sort, filter, pagination
-- **Form** (@shadcn/ui form + react-hook-form) - Form components
-- **Calendar** (@shadcn/ui calendar) - Hiển thị lịch
-- **Tabs** (@shadcn/ui tabs) - Chuyển tab trong page
-- **Card** (@shadcn/ui card) - Hiển thị thông tin dạng card
-- **Sheet** (@shadcn/ui sheet) - Modal cho mobile
-- **Dialog** (@shadcn/ui dialog) - Modal cho desktop
 
 ## Pages & Features
 

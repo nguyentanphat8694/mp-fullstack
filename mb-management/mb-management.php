@@ -22,6 +22,7 @@ define('MB_MANAGEMENT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 // Require the main plugin class
 require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/class-mb-management.php';
+require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/class-mb-auth.php';
 
 // Register activation and deactivation hooks
 register_activation_hook(__FILE__, array('MB_Management_Activator', 'activate'));
@@ -31,5 +32,8 @@ register_deactivation_hook(__FILE__, array('MB_Management_Deactivator', 'deactiv
 function run_mb_management() {
     $plugin = new MB_Management();
     $plugin->run();
+    $auth = new MB_App_Auth();
+    $auth->init();
 }
+
 run_mb_management(); 
