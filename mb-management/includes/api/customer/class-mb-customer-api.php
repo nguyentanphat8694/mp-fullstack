@@ -94,7 +94,7 @@ class MB_Customer_API extends MB_API {
             if (is_wp_error($data)) {
                 return $this->error_response($data->get_error_message());
             }
-
+            $data['created_by'] = get_current_user_id();
             $result = $this->customer_controller->create_customer($data);
             if (!$result['success']) {
                 return $this->error_response($result['message']);

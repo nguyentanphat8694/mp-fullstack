@@ -9,7 +9,7 @@ class MB_Management_Activator {
     private static function create_tables() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
-
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         // Attendance table
         $sql = "CREATE TABLE IF NOT EXISTS mb_attendance (
             id bigint(20) NOT NULL AUTO_INCREMENT,
@@ -22,9 +22,9 @@ class MB_Management_Activator {
             PRIMARY KEY (id),
             KEY user_id (user_id)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Rewards table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_rewards (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_rewards (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             user_id bigint(20) unsigned NOT NULL,
             type enum('reward','penalty') NOT NULL,
@@ -40,9 +40,9 @@ class MB_Management_Activator {
             KEY approved_by (approved_by),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Customers table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_customers (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_customers (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
             phone varchar(20) NOT NULL,
@@ -56,9 +56,9 @@ class MB_Management_Activator {
             KEY assigned_to (assigned_to),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Customer history table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_customer_history (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_customer_history (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             customer_id bigint(20) NOT NULL,
             action varchar(50) NOT NULL,
@@ -69,9 +69,9 @@ class MB_Management_Activator {
             KEY customer_id (customer_id),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Appointments table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_appointments (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_appointments (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             customer_id bigint(20) NOT NULL,
             appointment_date datetime NOT NULL,
@@ -84,9 +84,9 @@ class MB_Management_Activator {
             KEY assigned_to (assigned_to),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Products table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_products (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_products (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             code varchar(50) NOT NULL UNIQUE,
             name varchar(255) NOT NULL,
@@ -98,9 +98,9 @@ class MB_Management_Activator {
             updated_at datetime NOT NULL,
             PRIMARY KEY (id)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Product history table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_product_history (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_product_history (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             product_id bigint(20) NOT NULL,
             action varchar(50) NOT NULL,
@@ -111,9 +111,9 @@ class MB_Management_Activator {
             KEY product_id (product_id),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Product inspections table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_product_inspections (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_product_inspections (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             contract_id bigint(20) NOT NULL,
             product_id bigint(20) NOT NULL,
@@ -135,9 +135,9 @@ class MB_Management_Activator {
             KEY checked_by (checked_by),
             KEY approved_by (approved_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Product inspection history table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_product_inspection_history (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_product_inspection_history (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             inspection_id bigint(20) NOT NULL,
             action varchar(50) NOT NULL,
@@ -150,9 +150,9 @@ class MB_Management_Activator {
             KEY inspection_id (inspection_id),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Contracts table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_contracts (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_contracts (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             customer_id bigint(20) NOT NULL,
             type enum('dress_rental','wedding_photo','pre_wedding_photo') NOT NULL,
@@ -170,9 +170,9 @@ class MB_Management_Activator {
             KEY photographer_id (photographer_id),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Contract items table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_contract_items (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_contract_items (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             contract_id bigint(20) NOT NULL,
             product_id bigint(20) NOT NULL,
@@ -183,9 +183,9 @@ class MB_Management_Activator {
             KEY contract_id (contract_id),
             KEY product_id (product_id)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Contract notes table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_contract_notes (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_contract_notes (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             contract_id bigint(20) NOT NULL,
             note text NOT NULL,
@@ -198,9 +198,9 @@ class MB_Management_Activator {
             KEY approved_by (approved_by),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Contract payments table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_contract_payments (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_contract_payments (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             contract_id bigint(20) NOT NULL,
             amount decimal(10,2) NOT NULL,
@@ -212,9 +212,9 @@ class MB_Management_Activator {
             KEY contract_id (contract_id),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Tasks table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_tasks (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_tasks (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             title varchar(255) NOT NULL,
             description text NOT NULL,
@@ -228,9 +228,9 @@ class MB_Management_Activator {
             KEY assigned_to (assigned_to),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Task comments table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_task_comments (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_task_comments (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             task_id bigint(20) NOT NULL,
             comment text NOT NULL,
@@ -240,9 +240,9 @@ class MB_Management_Activator {
             KEY task_id (task_id),
             KEY created_by (created_by)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Notifications table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_notifications (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_notifications (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             user_id bigint(20) unsigned NOT NULL,
             type varchar(50) NOT NULL,
@@ -253,9 +253,9 @@ class MB_Management_Activator {
             PRIMARY KEY (id),
             KEY user_id (user_id)
         ) $charset_collate;";
-
+        dbDelta($sql);
         // Transactions table
-        $sql .= "CREATE TABLE IF NOT EXISTS mb_transactions (
+        $sql = "CREATE TABLE IF NOT EXISTS mb_transactions (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             type enum('income','expense') NOT NULL,
             amount decimal(10,2) NOT NULL,
@@ -267,8 +267,6 @@ class MB_Management_Activator {
             KEY contract_id (contract_id),
             KEY created_by (created_by)
         ) $charset_collate;";
-
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }
 
