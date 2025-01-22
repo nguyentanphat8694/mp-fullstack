@@ -132,7 +132,7 @@ const CustomerTable = ({
               <TableHead>Nguồn</TableHead>
               <TableHead>Trạng thái</TableHead>
               <TableHead>Nhân viên phụ trách</TableHead>
-              <TableHead>Thao tác</TableHead>
+              <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

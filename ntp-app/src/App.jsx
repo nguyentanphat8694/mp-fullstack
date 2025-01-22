@@ -1,9 +1,11 @@
 import "./App.css";
 import {useRoutes, Navigate} from "react-router-dom"
 import {PATHS} from "@/helpers/paths"
-import {lazy, Suspense} from 'react'
+import {lazy, Suspense, useEffect} from 'react'
 import MainLayout from "@/components/layouts/main-layout"
 import {LoadingSpinner} from "@/components/loading-spinner"
+import useUserInfoStore from "@/stores/useUserInfoStore"
+import { useNavigate } from "react-router-dom"
 
 // Auth pages
 const LoginPage = lazy(() => import('@/views/auth/login'))
@@ -30,188 +32,200 @@ const EmployeeDetailPage = lazy(() => import('@/views/employees/detail'))
 const TaskListPage = lazy(() => import('@/views/tasks/list'))
 const TaskDetailPage = lazy(() => import('@/views/tasks/detail'))
 
-const getRoutes = () => {
-  const isAuthenticated = true;
-
-  return useRoutes([
-    // Auth routes
-    {
-      path: PATHS.AUTH.LOGIN,
-      element: !isAuthenticated ? (
-        <Suspense fallback={<LoadingSpinner />}>
-          <LoginPage />
-        </Suspense>
-      ) : (
-        <Navigate to={PATHS.DASHBOARD} replace />
-      )
-    },
-    {
-      path: PATHS.AUTH.FORGOT_PASSWORD,
-      element: !isAuthenticated ? (
-        <Suspense fallback={<LoadingSpinner />}>
-          <ForgotPasswordPage />
-        </Suspense>
-      ) : (
-        <Navigate to={PATHS.DASHBOARD} replace />
-      )
-    },
-    {
-      path: PATHS.AUTH.RESET_PASSWORD,
-      element: !isAuthenticated ? (
-        <Suspense fallback={<LoadingSpinner />}>
-          <ResetPasswordPage />
-        </Suspense>
-      ) : (
-        <Navigate to={PATHS.DASHBOARD} replace />
-      )
-    },
-
-    // Main routes
-    {
-      path: PATHS.DASHBOARD,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <DashboardPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-
-    // Customer routes
-    {
-      path: PATHS.CUSTOMERS.LIST,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <CustomerListPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-    {
-      path: PATHS.CUSTOMERS.DETAIL,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <CustomerDetailPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-
-    // Appointment routes
-    {
-      path: PATHS.APPOINTMENTS.TODAY,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <AppointmentListPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-
-    // Product routes
-    {
-      path: PATHS.PRODUCTS.LIST,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <ProductListPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-    {
-      path: PATHS.PRODUCTS.DETAIL,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <ProductDetailPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-
-    // Employee routes
-    {
-      path: PATHS.EMPLOYEES.LIST,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <EmployeeListPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-    {
-      path: PATHS.EMPLOYEES.DETAIL,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <EmployeeDetailPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-
-    // Task routes
-    {
-      path: PATHS.TASKS.LIST,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <TaskListPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-    {
-      path: PATHS.TASKS.DETAIL,
-      element: isAuthenticated ? (
-        <MainLayout>
-          <Suspense fallback={<LoadingSpinner />}>
-            <TaskDetailPage />
-          </Suspense>
-        </MainLayout>
-      ) : (
-        <Navigate to={PATHS.AUTH.LOGIN} replace />
-      )
-    },
-
-    // Fallback route
-    {
-      path: "*",
-      element: (
-        <Navigate
-          to={isAuthenticated ? PATHS.DASHBOARD : PATHS.AUTH.LOGIN}
-          replace
-        />
-      )
-    }
-  ]);
-};
-
 function App() {
+  const navigate = useNavigate();
+
+  // Get userInfo from zustand store
+  const userInfo = useUserInfoStore((state) => state.userInfo)
+  
+  // Check if user is authenticated based on userInfo existence
+  const isAuthenticated = !!userInfo
+
+  const getRoutes = () => {
+    return useRoutes([
+      // Auth routes
+      {
+        path: PATHS.AUTH.LOGIN,
+        element: !isAuthenticated ? (
+          <Suspense fallback={<LoadingSpinner />}>
+            <LoginPage />
+          </Suspense>
+        ) : (
+          <Navigate to={PATHS.DASHBOARD} replace />
+        )
+      },
+      {
+        path: PATHS.AUTH.FORGOT_PASSWORD,
+        element: !isAuthenticated ? (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ForgotPasswordPage />
+          </Suspense>
+        ) : (
+          <Navigate to={PATHS.DASHBOARD} replace />
+        )
+      },
+      {
+        path: PATHS.AUTH.RESET_PASSWORD,
+        element: !isAuthenticated ? (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ResetPasswordPage />
+          </Suspense>
+        ) : (
+          <Navigate to={PATHS.DASHBOARD} replace />
+        )
+      },
+
+      // Main routes
+      {
+        path: PATHS.DASHBOARD,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <DashboardPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+
+      // Customer routes
+      {
+        path: PATHS.CUSTOMERS.LIST,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <CustomerListPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+      {
+        path: PATHS.CUSTOMERS.DETAIL,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <CustomerDetailPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+
+      // Appointment routes
+      {
+        path: PATHS.APPOINTMENTS.TODAY,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <AppointmentListPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+
+      // Product routes
+      {
+        path: PATHS.PRODUCTS.LIST,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProductListPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+      {
+        path: PATHS.PRODUCTS.DETAIL,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProductDetailPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+
+      // Employee routes
+      {
+        path: PATHS.EMPLOYEES.LIST,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <EmployeeListPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+      {
+        path: PATHS.EMPLOYEES.DETAIL,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <EmployeeDetailPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+
+      // Task routes
+      {
+        path: PATHS.TASKS.LIST,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <TaskListPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+      {
+        path: PATHS.TASKS.DETAIL,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <TaskDetailPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+
+      // Fallback route
+      {
+        path: "*",
+        element: (
+          <Navigate
+            to={isAuthenticated ? PATHS.DASHBOARD : PATHS.AUTH.LOGIN}
+            replace
+          />
+        )
+      }
+    ]);
+  };
+
+  useEffect(() => {
+    if (!!userInfo) {
+      navigate(PATHS.DASHBOARD)
+    }
+  }, [userInfo]);
+
   return getRoutes();
 }
 

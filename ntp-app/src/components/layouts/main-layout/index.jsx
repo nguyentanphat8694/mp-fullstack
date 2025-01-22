@@ -1,10 +1,19 @@
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Settings, User, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { PATHS } from "@/helpers/paths"
-import PropTypes from "prop-types";
+import useUserInfoStore from "@/stores/useUserInfoStore"
+import PropTypes from "prop-types"
 
 const navigation = [
   { name: "Dashboard", path: PATHS.DASHBOARD },
@@ -15,13 +24,19 @@ const navigation = [
   { name: "Công việc", path: PATHS.TASKS.LIST },
   { name: "Nhân viên", path: PATHS.EMPLOYEES.LIST },
   { name: "Tài chính", path: PATHS.FINANCES },
-  { name: "Cài đặt", path: PATHS.SETTINGS },
 ]
 
 const MainLayout = ({ children }) => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
+  const { userInfo, logout } = useUserInfoStore()
+
+  const handleLogout = () => {
+    logout()
+    navigate(PATHS.AUTH.LOGIN)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -69,6 +84,37 @@ const MainLayout = ({ children }) => {
               ))}
             </div>
 
+            {/* User menu */}
+            <div className="hidden lg:flex lg:justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={userInfo?.avatar} />
+                      <AvatarFallback>
+                        {userInfo?.name?.charAt(0)?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium">{userInfo?.user_display_name}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem className="hover:bg-muted" onClick={() => navigate(PATHS.SETTINGS)}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Cài đặt</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-muted" onClick={() => navigate(PATHS.ACCOUNT)}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Tài khoản</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="hover:bg-muted" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Đăng xuất</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
           {/* Mobile navigation */}
@@ -90,6 +136,31 @@ const MainLayout = ({ children }) => {
                   {item.name}
                 </Button>
               ))}
+              <DropdownMenuSeparator />
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => navigate(PATHS.SETTINGS)}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Cài đặt</span>
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => navigate(PATHS.ACCOUNT)}
+              >
+                <User className="mr-2 h-4 w-4" />
+                <span>Tài khoản</span>
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-red-500 hover:text-red-600"
+                onClick={handleLogout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Đăng xuất</span>
+              </Button>
             </div>
           </div>
         </nav>
@@ -103,7 +174,7 @@ const MainLayout = ({ children }) => {
   )
 }
 
-export default MainLayout;
+export default MainLayout
 
 MainLayout.propTypes = {
   children: PropTypes.node.isRequired,

@@ -11,11 +11,13 @@ import {useMutation} from "@tanstack/react-query";
 import request from "@/helpers/request.js";
 import {URLs} from "@/helpers/url.js";
 import {useCallback} from "react";
+import useUserInfoStore from "@/stores/useUserInfoStore.js";
 
 const LoginPage = () => {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = React.useState(false)
   const [showPassword, setShowPassword] = React.useState(false)
+  const { login } = useUserInfoStore()
   
   const { register, handleSubmit, formState: { errors } } = useForm()
 
@@ -26,7 +28,7 @@ const LoginPage = () => {
         params,
       }),
     onSuccess: (data) => {
-
+      login(data?.data);
     },
   });
 

@@ -86,9 +86,9 @@ const TaskDetail = ({ task, onStatusChange, onClose }) => {
   return (
     <div className="space-y-6 max-h-[80vh] overflow-hidden flex flex-col">
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 items-center justify-between">
           <h2 className="text-2xl font-bold">{task.title}</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-left gap-2">
             <span className={`text-xs px-2 py-1 rounded-full ${PRIORITY_COLORS[task.priority]}`}>
               {task.priority === 'high' ? 'Cao' : task.priority === 'medium' ? 'Trung bình' : 'Thấp'}
             </span>
