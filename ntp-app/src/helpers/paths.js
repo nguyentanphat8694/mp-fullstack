@@ -21,8 +21,16 @@ export const PATHS = {
     DETAIL: '/products/:id',
     EDIT: '/products/:id/edit'
   },
-  TASKS: '/tasks',
-  EMPLOYEES: '/employees',
+  TASKS: {
+    LIST: '/tasks',
+    NEW: '/tasks/new',
+    DETAIL: '/tasks/:id',
+    EDIT: '/tasks/:id/edit'
+  },
+  EMPLOYEES: {
+    LIST: "/employees",
+    DETAIL: "/employees/:id",
+  },
   FINANCES: '/finances',
   SETTINGS: '/settings',
   APPOINTMENTS: {

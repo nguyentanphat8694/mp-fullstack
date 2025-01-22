@@ -22,6 +22,14 @@ const AppointmentListPage = lazy(() => import('@/views/appointments/list'))
 const ProductListPage = lazy(() => import('@/views/products/list'))
 const ProductDetailPage = lazy(() => import('@/views/products/detail'))
 
+// Employee pages
+const EmployeeListPage = lazy(() => import('@/views/employees/list'))
+const EmployeeDetailPage = lazy(() => import('@/views/employees/detail'))
+
+// Task pages
+const TaskListPage = lazy(() => import('@/views/tasks/list'))
+const TaskDetailPage = lazy(() => import('@/views/tasks/detail'))
+
 const getRoutes = () => {
   const isAuthenticated = true;
 
@@ -131,6 +139,58 @@ const getRoutes = () => {
         <MainLayout>
           <Suspense fallback={<LoadingSpinner />}>
             <ProductDetailPage />
+          </Suspense>
+        </MainLayout>
+      ) : (
+        <Navigate to={PATHS.AUTH.LOGIN} replace />
+      )
+    },
+
+    // Employee routes
+    {
+      path: PATHS.EMPLOYEES.LIST,
+      element: isAuthenticated ? (
+        <MainLayout>
+          <Suspense fallback={<LoadingSpinner />}>
+            <EmployeeListPage />
+          </Suspense>
+        </MainLayout>
+      ) : (
+        <Navigate to={PATHS.AUTH.LOGIN} replace />
+      )
+    },
+    {
+      path: PATHS.EMPLOYEES.DETAIL,
+      element: isAuthenticated ? (
+        <MainLayout>
+          <Suspense fallback={<LoadingSpinner />}>
+            <EmployeeDetailPage />
+          </Suspense>
+        </MainLayout>
+      ) : (
+        <Navigate to={PATHS.AUTH.LOGIN} replace />
+      )
+    },
+
+    // Task routes
+    {
+      path: PATHS.TASKS.LIST,
+      element: isAuthenticated ? (
+        <MainLayout>
+          <Suspense fallback={<LoadingSpinner />}>
+            <TaskListPage />
+          </Suspense>
+        </MainLayout>
+      ) : (
+        <Navigate to={PATHS.AUTH.LOGIN} replace />
+      )
+    },
+    {
+      path: PATHS.TASKS.DETAIL,
+      element: isAuthenticated ? (
+        <MainLayout>
+          <Suspense fallback={<LoadingSpinner />}>
+            <TaskDetailPage />
           </Suspense>
         </MainLayout>
       ) : (

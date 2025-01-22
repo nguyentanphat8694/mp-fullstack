@@ -12,8 +12,8 @@ const navigation = [
   { name: "Lịch hẹn", path: PATHS.APPOINTMENTS.TODAY },
   { name: "Hợp đồng", path: PATHS.CONTRACTS },
   { name: "Sản phẩm", path: PATHS.PRODUCTS.LIST },
-  { name: "Công việc", path: PATHS.TASKS },
-  { name: "Nhân viên", path: PATHS.EMPLOYEES },
+  { name: "Công việc", path: PATHS.TASKS.LIST },
+  { name: "Nhân viên", path: PATHS.EMPLOYEES.LIST },
   { name: "Tài chính", path: PATHS.FINANCES },
   { name: "Cài đặt", path: PATHS.SETTINGS },
 ]
