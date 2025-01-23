@@ -1,6 +1,13 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Eye, Edit, UserPlus, Trash2, Calendar } from "lucide-react"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Eye,
+  Edit,
+  UserPlus,
+  Trash2,
+  Calendar,
+  MoreVertical,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -8,22 +15,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,212 +40,268 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { AssignCustomerModal } from "./assign-customer-modal"
-import { AddAppointmentModal } from "./add-appointment-modal"
+} from "@/components/ui/alert-dialog";
+import { AssignCustomerModal } from "./assign-customer-modal";
+import { AddAppointmentModal } from "./add-appointment-modal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const CustomerTable = ({ 
-  customers = [], 
+const CustomerTable = ({
+  customers = [],
   onEdit,
   onAssign,
   onDelete,
   onAddAppointment,
-  staffList = []
+  staffList = [],
 }) => {
-  const navigate = useNavigate()
-  const [sourceFilter, setSourceFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCustomer, setSelectedCustomer] = useState(null)
-  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false)
+  const navigate = useNavigate();
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
 
-  const filteredCustomers = customers.filter(customer => {
-    if (sourceFilter !== "all" && customer.source !== sourceFilter) return false
-    if (statusFilter !== "all" && customer.status !== statusFilter) return false
-    if (searchQuery && !customer.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
-    return true
-  })
+  const filteredCustomers = customers.filter((customer) => {
+    if (sourceFilter !== "all" && customer.source !== sourceFilter)
+      return false;
+    if (statusFilter !== "all" && customer.status !== statusFilter)
+      return false;
+    if (
+      searchQuery &&
+      !customer.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
+    return true;
+  });
 
   const handleAssign = async (data) => {
     try {
-      setIsLoading(true)
-      await onAssign(data)
-      setIsAssignModalOpen(false)
-      setSelectedCustomer(null)
+      setIsLoading(true);
+      await onAssign(data);
+      setIsAssignModalOpen(false);
+      setSelectedCustomer(null);
     } catch (error) {
-      console.error("Error assigning customer:", error)
+      console.error("Error assigning customer:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleDelete = async () => {
     try {
-      setIsLoading(true)
-      await onDelete(selectedCustomer.id)
-      setIsDeleteDialogOpen(false)
-      setSelectedCustomer(null)
+      setIsLoading(true);
+      await onDelete(selectedCustomer.id);
+      setIsDeleteDialogOpen(false);
+      setSelectedCustomer(null);
     } catch (error) {
-      console.error("Error deleting customer:", error)
+      console.error("Error deleting customer:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
+  const ActionButtons = ({ customer }) => {
+    // Desktop view
+    const DesktopActions = () => (
+      <div className="hidden sm:flex justify-end gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(`/customers/${customer.id}`)}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Chi tiết</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onEdit(customer)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Chỉnh sửa</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSelectedCustomer(customer);
+                  setIsAssignModalOpen(true);
+                }}
+              >
+                <UserPlus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Phân công</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="text-destructive"
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSelectedCustomer(customer);
+                  setIsDeleteDialogOpen(true);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Xóa</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSelectedCustomer(customer);
+                  setIsAppointmentModalOpen(true);
+                }}
+              >
+                <Calendar className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Thêm lịch hẹn</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    );
+
+    // Mobile view
+    const MobileActions = () => (
+      <div className="sm:hidden flex justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => navigate(`/customers/${customer.id}`)}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Chi tiết
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(customer)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Chỉnh sửa
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setSelectedCustomer(customer);
+                setIsAssignModalOpen(true);
+              }}
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Phân công
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setSelectedCustomer(customer);
+                setIsAppointmentModalOpen(true);
+              }}
+              className="text-primary"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Thêm lịch hẹn
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setSelectedCustomer(customer);
+                setIsDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Xóa
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+
+    return (
+      <>
+        <DesktopActions />
+        <MobileActions />
+      </>
+    );
+  };
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Input
-          placeholder="Tìm kiếm khách hàng..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1"
-        />
-        <Select value={sourceFilter} onValueChange={setSourceFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Nguồn" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả nguồn</SelectItem>
-            <SelectItem value="facebook">Facebook</SelectItem>
-            <SelectItem value="tiktok">Tiktok</SelectItem>
-            <SelectItem value="youtube">YouTube</SelectItem>
-            <SelectItem value="walk-in">Vãng lai</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả trạng thái</SelectItem>
-            <SelectItem value="new">Mới</SelectItem>
-            <SelectItem value="contacted">Đã liên hệ</SelectItem>
-            <SelectItem value="appointment">Có hẹn</SelectItem>
-            <SelectItem value="contracted">Đã ký HĐ</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       <div className="border rounded-lg">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Họ tên</TableHead>
               <TableHead>Số điện thoại</TableHead>
-              <TableHead>Nguồn</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead>Nhân viên phụ trách</TableHead>
+              <TableHead className="hidden sm:table-cell">Nguồn</TableHead>
+              <TableHead className="hidden sm:table-cell">Trạng thái</TableHead>
+              <TableHead className="hidden sm:table-cell">
+                Nhân viên phụ trách
+              </TableHead>
               <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredCustomers.map((customer) => (
-              <TableRow key={customer.id} className="hover:bg-muted text-left">
+              <TableRow key={customer.id}>
                 <TableCell>{customer.name}</TableCell>
                 <TableCell>{customer.phone}</TableCell>
-                <TableCell>{customer.source}</TableCell>
-                <TableCell>{customer.status}</TableCell>
-                <TableCell>{customer.assigned_to}</TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  {customer.source}
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  {customer.status}
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  {customer.assigned_to}
+                </TableCell>
                 <TableCell>
-                  <div className="flex justify-end gap-2">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => navigate(`/customers/${customer.id}`)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Chi tiết</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onEdit(customer)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Chỉnh sửa</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setSelectedCustomer(customer)
-                              setIsAssignModalOpen(true)
-                            }}
-                          >
-                            <UserPlus className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Phân công</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setSelectedCustomer(customer)
-                              setIsDeleteDialogOpen(true)
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Xóa</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setSelectedCustomer(customer)
-                              setIsAppointmentModalOpen(true)
-                            }}
-                          >
-                            <Calendar className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Thêm lịch hẹn</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                  <ActionButtons customer={customer} />
                 </TableCell>
               </TableRow>
             ))}
@@ -250,15 +313,18 @@ const CustomerTable = ({
         customer={selectedCustomer}
         isOpen={isAssignModalOpen}
         onClose={() => {
-          setIsAssignModalOpen(false)
-          setSelectedCustomer(null)
+          setIsAssignModalOpen(false);
+          setSelectedCustomer(null);
         }}
         onSubmit={handleAssign}
         isLoading={isLoading}
         staffList={staffList}
       />
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
@@ -268,10 +334,10 @@ const CustomerTable = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel 
+            <AlertDialogCancel
               onClick={() => {
-                setIsDeleteDialogOpen(false)
-                setSelectedCustomer(null)
+                setIsDeleteDialogOpen(false);
+                setSelectedCustomer(null);
               }}
             >
               Hủy
@@ -291,14 +357,14 @@ const CustomerTable = ({
         customer={selectedCustomer}
         isOpen={isAppointmentModalOpen}
         onClose={() => {
-          setIsAppointmentModalOpen(false)
-          setSelectedCustomer(null)
+          setIsAppointmentModalOpen(false);
+          setSelectedCustomer(null);
         }}
         onSubmit={onAddAppointment}
         isLoading={isLoading}
       />
     </div>
-  )
-}
+  );
+};
 
-export { CustomerTable } 
+export { CustomerTable };

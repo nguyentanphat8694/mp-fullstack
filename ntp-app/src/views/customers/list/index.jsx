@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { CustomerTable } from "@/components/customers/customer-table"
 import { CustomerForm } from "@/components/customers/customer-form"
+import { Search } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,8 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { Plus } from "lucide-react"
 import { URLs } from "@/helpers/url"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const CustomerListPage = () => {
   const { toast } = useToast()
@@ -23,6 +26,11 @@ const CustomerListPage = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState(null)
   const [staffList, setStaffList] = useState([])
+  const [filterValues, setFilterValues] = useState({
+    search: "",
+    source: "all",
+    status: "all"
+  })
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -173,16 +181,21 @@ const CustomerListPage = () => {
     }
   }
 
+  const handleSearch = () => {
+    // Thực hiện tìm kiếm với filterValues
+    console.log("Searching with filters:", filterValues)
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Danh sách khách hàng</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+        <h1 className="text-2xl sm:text-3xl font-bold">Danh sách khách hàng</h1>
         <Dialog open={isOpen} onOpenChange={(open) => {
           setIsOpen(open)
           if (!open) setSelectedCustomer(null)
         }}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Thêm khách hàng
             </Button>
@@ -205,14 +218,62 @@ const CustomerListPage = () => {
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <CustomerTable 
-          customers={customers}
-          onEdit={handleEdit}
-          onAssign={handleAssign}
-          onDelete={handleDelete}
-          onAddAppointment={handleAddAppointment}
-          staffList={staffList}
-        />
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <Input
+              placeholder="Tìm kiếm khách hàng..."
+              value={filterValues.search}
+              onChange={(e) => setFilterValues(prev => ({ ...prev, search: e.target.value }))}
+              className="col-span-1 sm:col-span-2 lg:col-span-2"
+            />
+            <Select
+              value={filterValues.source}
+              onValueChange={(value) => setFilterValues(prev => ({ ...prev, source: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Nguồn" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả nguồn</SelectItem>
+                <SelectItem value="facebook">Facebook</SelectItem>
+                <SelectItem value="tiktok">Tiktok</SelectItem>
+                <SelectItem value="youtube">YouTube</SelectItem>
+                <SelectItem value="walk-in">Vãng lai</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={filterValues.status}
+              onValueChange={(value) => setFilterValues(prev => ({ ...prev, status: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                <SelectItem value="new">Mới</SelectItem>
+                <SelectItem value="contacted">Đã liên hệ</SelectItem>
+                <SelectItem value="appointment">Có hẹn</SelectItem>
+                <SelectItem value="contracted">Đã ký HĐ</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={handleSearch}
+              className="w-full"
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Tìm kiếm
+            </Button>
+          </div>
+
+          <CustomerTable 
+            customers={customers}
+            onEdit={handleEdit}
+            onAssign={handleAssign}
+            onDelete={handleDelete}
+            onAddAppointment={handleAddAppointment}
+            staffList={staffList}
+          />
+        </div>
       )}
     </div>
   )
