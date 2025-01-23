@@ -32,6 +32,11 @@ const EmployeeDetailPage = lazy(() => import('@/views/employees/detail'))
 const TaskListPage = lazy(() => import('@/views/tasks/list'))
 const TaskDetailPage = lazy(() => import('@/views/tasks/detail'))
 
+// Contract pages
+const ContractListPage = lazy(() => import('@/views/contracts/list'))
+const ContractDetailPage = lazy(() => import('@/views/contracts/detail'))
+const CreateContractPage = lazy(() => import('@/views/contracts/create'))
+
 function App() {
   const navigate = useNavigate();
 
@@ -200,6 +205,44 @@ function App() {
           <MainLayout>
             <Suspense fallback={<LoadingSpinner />}>
               <TaskDetailPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+
+      // Contract routes
+      {
+        path: PATHS.CONTRACTS.LIST,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <ContractListPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+      {
+        path: PATHS.CONTRACTS.NEW,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <CreateContractPage />
+            </Suspense>
+          </MainLayout>
+        ) : (
+          <Navigate to={PATHS.AUTH.LOGIN} replace />
+        )
+      },
+      {
+        path: PATHS.CONTRACTS.DETAIL,
+        element: isAuthenticated ? (
+          <MainLayout>
+            <Suspense fallback={<LoadingSpinner />}>
+              <ContractDetailPage />
             </Suspense>
           </MainLayout>
         ) : (

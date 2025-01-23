@@ -19,7 +19,7 @@ const navigation = [
   { name: "Dashboard", path: PATHS.DASHBOARD },
   { name: "Khách hàng", path: PATHS.CUSTOMERS.LIST },
   { name: "Lịch hẹn", path: PATHS.APPOINTMENTS.TODAY },
-  { name: "Hợp đồng", path: PATHS.CONTRACTS },
+  { name: "Hợp đồng", path: PATHS.CONTRACTS.LIST },
   { name: "Sản phẩm", path: PATHS.PRODUCTS.LIST },
   { name: "Công việc", path: PATHS.TASKS.LIST },
   { name: "Nhân viên", path: PATHS.EMPLOYEES.LIST },
