@@ -40,5 +40,8 @@ export const PATHS = {
   SETTINGS: '/settings',
   APPOINTMENTS: {
     TODAY: '/appointments'
-  }
+  },
+  FINANCE: {
+    LIST: '/finance',
+  },
 }

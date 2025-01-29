@@ -37,6 +37,9 @@ const ContractListPage = lazy(() => import('@/views/contracts/list'));
 const ContractDetailPage = lazy(() => import('@/views/contracts/detail'));
 const CreateContractPage = lazy(() => import('@/views/contracts/create'));
 
+// Finance pages
+const FinanceListPage = lazy(() => import('@/views/finance/list'));
+
 function App() {
   const navigate = useNavigate();
 
@@ -127,6 +130,12 @@ function App() {
       {
         path: PATHS.CONTRACTS.DETAIL,
         element: getAuthenticatedEl(isAuthenticated, <ContractDetailPage/>),
+      },
+
+      // Finance routes
+      {
+        path: PATHS.FINANCE.LIST,
+        element: getAuthenticatedEl(isAuthenticated, <FinanceListPage />),
       },
 
       // Fallback route
