@@ -75,9 +75,27 @@ export const ContractForm = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Khách hàng</FormLabel>
-                    <FormControl>
+                    {/* <FormControl>
                       <CustomerSelect {...field} />
-                    </FormControl>
+                    </FormControl> */}
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        setSelectedType(value)
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn loại hợp đồng" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="dress_rental">Thuê váy cưới</SelectItem>
+                        <SelectItem value="wedding_photo">Chụp ảnh cưới</SelectItem>
+                        <SelectItem value="pre_wedding_photo">Chụp ảnh pre-wedding</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -1,0 +1,712 @@
+API: mb/v1/customer
+Method: POST
+Description: Create a new customer
+Permission Required: mb_create_customers
+
+Request Format:
+{
+    "name": "string (required)",
+    "phone": "string (optional)",
+    "source": "string (required) - enum: facebook, tiktok, youtube, walk_in",
+    "status": "string (required) - enum: new, contacted, appointment, contracted, completed",
+    "assigned_to": "number (optional) - user ID"
+}
+
+Response Format:
+Success (201):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "name": "string",
+        "phone": "string",
+        "source": "string",
+        "status": "string",
+        "assigned_to": "number|null",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Customer created successfully"
+}
+
+Error (400):
+{
+    "success": false,
+    "error": {
+        "message": "string",
+        "code": "string",
+        "data": {
+            "validation_errors": [] (optional)
+        }
+    }
+}
+
+API: mb/v1/customers
+Method: POST
+Description: Get all customers
+Permission Required: mb_read_customers
+
+Query Parameters:
+{
+    "search": "string (optional) - Search term for name or phone",
+    "limit": "number (optional) - Number of records to return, defaults to 20",
+    "offset": "number (optional) - Number of records to skip, defaults to 0",
+    "source": "string (optional) - Filter by source",
+    "status": "string (optional) - Filter by status",
+    "assigned_to": "number (optional) - Filter by assigned user ID",
+    "created_by": "number (optional) - Filter by creator user ID"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": [
+        {
+            "id": "number",
+            "name": "string",
+            "phone": "string",
+            "source": "string",
+            "status": "string",
+            "assigned_to": "number|null",
+            "created_by": "number",
+            "created_at": "datetime"
+        }
+    ],
+    "message": "Customers retrieved successfully"
+}
+
+API: mb/v1/customer/{id}
+Method: GET
+Description: Get a specific customer
+Permission Required: mb_read_customers
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "name": "string",
+        "phone": "string",
+        "source": "string",
+        "status": "string",
+        "assigned_to": "number|null",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Customer retrieved successfully"
+}
+
+API: mb/v1/customer/{id}
+Method: PUT
+Description: Update a customer
+Permission Required: mb_update_customers
+
+Request Format:
+{
+    "name": "string (optional)",
+    "phone": "string (optional)",
+    "source": "string (optional) - enum: facebook, tiktok, youtube, walk_in",
+    "status": "string (optional) - enum: new, contacted, appointment, contracted, completed",
+    "assigned_to": "number (optional) - user ID"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "name": "string",
+        "phone": "string",
+        "source": "string",
+        "status": "string",
+        "assigned_to": "number|null",
+        "created_by": "number",
+        "created_at": "datetime",
+        "updated_at": "datetime"
+    },
+    "message": "Customer updated successfully"
+}
+
+API: mb/v1/customer/{id}
+Method: DELETE
+Description: Delete a customer
+Permission Required: mb_delete_customers
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": null,
+    "message": "Customer deleted successfully"
+}
+
+Error Response Format (for all endpoints):
+{
+    "success": false,
+    "error": {
+        "message": "string",
+        "code": "string",
+        "data": {
+            "validation_errors": [] (optional)
+        }
+    }
+}
+
+API: mb/v1/customer/assign
+Method: POST
+Description: Assign a customer to a user
+Permission Required: mb_assign_customers
+
+Request Format:
+{
+    "customer_id": "number (required) - ID of the customer to assign",
+    "user_id": "number (required) - ID of the user to assign the customer to"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "name": "string",
+        "phone": "string",
+        "source": "string",
+        "status": "string",
+        "assigned_to": "number",
+        "created_by": "number",
+        "created_at": "datetime",
+        "updated_at": "datetime"
+    },
+    "message": "Customer assigned successfully"
+}
+
+Error (400):
+{
+    "success": false,
+    "error": {
+        "message": "string",
+        "code": "string",
+        "data": {
+            "validation_errors": [] (optional)
+        }
+    }
+}
+
+API: mb/v1/customer/history/{id}
+Method: GET
+Description: Get customer history by customer ID
+Permission Required: mb_read_customers
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": [
+        {
+            "id": "number",
+            "customer_id": "number",
+            "action": "string",
+            "note": "string",
+            "created_by": "number",
+            "created_by_name": "string",
+            "created_at": "datetime"
+        }
+    ],
+    "message": "Customer history retrieved successfully"
+}
+
+API: mb/v1/customer/status
+Method: POST
+Description: Update customer status
+Permission Required: mb_update_customers
+
+Request Format:
+{
+    "customer_id": "number (required) - ID of the customer",
+    "status": "string (required) - enum: new, contacted, appointment, contracted, completed",
+    "note": "string (optional) - Note about the status change"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "name": "string",
+        "phone": "string",
+        "source": "string",
+        "status": "string",
+        "assigned_to": "number|null",
+        "created_by": "number",
+        "created_at": "datetime",
+        "updated_at": "datetime"
+    },
+    "message": "Customer status updated successfully"
+}
+
+Error (400):
+{
+    "success": false,
+    "error": {
+        "message": "string",
+        "code": "string",
+        "data": {
+            "validation_errors": [] (optional)
+        }
+    }
+}
+
+API: mb/v1/product
+Method: POST
+Description: Create a new product
+Permission Required: mb_create_products
+
+Request Format:
+{
+    "code": "string (required) - Unique product code",
+    "name": "string (required)",
+    "category": "string (required) - enum: wedding_dress, vest, accessories, ao_dai",
+    "description": "string (optional)",
+    "images": "string (optional) - JSON array of image URLs"
+}
+
+Response Format:
+Success (201):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "code": "string",
+        "name": "string",
+        "category": "string",
+        "description": "string",
+        "images": "string",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Product created successfully"
+}
+
+API: mb/v1/products
+Method: POST
+Description: Get all products
+Permission Required: mb_read_products
+
+Query Parameters:
+{
+    "search": "string (optional) - Search term for code or name",
+    "search_fields": "array (optional) - Fields to search in, defaults to ['code', 'name']",
+    "orderby": "string (optional) - Field to order by, defaults to 'id'",
+    "order": "string (optional) - Order direction (ASC or DESC), defaults to 'DESC'",
+    "limit": "number (optional) - Number of records to return, defaults to 20",
+    "offset": "number (optional) - Number of records to skip, defaults to 0",
+    "category": "string (optional) - Filter by category",
+    "created_by": "number (optional) - Filter by creator user ID"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": [
+        {
+            "id": "number",
+            "code": "string",
+            "name": "string",
+            "category": "string",
+            "description": "string",
+            "images": "string",
+            "created_by": "number",
+            "created_at": "datetime"
+        }
+    ],
+    "message": "Products retrieved successfully"
+}
+
+API: mb/v1/product/{id}
+Method: GET
+Description: Get a specific product
+Permission Required: mb_read_products
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "code": "string",
+        "name": "string",
+        "category": "string",
+        "description": "string",
+        "images": "string",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Product retrieved successfully"
+}
+
+API: mb/v1/product/{id}
+Method: PUT
+Description: Update a product
+Permission Required: mb_update_products
+
+Request Format:
+{
+    "code": "string (optional)",
+    "name": "string (optional)",
+    "category": "string (optional) - enum: wedding_dress, vest, accessories, ao_dai",
+    "description": "string (optional)",
+    "images": "string (optional) - JSON array of image URLs"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "code": "string",
+        "name": "string",
+        "category": "string",
+        "description": "string",
+        "images": "string",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Product updated successfully"
+}
+
+API: mb/v1/product/{id}
+Method: DELETE
+Description: Delete a product
+Permission Required: mb_delete_products
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": null,
+    "message": "Product deleted successfully"
+}
+
+Error Response Format (for all endpoints):
+{
+    "success": false,
+    "error": {
+        "message": "string",
+        "code": "string",
+        "data": {
+            "validation_errors": [] (optional)
+        }
+    }
+}
+
+API: mb/v1/user
+Method: POST
+Description: Create a new user
+Permission Required: mb_manage_users
+
+Request Format:
+{
+    "username": "string (required)",
+    "password": "string (required)",
+    "email": "string (required)",
+    "role": "string (required) - enum: manager, accountant, telesale, facebook, sale, photo_wedding, photo_pre_wedding, tailor"
+}
+
+Response Format:
+Success (201):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "username": "string",
+        "email": "string",
+        "display_name": "string",
+        "role": "string",
+        "created_at": "datetime"
+    },
+    "message": "User created successfully"
+}
+
+API: mb/v1/user/{id}
+Method: GET
+Description: Get a specific user
+Permission Required: mb_manage_users
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "username": "string",
+        "email": "string",
+        "display_name": "string",
+        "role": "string",
+        "created_at": "datetime"
+    },
+    "message": "User retrieved successfully"
+}
+
+API: mb/v1/user/{id}
+Method: PUT
+Description: Update a user
+Permission Required: mb_manage_users
+
+Request Format:
+{
+    "email": "string (optional)",
+    "password": "string (optional)",
+    "display_name": "string (optional)",
+    "role": "string (optional) - enum: manager, accountant, telesale, facebook, sale, photo_wedding, photo_pre_wedding, tailor"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "username": "string",
+        "email": "string",
+        "display_name": "string",
+        "role": "string",
+        "created_at": "datetime"
+    },
+    "message": "User updated successfully"
+}
+
+API: mb/v1/user/{id}
+Method: DELETE
+Description: Delete a user
+Permission Required: mb_manage_users
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": null,
+    "message": "User deleted successfully"
+}
+
+API: mb/v1/user/role/{role_name}
+Method: GET
+Description: Get users by role
+Permission Required: mb_manage_users
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": [
+        {
+            "id": "number",
+            "display_name": "string"
+        }
+    ],
+    "message": "Users retrieved successfully"
+}
+
+API: mb/v1/setting
+Method: POST
+Description: Create a new setting
+Permission Required: mb_manage_settings
+
+Request Format:
+{
+    "setting_name": "string (required)",
+    "setting_value": "string (required)"
+}
+
+Response Format:
+Success (201):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "setting_name": "string",
+        "setting_value": "string",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Setting created successfully"
+}
+
+API: mb/v1/setting
+Method: GET
+Description: Get all settings
+Permission Required: mb_read_settings
+
+Query Parameters:
+{
+    "search": "string (optional) - Search term for setting_name or setting_value",
+    "orderby": "string (optional) - Field to order by, defaults to 'id'",
+    "order": "string (optional) - Order direction (ASC or DESC), defaults to 'DESC'",
+    "limit": "number (optional) - Number of records to return, defaults to 20",
+    "offset": "number (optional) - Number of records to skip, defaults to 0",
+    "created_by": "number (optional) - Filter by creator user ID"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": [
+        {
+            "id": "number",
+            "setting_name": "string",
+            "setting_value": "string",
+            "created_by": "number",
+            "created_at": "datetime"
+        }
+    ],
+    "message": "Settings retrieved successfully"
+}
+
+API: mb/v1/setting/{id}
+Method: GET
+Description: Get a specific setting
+Permission Required: mb_read_settings
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "setting_name": "string",
+        "setting_value": "string",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Setting retrieved successfully"
+}
+
+API: mb/v1/setting/{id}
+Method: PUT
+Description: Update a setting
+Permission Required: mb_manage_settings
+
+Request Format:
+{
+    "setting_name": "string (optional)",
+    "setting_value": "string (optional)"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "setting_name": "string",
+        "setting_value": "string",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Setting updated successfully"
+}
+
+API: mb/v1/setting/{id}
+Method: DELETE
+Description: Delete a setting
+Permission Required: mb_manage_settings
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": null,
+    "message": "Setting deleted successfully"
+}
+
+API: mb/v1/appointment
+Method: POST
+Description: Create a new appointment
+Permission Required: mb_create_appointments
+
+Request Format:
+{
+    "customer_id": "number (required)",
+    "appointment_date": "datetime (required) - Format: YYYY-MM-DD HH:mm:ss"
+}
+
+Response Format:
+Success (201):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "customer_id": "number",
+        "appointment_date": "datetime",
+        "status": "string",
+        "assigned_to": "number|null",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Appointment created successfully"
+}
+
+API: mb/v1/appointment
+Method: GET
+Description: Get all appointments
+Permission Required: mb_read_appointments
+
+Query Parameters:
+{
+    "date": "string (optional) - Format: YYYY-MM-DD, defaults to current date",
+    "status": "string (optional) - Filter by status",
+    "assigned_to": "number (optional) - Filter by assigned user ID",
+    "limit": "number (optional) - Number of records to return, defaults to 20",
+    "offset": "number (optional) - Number of records to skip, defaults to 0"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": [
+        {
+            "id": "number",
+            "customer_id": "number",
+            "appointment_date": "datetime",
+            "status": "string",
+            "assigned_to": "number|null",
+            "created_by": "number",
+            "created_at": "datetime"
+        }
+    ],
+    "message": "Appointments retrieved successfully"
+}
+
+API: mb/v1/appointment/{id}/assign
+Method: POST
+Description: Assign or unassign an appointment
+Permission Required: mb_manage_appointments
+
+Request Format:
+{
+    "isReceiving": "boolean (required) - true to assign to current user, false to unassign"
+}
+
+Response Format:
+Success (200):
+{
+    "success": true,
+    "data": {
+        "id": "number",
+        "customer_id": "number",
+        "appointment_date": "datetime",
+        "status": "string",
+        "assigned_to": "number|null",
+        "created_by": "number",
+        "created_at": "datetime"
+    },
+    "message": "Appointment assignment updated successfully"
+}

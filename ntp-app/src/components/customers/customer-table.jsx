@@ -16,15 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import PropTypes from "prop-types";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
@@ -368,3 +361,7 @@ const CustomerTable = ({
 };
 
 export { CustomerTable };
+
+CustomerTable.propTypes = {
+  customer: PropTypes.array
+};

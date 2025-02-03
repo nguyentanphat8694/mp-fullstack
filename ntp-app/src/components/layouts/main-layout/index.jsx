@@ -23,7 +23,7 @@ const navigation = [
   { name: "Sản phẩm", path: PATHS.PRODUCTS.LIST },
   { name: "Công việc", path: PATHS.TASKS.LIST },
   { name: "Nhân viên", path: PATHS.EMPLOYEES.LIST },
-  { name: "Tài chính", path: PATHS.FINANCES },
+  { name: "Tài chính", path: PATHS.FINANCE.LIST },
 ]
 
 const MainLayout = ({ children }) => {

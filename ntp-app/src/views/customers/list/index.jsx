@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { CustomerTable } from "@/components/customers/customer-table"
 import { CustomerForm } from "@/components/customers/customer-form"
@@ -19,7 +18,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const CustomerListPage = () => {
   const { toast } = useToast()
-  const navigate = useNavigate()
   const [customers, setCustomers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -48,6 +46,8 @@ const CustomerListPage = () => {
           // ... more mock data
         ]
         setCustomers(mockCustomers)
+
+
       } catch (error) {
         console.error("Error fetching customers:", error)
       } finally {
