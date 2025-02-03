@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { CustomerTable } from "@/components/customers/customer-table"
-import { CustomerForm } from "@/components/customers/customer-form"
-import { Search } from "lucide-react"
+import {useEffect, useState} from "react"
+import {Button} from "@/components/ui/button"
+import {CustomerTable} from "@/components/customers/customer-table"
+import {CustomerForm} from "@/components/customers/customer-form"
+import {Search} from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -10,14 +10,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { useToast } from "@/hooks/use-toast"
-import { Plus } from "lucide-react"
-import { URLs } from "@/helpers/url"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {useToast} from "@/hooks/use-toast"
+import {Plus} from "lucide-react"
+import {URLs} from "@/helpers/url"
+import {Input} from "@/components/ui/input"
+import {CustomSelect} from "@/components/ui-custom/custom-select";
+import {CUSTOMER_SOURCE_OPTIONS, CUSTOMER_STATUS_OPTIONS} from "@/helpers/constants";
 
 const CustomerListPage = () => {
-  const { toast } = useToast()
+  const {toast} = useToast()
   const [customers, setCustomers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -63,8 +64,8 @@ const CustomerListPage = () => {
       try {
         // TODO: Call API to get staff list
         const mockStaffList = [
-          { id: "1", name: "Nhân viên A" },
-          { id: "2", name: "Nhân viên B" },
+          {id: "1", name: "Nhân viên A"},
+          {id: "2", name: "Nhân viên B"},
           // ... more mock data
         ]
         setStaffList(mockStaffList)
@@ -118,9 +119,9 @@ const CustomerListPage = () => {
       // TODO: Call API to assign customer
       await fetch(URLs.CUSTOMERS.ASSIGN(data.customerId), {
         method: 'POST',
-        body: JSON.stringify({ staff_id: data.staffId })
+        body: JSON.stringify({staff_id: data.staffId})
       })
-      
+
       toast({
         title: "Thành công",
         description: "Đã phân công khách hàng"
@@ -142,7 +143,7 @@ const CustomerListPage = () => {
       await fetch(URLs.CUSTOMERS.DELETE(customerId), {
         method: 'DELETE'
       })
-      
+
       setCustomers(customers.filter(c => c.id !== customerId))
       toast({
         title: "Thành công",
@@ -165,7 +166,7 @@ const CustomerListPage = () => {
         method: 'POST',
         body: JSON.stringify(data)
       })
-      
+
       toast({
         title: "Thành công",
         description: "Đã thêm lịch hẹn mới"
@@ -196,7 +197,7 @@ const CustomerListPage = () => {
         }}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto">
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="mr-2 h-4 w-4"/>
               Thêm khách hàng
             </Button>
           </DialogTrigger>
@@ -206,10 +207,10 @@ const CustomerListPage = () => {
                 {selectedCustomer ? "Chỉnh sửa thông tin" : "Thêm khách hàng mới"}
               </DialogTitle>
             </DialogHeader>
-            <CustomerForm 
+            <CustomerForm
               customer={selectedCustomer}
-              onSubmit={handleSubmit} 
-              isLoading={isSubmitting} 
+              onSubmit={handleSubmit}
+              isLoading={isSubmitting}
             />
           </DialogContent>
         </Dialog>
@@ -223,49 +224,29 @@ const CustomerListPage = () => {
             <Input
               placeholder="Tìm kiếm khách hàng..."
               value={filterValues.search}
-              onChange={(e) => setFilterValues(prev => ({ ...prev, search: e.target.value }))}
+              onChange={(e) => setFilterValues(prev => ({...prev, search: e.target.value}))}
               className="col-span-1 sm:col-span-2 lg:col-span-2"
             />
-            <Select
+            <CustomSelect
               value={filterValues.source}
-              onValueChange={(value) => setFilterValues(prev => ({ ...prev, source: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Nguồn" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả nguồn</SelectItem>
-                <SelectItem value="facebook">Facebook</SelectItem>
-                <SelectItem value="tiktok">Tiktok</SelectItem>
-                <SelectItem value="youtube">YouTube</SelectItem>
-                <SelectItem value="walk-in">Vãng lai</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select
+              onValueChange={(value) => setFilterValues(prev => ({...prev, source: value}))}
+              triggerName="Nguồn"
+              options={CUSTOMER_SOURCE_OPTIONS}/>
+            <CustomSelect
               value={filterValues.status}
-              onValueChange={(value) => setFilterValues(prev => ({ ...prev, status: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                <SelectItem value="new">Mới</SelectItem>
-                <SelectItem value="contacted">Đã liên hệ</SelectItem>
-                <SelectItem value="appointment">Có hẹn</SelectItem>
-                <SelectItem value="contracted">Đã ký HĐ</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button 
+              onValueChange={(value) => setFilterValues(prev => ({...prev, status: value}))}
+              triggerName="Trạng thái"
+              options={CUSTOMER_STATUS_OPTIONS}/>
+            <Button
               onClick={handleSearch}
               className="w-full"
             >
-              <Search className="mr-2 h-4 w-4" />
+              <Search className="mr-2 h-4 w-4"/>
               Tìm kiếm
             </Button>
           </div>
 
-          <CustomerTable 
+          <CustomerTable
             customers={customers}
             onEdit={handleEdit}
             onAssign={handleAssign}
