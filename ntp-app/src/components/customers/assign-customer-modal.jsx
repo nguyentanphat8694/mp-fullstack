@@ -5,39 +5,50 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { useState } from "react";
+import {Button} from "@/components/ui/button"
+import {Label} from "@/components/ui/label"
+import {useCallback} from "react";
+import {UserSelect} from "@/components/ui-custom/user-select/index.jsx";
+import {useForm} from "react-hook-form";
+import request from "@/helpers/request";
+import {URLs} from "@/helpers/url.js";
+import {useMutation} from "@tanstack/react-query";
+import {toast} from "@/hooks/use-toast.js";
+import PropTypes from "prop-types";
 
-const AssignCustomerModal = ({ 
-  customer, 
-  isOpen, 
-  onClose, 
-  onSubmit, 
-  isLoading,
-  staffList = [] 
-}) => {
-  const [selectedStaff, setSelectedStaff] = useState("")
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSubmit({ customerId: customer.id, staffId: selectedStaff })
-  }
-
+export const AssignCustomerModal = ({customer, isAssignModalOpen, setIsAssignModalOpen, setSelectedCustomer}) => {
+  const {mutate, isPending} = useMutation({
+    mutationFn: (params) => request(URLs.CUSTOMERS.ASSIGN, {
+      verb: 'post',
+      params: {
+        "user_id": params.staff,
+        "customer_id": customer.id,
+      }
+    }),
+    onSuccess: () => {
+      toast({
+        title: "Thành công",
+        description: "Đã gán khách hàng thành công.",
+      });
+      setIsAssignModalOpen(false);
+      setSelectedCustomer(null);
+    },
+  });
+  const onClose = useCallback(() => {
+    setIsAssignModalOpen(false);
+    setSelectedCustomer(null);
+  }, [])
+  const onAssign = useCallback((data) => {
+    mutate(data);
+  }, []);
+  const {handleSubmit, formState: {errors}, control} = useForm();
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isAssignModalOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Phân công khách hàng</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onAssign)} className="space-y-4">
           <div className="space-y-2">
             <Label>Khách hàng</Label>
             <p className="text-sm font-medium">{customer?.name}</p>
@@ -48,36 +59,24 @@ const AssignCustomerModal = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="staff">Nhân viên phụ trách</Label>
-            <Select 
-              value={selectedStaff} 
-              onValueChange={setSelectedStaff}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn nhân viên" />
-              </SelectTrigger>
-              <SelectContent>
-                {staffList.map((staff) => (
-                  <SelectItem key={staff.id} value={staff.id}>
-                    {staff.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <UserSelect name="staff" control={control} rules={{required: "Vui lòng chọn nhân viên"}} role="facebook"/>
+            {errors.staff && (
+              <p className="text-sm text-destructive">{errors.staff.message}</p>
+            )}
           </div>
           <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={onClose}
             >
               Hủy
             </Button>
-            <Button 
+            <Button
               type="submit"
-              disabled={isLoading || !selectedStaff}
+              disabled={isPending}
             >
-              {isLoading ? "Đang xử lý..." : "Xác nhận"}
+              {isPending ? "Đang xử lý..." : "Xác nhận"}
             </Button>
           </DialogFooter>
         </form>
@@ -86,4 +85,9 @@ const AssignCustomerModal = ({
   )
 }
 
-export { AssignCustomerModal } 
+AssignCustomerModal.propTypes = {
+  customer: PropTypes.object,
+  isAssignModalOpen: PropTypes.bool,
+  setIsAssignModalOpen: PropTypes.func,
+  setSelectedCustomer: PropTypes.func,
+}

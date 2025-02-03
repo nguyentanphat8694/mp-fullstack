@@ -1,17 +1,15 @@
-import URLs from "@/helpers/urls";
+import {URLs} from "@/helpers/url";
 import request from "@/helpers/request";
-import { useMutate } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/helpers/constants";
+import {useQuery} from "@tanstack/react-query";
 
-const useColumnListMutate = (params, onSuccessFunc) =>
-  useMutate({
+const useColumnListMutate = (params) =>
+  useQuery({
     queryKey: [QUERY_KEY.CUSTOMER_LIST, params],
-    queryFn: (params) =>
+    queryFn: () =>
       request(URLs.CUSTOMERS.LIST, {
-        verb: "post",
         params,
       }),
-    onSuccess: onSuccessFunc,
   });
 
 export default useColumnListMutate;

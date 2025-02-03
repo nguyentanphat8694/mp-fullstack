@@ -1,28 +1,46 @@
-import { useForm } from "react-hook-form"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+import {useForm} from "react-hook-form"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
+import {Textarea} from "@/components/ui/textarea"
+import {useCallback} from "react";
+import CustomSelect from "@/components/ui-custom/custom-select";
+import {CUSTOMER_SOURCE_OPTIONS} from "@/helpers/constants";
+import {useMutation} from "@tanstack/react-query";
+import request from "@/helpers/request";
+import {URLs} from "@/helpers/url";
+import {toast} from "@/hooks/use-toast";
+import PropTypes from 'prop-types';
 
-const CustomerForm = ({ customer, onSubmit, isLoading }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm({
+const CustomerForm = ({customer, setIsOpen, setSelectedCustomer}) => {
+  const {mutate, isPending} = useMutation({
+    mutationFn: (params) => request(URLs.CUSTOMERS.CREATE, {
+      verb: 'post',
+      params
+    }),
+    onSuccess: () => {
+      toast({
+        title: "Thành công",
+        description: customer ? "Đã cập nhật thông tin khách hàng" : "Đã thêm khách hàng mới",
+      });
+      setIsOpen(false);
+      setSelectedCustomer(null);
+    },
+  });
+
+  const onSubmitForm = useCallback((data) => {
+    mutate(data);
+  }, [])
+  const {register, handleSubmit, formState: {errors}, control} = useForm({
     defaultValues: customer || {}
   })
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="name">Họ tên</Label>
         <Input
           id="name"
-          {...register("name", { required: "Vui lòng nhập họ tên" })}
+          {...register("name", {required: "Vui lòng nhập họ tên"})}
         />
         {errors.name && (
           <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -33,7 +51,7 @@ const CustomerForm = ({ customer, onSubmit, isLoading }) => {
         <Label htmlFor="phone">Số điện thoại</Label>
         <Input
           id="phone"
-          {...register("phone", { required: "Vui lòng nhập số điện thoại" })}
+          {...register("phone", {required: "Vui lòng nhập số điện thoại"})}
         />
         {errors.phone && (
           <p className="text-sm text-destructive">{errors.phone.message}</p>
@@ -42,19 +60,13 @@ const CustomerForm = ({ customer, onSubmit, isLoading }) => {
 
       <div className="space-y-2">
         <Label htmlFor="source">Nguồn</Label>
-        <Select 
-          {...register("source", { required: "Vui lòng chọn nguồn" })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Chọn nguồn" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="facebook">Facebook</SelectItem>
-            <SelectItem value="tiktok">Tiktok</SelectItem>
-            <SelectItem value="youtube">YouTube</SelectItem>
-            <SelectItem value="walk-in">Vãng lai</SelectItem>
-          </SelectContent>
-        </Select>
+        <CustomSelect
+          name="source"
+          control={control}
+          rules={{required: "Vui lòng chọn nguồn"}}
+          triggerName="Chọn nguồn"
+          options={CUSTOMER_SOURCE_OPTIONS}
+        />
         {errors.source && (
           <p className="text-sm text-destructive">{errors.source.message}</p>
         )}
@@ -68,11 +80,17 @@ const CustomerForm = ({ customer, onSubmit, isLoading }) => {
         />
       </div>
 
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Đang xử lý..." : "Lưu"}
+      <Button type="submit" disabled={isPending}>
+        {isPending ? "Đang xử lý..." : "Lưu"}
       </Button>
     </form>
   )
 }
 
-export { CustomerForm } 
+export {CustomerForm}
+
+CustomerForm.propTypes = {
+  customer: PropTypes.object,
+  setIsOpen: PropTypes.func,
+  setSelectedCustomer: PropTypes.func
+}

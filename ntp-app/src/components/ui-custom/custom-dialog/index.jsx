@@ -1,13 +1,13 @@
 import {
   Dialog,
-  DialogContent,
+  DialogContent, DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import PropTypes from "prop-types";
 
-const CustomDialog = ({ isOpen, setIsOpen, triggerNode, className, title, contentNode, onOpenChange }) => {
+const CustomDialog = ({ isOpen, setIsOpen, triggerNode, description, className, title, contentNode, onOpenChange }) => {
   return (
     <Dialog
       open={isOpen}
@@ -20,6 +20,7 @@ const CustomDialog = ({ isOpen, setIsOpen, triggerNode, className, title, conten
       <DialogContent className={className}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description ? description : ''}</DialogDescription>
         </DialogHeader>
         {contentNode}
       </DialogContent>
@@ -36,5 +37,6 @@ CustomDialog.propTypes = {
   contentNode: PropTypes.node,
   onOpenChange: PropTypes.func,
   isOpen: PropTypes.bool,
-  setIsOpen: PropTypes.func
+  setIsOpen: PropTypes.func,
+  description: PropTypes.string,
 };

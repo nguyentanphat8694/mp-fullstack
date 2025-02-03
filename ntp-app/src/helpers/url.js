@@ -7,6 +7,7 @@ export const API_CONFIG = {
     // Customer paths
     CUSTOMERS: '/customers',
     APPOINTMENTS: '/appointments',
+    USERS: '/user',
   }
 }
 
@@ -24,31 +25,13 @@ export const URLs = {
   CUSTOMERS: {
     // Main customer endpoints
     LIST: createUrl(API_CONFIG.PATH.CUSTOMERS),
-    DETAIL: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}`),
     CREATE: createUrl(API_CONFIG.PATH.CUSTOMERS),
-    UPDATE: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}`),
+    ASSIGN: createUrl(`${API_CONFIG.PATH.CUSTOMERS}/assign`),
     DELETE: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}`),
-    
-    // Customer history
-    HISTORY: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}/history`),
-    
-    // Customer assignment
-    ASSIGN: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}/assign`),
-    
-    // Customer filters
-    BY_SOURCE: createUrl(`${API_CONFIG.PATH.CUSTOMERS}/by-source`),
   },
 
-  // Appointment URLs
-  APPOINTMENTS: {
-    // Main appointment endpoints
-    LIST: createUrl(API_CONFIG.PATH.APPOINTMENTS),
-    CREATE: createUrl(API_CONFIG.PATH.APPOINTMENTS),
-    UPDATE: (id) => createUrl(`${API_CONFIG.PATH.APPOINTMENTS}/${id}`),
-    
-    // Special appointment endpoints
-    TODAY: createUrl(`${API_CONFIG.PATH.CUSTOMERS}/appointments/today`),
-    TAKE: (id) => createUrl(`${API_CONFIG.PATH.APPOINTMENTS}/${id}/take`),
+  USERS: {
+    GET_BY_ROLE: (role) => createUrl(`${API_CONFIG.PATH.USERS}/role/${role}`)
   }
 }
 

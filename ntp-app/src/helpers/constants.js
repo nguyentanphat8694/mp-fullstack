@@ -1,5 +1,6 @@
 export const QUERY_KEY = {
-  CUSTOMER_LIST: 'customer_list'
+  CUSTOMER_LIST: 'customer_list',
+  USER_BY_ROLE: 'user_by_role',
 };
 
 export const CUSTOMER_SOURCE_OPTIONS = [

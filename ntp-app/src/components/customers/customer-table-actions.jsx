@@ -1,22 +1,20 @@
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip.jsx";
+import {Button} from "@/components/ui/button.jsx";
+import {Calendar, Edit, Eye, MoreVertical, Trash2, UserPlus} from "lucide-react";
 import {
-  Eye,
-  Edit,
-  UserPlus,
-  Trash2,
-  Calendar,
-  MoreVertical,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu.jsx";
+import PropTypes from "prop-types";
+import {useNavigate} from "react-router-dom";
 
-const ActionButtons = ({ customer }) => {
-    // Desktop view
-    const DesktopActions = () => (
+export const ActionButtons = ({customer, setSelectedCustomer, setIsAssignModalOpen, setIsDeleteDialogOpen, setIsAppointmentModalOpen, onEdit}) => {
+  const navigate = useNavigate();
+  return (
+    <>
+      {/*Desktop view*/}
       <div className="hidden sm:flex justify-end gap-2">
         <TooltipProvider>
           <Tooltip>
@@ -26,7 +24,7 @@ const ActionButtons = ({ customer }) => {
                 size="icon"
                 onClick={() => navigate(`/customers/${customer.id}`)}
               >
-                <Eye className="h-4 w-4" />
+                <Eye className="h-4 w-4"/>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -43,7 +41,7 @@ const ActionButtons = ({ customer }) => {
                 size="icon"
                 onClick={() => onEdit(customer)}
               >
-                <Edit className="h-4 w-4" />
+                <Edit className="h-4 w-4"/>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -63,7 +61,7 @@ const ActionButtons = ({ customer }) => {
                   setIsAssignModalOpen(true);
                 }}
               >
-                <UserPlus className="h-4 w-4" />
+                <UserPlus className="h-4 w-4"/>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -84,7 +82,7 @@ const ActionButtons = ({ customer }) => {
                   setIsDeleteDialogOpen(true);
                 }}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4"/>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -104,7 +102,7 @@ const ActionButtons = ({ customer }) => {
                   setIsAppointmentModalOpen(true);
                 }}
               >
-                <Calendar className="h-4 w-4" />
+                <Calendar className="h-4 w-4"/>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -113,26 +111,24 @@ const ActionButtons = ({ customer }) => {
           </Tooltip>
         </TooltipProvider>
       </div>
-    );
 
-    // Mobile view
-    const MobileActions = () => (
+      {/*Mobile view*/}
       <div className="sm:hidden flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="h-4 w-4"/>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => navigate(`/customers/${customer.id}`)}
             >
-              <Eye className="h-4 w-4 mr-2" />
+              <Eye className="h-4 w-4 mr-2"/>
               Chi tiết
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit(customer)}>
-              <Edit className="h-4 w-4 mr-2" />
+              <Edit className="h-4 w-4 mr-2"/>
               Chỉnh sửa
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -141,7 +137,7 @@ const ActionButtons = ({ customer }) => {
                 setIsAssignModalOpen(true);
               }}
             >
-              <UserPlus className="h-4 w-4 mr-2" />
+              <UserPlus className="h-4 w-4 mr-2"/>
               Phân công
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -151,7 +147,7 @@ const ActionButtons = ({ customer }) => {
               }}
               className="text-primary"
             >
-              <Calendar className="h-4 w-4 mr-2" />
+              <Calendar className="h-4 w-4 mr-2"/>
               Thêm lịch hẹn
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -161,18 +157,21 @@ const ActionButtons = ({ customer }) => {
               }}
               className="text-destructive"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash2 className="h-4 w-4 mr-2"/>
               Xóa
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    );
+    </>
+  );
+};
 
-    return (
-      <>
-        <DesktopActions />
-        <MobileActions />
-      </>
-    );
-  };
+ActionButtons.propTypes = {
+  customer: PropTypes.object,
+  setSelectedCustomer: PropTypes.func,
+  setIsAssignModalOpen: PropTypes.func,
+  setIsAppointmentModalOpen: PropTypes.func,
+  setIsDeleteDialogOpen: PropTypes.func,
+  onEdit: PropTypes.func,
+}
