@@ -1,7 +1,7 @@
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.jsx";
 import PropTypes from "prop-types";
 
-export const CustomSelect = ({triggerName, options, value, onValueChange, className}) => {
+const CustomSelect = ({triggerName, options, value, onValueChange, className}) => {
   return (
     <Select
       className={className}
@@ -19,6 +19,8 @@ export const CustomSelect = ({triggerName, options, value, onValueChange, classN
     </Select>
   );
 }
+
+export default CustomSelect;
 
 CustomSelect.propTypes = {
   triggerName: PropTypes.string,
