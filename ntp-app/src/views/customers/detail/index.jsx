@@ -1,64 +1,37 @@
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CustomerDetailCard } from "@/components/customers/customer-detail-card"
-import { CustomerAppointments } from "@/components/customers/customer-appointments"
-import { CustomerHistory } from "@/components/customers/customer-history"
-import { CustomerForm } from "@/components/customers/customer-form"
+import {useEffect, useState} from "react"
+import {useParams} from "react-router-dom"
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
+import {CustomerDetailCard} from "@/components/customers/customer-detail-card"
+import {CustomerAppointments} from "@/components/customers/customer-appointments"
+import {CustomerHistory} from "@/components/customers/customer-history"
+import {CustomerForm} from "@/components/customers/customer-form"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { useToast } from "@/hooks/use-toast"
+import {useToast} from "@/hooks/use-toast"
+import useCustomerDetailQuery from "@/queries/useCustomerDetailQuery.js";
 
 const CustomerDetailPage = () => {
-  const { id } = useParams()
-  const { toast } = useToast()
+  const {id} = useParams()
+  const {toast} = useToast()
   const [customer, setCustomer] = useState(null)
   const [appointments, setAppointments] = useState([])
-  const [history, setHistory] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const {data, isPending} = useCustomerDetailQuery(id);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // TODO: Call APIs to get customer data
-        setCustomer({
-          id: 1,
-          name: "Nguyễn Văn A",
-          phone: "0123456789",
-          source: "facebook",
-          status: "new",
-          assigned_to: "Nhân viên A"
-        })
-        
         setAppointments([
           {
             id: 1,
             date: "2024-01-20 09:00",
             note: "Hẹn tư vấn váy cưới",
             staff_name: "Nhân viên B"
-          }
-        ])
-
-        setHistory([
-          {
-            id: 1,
-            date: "2024-01-15 14:30",
-            staff_name: "Nhân viên A",
-            action: "Tiếp nhận khách hàng",
-            note: "Khách quan tâm đến váy cưới cao cấp"
-          },
-          {
-            id: 2,
-            date: "2024-01-16 10:00",
-            staff_name: "Nhân viên B",
-            action: "Gọi điện tư vấn",
-            note: "Đã tư vấn các mẫu váy phù hợp"
           }
         ])
       } catch (error) {
@@ -74,10 +47,7 @@ const CustomerDetailPage = () => {
   const handleEdit = async (data) => {
     try {
       setIsSubmitting(true)
-      // TODO: Call API to update customer
-      console.log("Updating customer:", data)
-      
-      setCustomer({ ...customer, ...data })
+      setCustomer({...customer, ...data})
       toast({
         title: "Thành công",
         description: "Đã cập nhật thông tin khách hàng"
@@ -108,8 +78,8 @@ const CustomerDetailPage = () => {
           <DialogHeader>
             <DialogTitle>Chỉnh sửa thông tin</DialogTitle>
           </DialogHeader>
-          <CustomerForm 
-            customer={customer}
+          <CustomerForm
+            customer={data?.data?.data}
             onSubmit={handleEdit}
             isLoading={isSubmitting}
           />
@@ -123,15 +93,16 @@ const CustomerDetailPage = () => {
         </TabsList>
 
         <TabsContent value="info" className="space-y-6">
-          <CustomerDetailCard 
-            customer={customer} 
+          <CustomerDetailCard
+            customer={data?.data?.data}
             onEdit={() => setIsEditOpen(true)}
+            isPending={isPending}
           />
-          <CustomerAppointments appointments={appointments} />
+          <CustomerAppointments appointments={appointments}/>
         </TabsContent>
 
         <TabsContent value="history">
-          <CustomerHistory history={history} />
+          <CustomerHistory customerId={id}/>
         </TabsContent>
       </Tabs>
     </div>

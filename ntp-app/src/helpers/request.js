@@ -30,7 +30,6 @@ const request = (endpoint, { verb = "get", params = {}, config = {} } = {}) => {
   promise.catch((error) => {
     throw error;
   });
-  console.log('run', promise)
   return promise;
 };
 

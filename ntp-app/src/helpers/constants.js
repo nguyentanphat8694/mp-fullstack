@@ -1,5 +1,7 @@
 export const QUERY_KEY = {
   CUSTOMER_LIST: 'customer_list',
+  CUSTOMER_DETAIL: 'customer_detail',
+  CUSTOMER_HISTORY: 'customer_history',
   USER_BY_ROLE: 'user_by_role',
 };
 

@@ -6,10 +6,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Eye, Pencil, Trash2, Calendar } from "lucide-react"
-import { useState } from "react"
+import {Button} from "@/components/ui/button"
+import {Badge} from "@/components/ui/badge"
+import {Eye, Pencil, Trash2, Calendar} from "lucide-react"
+import {useState} from "react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +20,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { CheckAvailableModal } from "./check-available-modal"
+import {CheckAvailableModal} from "./check-available-modal"
+import {ProductTableActions} from "@/components/products/product-table-actions.jsx";
+import {DeleteProductConfirm} from "@/components/products/delete-product-confirm.jsx";
+import PropTypes from "prop-types";
 
 const statusColors = {
   available: "bg-green-500",
@@ -35,21 +38,10 @@ const categoryLabels = {
   ao_dai: "Áo dài"
 }
 
-export const ProductTable = ({ 
-  products = [], 
-  onEdit, 
-  onDelete,
-  onViewDetail 
-}) => {
+export const ProductTable = ({products = [], onEdit}) => {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showCheckModal, setShowCheckModal] = useState(false)
-
-  const handleDelete = () => {
-    onDelete(selectedProduct.id)
-    setShowDeleteDialog(false)
-    setSelectedProduct(null)
-  }
 
   return (
     <>
@@ -77,80 +69,36 @@ export const ProductTable = ({
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onViewDetail(product)}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(product)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedProduct(product)
-                      setShowDeleteDialog(true)
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedProduct(product)
-                      setShowCheckModal(true)
-                    }}
-                  >
-                    <Calendar className="h-4 w-4" />
-                  </Button>
-                </div>
+                <ProductTableActions
+                  product={product}
+                  onEdit={onEdit}
+                  setSelectedProduct={setSelectedProduct}
+                  setShowDeleteDialog={setShowDeleteDialog}
+                  setShowCheckModal={setShowCheckModal}/>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa sản phẩm {selectedProduct?.name}?
-              Hành động này không thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => {
-              setShowDeleteDialog(false)
-              setSelectedProduct(null)
-            }}>
-              Hủy
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              Xóa
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteProductConfirm
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        selectedProduct={selectedProduct}
+        setSelectedProduct={setSelectedProduct}/>
 
       <CheckAvailableModal
-        isOpen={showCheckModal}
-        onClose={() => {
-          setShowCheckModal(false)
-          setSelectedProduct(null)
-        }}
+        showCheckModal={showCheckModal}
+        setShowCheckModal={setShowCheckModal}
+        setSelectedProduct={setSelectedProduct}
         productId={selectedProduct?.id}
         productName={selectedProduct?.name}
       />
     </>
   )
-} 
+}
+
+ProductTable.propTypes = {
+  products: PropTypes.array,
+  onEdit: PropTypes.func,
+}

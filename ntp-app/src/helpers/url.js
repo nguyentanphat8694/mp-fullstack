@@ -27,6 +27,8 @@ export const URLs = {
     LIST: createUrl(API_CONFIG.PATH.CUSTOMERS),
     CREATE: createUrl(API_CONFIG.PATH.CUSTOMERS),
     ASSIGN: createUrl(`${API_CONFIG.PATH.CUSTOMERS}/assign`),
+    DETAIL: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}`),
+    HISTORY: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/history/${id}`),
     DELETE: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}`),
   },
 

@@ -43,7 +43,7 @@ export const AssignCustomerModal = ({customer, isAssignModalOpen, setIsAssignMod
   }, []);
   const {handleSubmit, formState: {errors}, control} = useForm();
   return (
-    <Dialog open={isAssignModalOpen}>
+    <Dialog open={isAssignModalOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Phân công khách hàng</DialogTitle>

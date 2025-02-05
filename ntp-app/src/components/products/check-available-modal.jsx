@@ -1,37 +1,44 @@
-import { useState } from "react"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { Calendar } from "@/components/ui/calendar"
+import {useCallback, useState} from "react"
+import {format} from "date-fns"
+import {vi} from "date-fns/locale"
+import {Calendar} from "@/components/ui/calendar"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CheckCircle, XCircle } from "lucide-react"
+import {Button} from "@/components/ui/button"
+import {Label} from "@/components/ui/label"
+import {Alert, AlertDescription} from "@/components/ui/alert"
+import {CheckCircle, XCircle} from "lucide-react"
+import PropTypes from "prop-types";
 
-export const CheckAvailableModal = ({ 
-  isOpen, 
-  onClose,
-  productId,
-  productName 
-}) => {
+export const CheckAvailableModal = ({
+                                      showCheckModal,
+                                      setShowCheckModal,
+                                      setSelectedProduct,
+                                      productId,
+                                      productName
+                                    }) => {
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
   const [isChecking, setIsChecking] = useState(false)
   const [checkResult, setCheckResult] = useState(null)
 
+  const onClose = useCallback(() => {
+    setShowCheckModal(false);
+    setSelectedProduct(null);
+  }, []);
+
   const handleCheck = async () => {
     setIsChecking(true)
     // Mock API call
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     // Mock data - switch between available and not available for testing
     const isAvailable = productId % 2 === 0
-    
+
     const mockConflicts = [
       {
         id: 1,
@@ -46,7 +53,7 @@ export const CheckAvailableModal = ({
         rental_end: "2024-04-03"
       }
     ]
-    
+
     setCheckResult({
       isAvailable,
       conflicts: isAvailable ? [] : mockConflicts
@@ -55,12 +62,12 @@ export const CheckAvailableModal = ({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={showCheckModal} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Kiểm tra tình trạng cho thuê</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           <div>
             <Label>Sản phẩm</Label>
@@ -95,12 +102,12 @@ export const CheckAvailableModal = ({
               <AlertDescription className="flex items-center gap-2">
                 {checkResult.isAvailable ? (
                   <>
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-green-500"/>
                     <span>Sản phẩm có sẵn trong khoảng thời gian này</span>
                   </>
                 ) : (
                   <>
-                    <XCircle className="h-4 w-4" />
+                    <XCircle className="h-4 w-4"/>
                     <span>Sản phẩm đã được đặt trong các ngày:</span>
                   </>
                 )}
@@ -111,7 +118,7 @@ export const CheckAvailableModal = ({
           {checkResult && !checkResult.isAvailable && (
             <div className="space-y-2">
               {checkResult.conflicts.map((conflict) => (
-                <div 
+                <div
                   key={conflict.id}
                   className="rounded-lg border p-3 text-sm"
                 >
@@ -128,7 +135,7 @@ export const CheckAvailableModal = ({
             <Button variant="outline" onClick={onClose}>
               Đóng
             </Button>
-            <Button 
+            <Button
               onClick={handleCheck}
               disabled={!startDate || !endDate || isChecking}
             >
@@ -139,4 +146,12 @@ export const CheckAvailableModal = ({
       </DialogContent>
     </Dialog>
   )
-} 
+}
+
+CheckAvailableModal.propTypes = {
+  showCheckModal: PropTypes.bool,
+  setShowCheckModal: PropTypes.func,
+  setSelectedProduct: PropTypes.func,
+  productId: PropTypes.number,
+  productName: PropTypes.string,
+}
