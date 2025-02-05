@@ -1,4 +1,4 @@
-import { useState } from "react"
+import {useCallback, useState} from "react"
 import {
   Dialog,
   DialogContent,
@@ -6,38 +6,60 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import {Button} from "@/components/ui/button"
+import {Label} from "@/components/ui/label"
+import {Input} from "@/components/ui/input"
+import {Textarea} from "@/components/ui/textarea"
+import {useForm} from "react-hook-form";
+import {useMutation} from "@tanstack/react-query";
+import request from "@/helpers/request";
+import {URLs} from "@/helpers/url";
+import {toast} from "@/hooks/use-toast";
+import PropTypes from 'prop-types';
 
-const AddAppointmentModal = ({ 
-  customer, 
-  isOpen, 
-  onClose, 
-  onSubmit, 
-  isLoading 
-}) => {
+export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsAppointmentModalOpen, setSelectedCustomer }) => {
   const [date, setDate] = useState("")
   const [time, setTime] = useState("")
   const [note, setNote] = useState("")
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSubmit({ 
-      customerId: customer.id, 
-      datetime: `${date}T${time}`, 
-      note 
-    })
-  }
+  const {mutate, isPending} = useMutation({
+    mutationFn: (params) => request(URLs.APPOINTMENTS.CREATE, {
+      verb: 'post',
+      params
+    }),
+    onSuccess: () => {
+      toast({
+        title: "Thành công",
+        description: "Đã thêm lịch hẹn thành công.",
+      });
+      setIsAppointmentModalOpen(false);
+      setSelectedCustomer(null);
+    },
+  });
+
+  const onClose = useCallback(() => {
+    setIsAppointmentModalOpen(false);
+    setSelectedCustomer(null);
+  }, []);
+
+  const onSubmit = useCallback((data) => {
+    mutate({
+      customer_id: customer.id,
+      appointment_date: `${data.date} ${data.time}`,
+    });
+  }, []);
+
+  const {register, handleSubmit, formState: {errors}, control} = useForm({
+    defaultValues: customer || {}
+  })
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isAppointmentModalOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Thêm lịch hẹn</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label>Khách hàng</Label>
             <p className="text-sm font-medium">{customer?.name}</p>
@@ -49,8 +71,11 @@ const AddAppointmentModal = ({
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              required
+              {...register("date", {required: "Vui lòng ngày hẹn"})}
             />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.date.message}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="time">Giờ hẹn</Label>
@@ -59,8 +84,11 @@ const AddAppointmentModal = ({
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              required
+              {...register("time", {required: "Vui lòng giờ hẹn"})}
             />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.time.message}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="note">Ghi chú</Label>
@@ -69,21 +97,22 @@ const AddAppointmentModal = ({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Nhập ghi chú cho lịch hẹn..."
+              {...register("note")}
             />
           </div>
           <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={onClose}
             >
               Hủy
             </Button>
-            <Button 
+            <Button
               type="submit"
-              disabled={isLoading || !date || !time}
+              disabled={isPending || !date || !time}
             >
-              {isLoading ? "Đang xử lý..." : "Xác nhận"}
+              {isPending ? "Đang xử lý..." : "Xác nhận"}
             </Button>
           </DialogFooter>
         </form>
@@ -92,4 +121,9 @@ const AddAppointmentModal = ({
   )
 }
 
-export { AddAppointmentModal } 
+AddAppointmentModal.propTypes = {
+  customer: PropTypes.object,
+  setIsAppointmentModalOpen: PropTypes.func,
+  setSelectedCustomer: PropTypes.func,
+  isAppointmentModalOpen: PropTypes.bool,
+};

@@ -5,7 +5,7 @@ export const API_CONFIG = {
   VERSION: '/mb/v1',
   PATH: {
     // Customer paths
-    CUSTOMERS: '/customers',
+    CUSTOMERS: '/customer',
     APPOINTMENTS: '/appointments',
     USERS: '/user',
   }
@@ -28,6 +28,10 @@ export const URLs = {
     CREATE: createUrl(API_CONFIG.PATH.CUSTOMERS),
     ASSIGN: createUrl(`${API_CONFIG.PATH.CUSTOMERS}/assign`),
     DELETE: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}`),
+  },
+
+  APPOINTMENTS: {
+    CREATE: createUrl(API_CONFIG.PATH.APPOINTMENTS),
   },
 
   USERS: {

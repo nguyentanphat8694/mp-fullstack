@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Edit } from "lucide-react"
 
-const CustomerDetailCard = ({ customer, onEdit }) => {
+export const CustomerDetailCard = ({ customer, onEdit }) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -43,5 +43,3 @@ const CustomerDetailCard = ({ customer, onEdit }) => {
     </Card>
   )
 }
-
-export { CustomerDetailCard } 

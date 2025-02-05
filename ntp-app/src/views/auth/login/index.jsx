@@ -1,14 +1,14 @@
 import * as React from "react"
-import { useNavigate } from "react-router-dom"
-import { useForm } from "react-hook-form"
-import { Eye, EyeOff } from "lucide-react"
+import {useNavigate} from "react-router-dom"
+import {useForm} from "react-hook-form"
+import {Eye, EyeOff} from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { LoadingSpinner } from "@/components/loading-spinner"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
+import {LoadingSpinner} from "@/components/loading-spinner"
 import {useMutation} from "@tanstack/react-query";
-import request from "@/helpers/request.js";
+import request from "@/helpers/request";
 import {URLs} from "@/helpers/url.js";
 import {useCallback} from "react";
 import useUserInfoStore from "@/stores/useUserInfoStore.js";
@@ -17,23 +17,22 @@ const LoginPage = () => {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = React.useState(false)
   const [showPassword, setShowPassword] = React.useState(false)
-  const { login } = useUserInfoStore()
-  
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const {login} = useUserInfoStore();
 
-  const { mutate } = useMutation({
-    mutationFn: (params) =>
-      request(URLs.AUTH.LOGIN, {
-        verb: 'post',
-        params,
-      }),
+  const {register, handleSubmit, formState: {errors}} = useForm()
+
+  const {mutate} = useMutation({
+    mutationFn: (params) => request(URLs.AUTH.LOGIN, {
+      verb: 'post',
+      params,
+    }),
     onSuccess: (data) => {
       login(data?.data);
     },
   });
 
-  const onSubmit = useCallback( (data) => {
-    setIsLoading(true)
+  const onSubmit = useCallback((data) => {
+    setIsLoading(true);
     try {
       mutate(data);
     } catch (error) {
@@ -61,7 +60,7 @@ const LoginPage = () => {
             <Input
               id="username"
               type="text"
-              {...register("username", { required: "Vui lòng nhập tên đăng nhập" })}
+              {...register("username", {required: "Vui lòng nhập tên đăng nhập"})}
               disabled={isLoading}
             />
             {errors.username && (
@@ -77,7 +76,7 @@ const LoginPage = () => {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                {...register("password", { required: "Vui lòng nhập mật khẩu" })}
+                {...register("password", {required: "Vui lòng nhập mật khẩu"})}
                 disabled={isLoading}
               />
               <Button
@@ -88,9 +87,9 @@ const LoginPage = () => {
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-4 w-4"/>
                 ) : (
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-4 w-4"/>
                 )}
               </Button>
             </div>
@@ -111,7 +110,7 @@ const LoginPage = () => {
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? <LoadingSpinner size="sm" /> : "Đăng nhập"}
+            {isLoading ? <LoadingSpinner size="sm"/> : "Đăng nhập"}
           </Button>
         </form>
       </div>

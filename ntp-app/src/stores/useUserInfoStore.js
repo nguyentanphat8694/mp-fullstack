@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 
 const useUserInfoStore = create((set) => ({
-  userInfo: sessionStorage.getItem('userInfo') ? JSON.parse(sessionStorage.getItem('userInfo')) : null,
+  userInfo: window.localStorage.getItem('userInfo') ? JSON.parse(window.localStorage.getItem('userInfo')) : null,
   login: (userData) => {
-    sessionStorage.setItem('userInfo', JSON.stringify(userData));
+    window.localStorage.setItem('userInfo', JSON.stringify(userData));
     set(() => ({ userInfo: userData }));
   },
   logout: () => {
-    sessionStorage.removeItem('userInfo');
+    window.localStorage.removeItem('userInfo');
     set({ userInfo: null });
   },
 }));

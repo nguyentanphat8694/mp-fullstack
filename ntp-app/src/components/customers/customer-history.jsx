@@ -14,7 +14,7 @@ const CustomerHistory = ({ history = [] }) => {
       <CardContent>
         <div className="relative space-y-4">
           {history.map((item, index) => (
-            <div key={item.id} className="flex gap-4">
+            <div key={`${item.id}-${index}`} className="flex gap-4">
               {/* Timeline line */}
               <div className="relative flex items-center justify-center">
                 <div className="absolute h-full w-[2px] bg-border" />

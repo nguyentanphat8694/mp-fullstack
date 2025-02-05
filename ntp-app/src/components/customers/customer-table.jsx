@@ -8,33 +8,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import PropTypes from "prop-types";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {AssignCustomerModal} from "./assign-customer-modal";
 import {AddAppointmentModal} from "./add-appointment-modal";
 import {ActionButtons} from "@/components/customers/customer-table-actions";
 import {DeleteCustomerConfirm} from "@/components/customers/delete-customer-confirm.jsx";
 
-const CustomerTable = ({
-                         customers = [],
-                         onEdit,
-                         onAddAppointment,
-                         staffList = [],
-                       }) => {
+const CustomerTable = ({ customers = [], onEdit }) => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
-
   return (
     <div className="space-y-4">
       <div className="border rounded-lg">
@@ -98,13 +81,9 @@ const CustomerTable = ({
 
       <AddAppointmentModal
         customer={selectedCustomer}
-        isOpen={isAppointmentModalOpen}
-        onClose={() => {
-          setIsAppointmentModalOpen(false);
-          setSelectedCustomer(null);
-        }}
-        onSubmit={onAddAppointment}
-        isLoading={isLoading}
+        isAppointmentModalOpen={isAppointmentModalOpen}
+        setIsAppointmentModalOpen={setIsAppointmentModalOpen}
+        setSelectedCustomer={setSelectedCustomer}
       />
     </div>
   );

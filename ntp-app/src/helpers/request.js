@@ -6,37 +6,31 @@ const instance = axios.create();
 
 const request = (endpoint, { verb = "get", params = {}, config = {} } = {}) => {
   let promise;
+  const configs = window.localStorage.getItem('userInfo') ? merge(
+    {
+      headers: {
+        Authorization:
+          "Bearer " + JSON.parse(window.localStorage.getItem('userInfo')).token,
+      },
+    },
+    config
+  ) : config;
   if (includes("get;delete;head", verb)) {
     promise = instance[verb](
       endpoint,
-      merge(
-        {
-          headers: {
-            Authorization:
-              "Bearer " + window.localStorage.getItem("accessToken"),
-          },
-        },
-        config
-      )
+      configs
     );
   } else {
     promise = instance[verb](
       endpoint,
       params,
-      merge(
-        {
-          headers: {
-            Authorization:
-              "Bearer " + window.localStorage.getItem("accessToken"),
-          },
-        },
-        config
-      )
+      configs
     );
   }
   promise.catch((error) => {
     throw error;
   });
+  console.log('run', promise)
   return promise;
 };
 
