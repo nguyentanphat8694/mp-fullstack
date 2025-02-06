@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { URLs } from "@/helpers/url"
+import {AppointmentCard} from "@/components/appointments/appointment-card.jsx";
 
 const AppointmentListPage = () => {
   const { toast } = useToast()
@@ -84,12 +84,6 @@ const AppointmentListPage = () => {
 
   const handleTakeAppointment = async (appointmentId) => {
     try {
-      // Comment out API call
-      // await fetch(URLs.APPOINTMENTS.TAKE(appointmentId), {
-      //   method: 'PUT'
-      // })
-      
-      // Update appointment status locally
       setAppointments(appointments.map(app => 
         app.id === appointmentId 
           ? { ...app, status: 'taken' }
@@ -124,38 +118,7 @@ const AppointmentListPage = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {appointments.length > 0 ? (
           appointments.map((appointment) => (
-            <Card key={appointment.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{appointment.customer_name}</span>
-                  <span className="text-sm font-normal text-muted-foreground">
-                    {format(new Date(appointment.datetime), 'HH:mm')}
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Số điện thoại</p>
-                    <p>{appointment.customer_phone}</p>
-                  </div>
-                  {appointment.note && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Ghi chú</p>
-                      <p>{appointment.note}</p>
-                    </div>
-                  )}
-                  {appointment.status !== 'taken' && (
-                    <Button 
-                      className="w-full"
-                      onClick={() => handleTakeAppointment(appointment.id)}
-                    >
-                      Tiếp nhận khách
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <AppointmentCard key={appointment.id} appointment={appointment} />
           ))
         ) : (
           <p className="text-muted-foreground col-span-full text-center">

@@ -2,9 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar } from "@/components/ui/calendar"
 import { EmployeeForm } from "@/components/employees/employee-form"
 import { AddRewardModal } from "@/components/employees/add-reward-modal"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -16,9 +14,11 @@ import {
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { Mail, Phone, Calendar as CalendarIcon, Award, Clock, MapPin } from "lucide-react"
-import EmployeeAttendancePage from '@/views/employees/attendance';
+import { Award } from "lucide-react"
+import {EmployeeDetailInfo} from "@/components/employees/employee-detail-info";
+import {EmployeeDetailAttendance} from "@/components/employees/employee-detail-attendance";
+import {EmployeeDetailReward} from "@/components/employees/employee-detail-reward";
+import {EmployeeDetailSummary} from "@/components/employees/employee-detail-summary";
 
 
 const EmployeeDetailPage = () => {
@@ -99,45 +99,6 @@ const EmployeeDetailPage = () => {
     }
   }
 
-  const handleAddReward = async (data) => {
-    try {
-      setIsSubmitting(true)
-      // Mock API call
-      const newItem = {
-        id: Date.now(),
-        date: format(new Date(), 'yyyy-MM-dd'),
-        ...data
-      }
-      
-      if (data.type === 'bonus' || data.type === 'achievement') {
-        setEmployee({
-          ...employee,
-          rewards: [...employee.rewards, newItem]
-        })
-      } else {
-        setEmployee({
-          ...employee,
-          penalties: [...employee.penalties, newItem]
-        })
-      }
-      
-      toast({
-        title: "Thành công",
-        description: "Đã thêm thưởng/phạt"
-      })
-      setIsRewardOpen(false)
-    } catch (error) {
-      console.error("Error adding reward/penalty:", error)
-      toast({
-        title: "Lỗi",
-        description: "Không thể thêm thưởng/phạt",
-        variant: "destructive"
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   if (isLoading) return <div>Loading...</div>
   if (!employee) return <div>Không tìm thấy nhân viên</div>
 
@@ -180,172 +141,19 @@ const EmployeeDetailPage = () => {
         </TabsList>
 
         <TabsContent value="info">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Thông tin cá nhân</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{employee?.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Số điện thoại</p>
-                    <p className="font-medium">{employee?.phone}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Địa chỉ</p>
-                    <p className="font-medium">{employee?.address}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Thông tin công việc</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Ngày vào làm</p>
-                    <p className="font-medium">
-                      {format(new Date(employee?.join_date), 'dd/MM/yyyy', { locale: vi })}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Thời gian làm việc</p>
-                    <p className="font-medium">8:00 - 17:30</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <EmployeeDetailInfo employee={employee} />
         </TabsContent>
 
         <TabsContent value="attendance">
-          <EmployeeAttendancePage />
+          <EmployeeDetailAttendance />
         </TabsContent>
 
         <TabsContent value="rewards">
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Thưởng</h3>
-              <div className="space-y-4">
-                {employee.rewards.map((reward) => (
-                  <div 
-                    key={reward.id}
-                    className="rounded-lg border p-4 space-y-2"
-                  >
-                    <div className="flex justify-between">
-                      <p className="font-medium">
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND'
-                        }).format(reward.amount)}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(reward.date), 'dd/MM/yyyy')}
-                      </p>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{reward.reason}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Phạt</h3>
-              <div className="space-y-4">
-                {employee.penalties.map((penalty) => (
-                  <div 
-                    key={penalty.id}
-                    className="rounded-lg border p-4 space-y-2"
-                  >
-                    <div className="flex justify-between">
-                      <p className="font-medium text-destructive">
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND'
-                        }).format(penalty.amount)}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(penalty.date), 'dd/MM/yyyy')}
-                      </p>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{penalty.reason}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <EmployeeDetailReward employee={employee} />
         </TabsContent>
 
         <TabsContent value="summary">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Tổng kết tháng {format(new Date(), 'MM/yyyy', { locale: vi })}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Tổng ngày công</p>
-                    <p className="text-2xl font-bold">22/22</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Đi muộn</p>
-                    <p className="text-2xl font-bold text-yellow-600">1</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Tổng thưởng</p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                      }).format(1500000)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Tổng phạt</p>
-                    <p className="text-2xl font-bold text-red-600">
-                      {new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                      }).format(200000)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Biểu đồ chấm công</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Calendar
-                  mode="multiple"
-                  selected={employee?.attendance?.map(a => new Date(a.date))}
-                  className="rounded-md border"
-                  locale={vi}
-                />
-              </CardContent>
-            </Card>
-          </div>
+          <EmployeeDetailSummary employee={employee} />
         </TabsContent>
       </Tabs>
 
@@ -364,10 +172,8 @@ const EmployeeDetailPage = () => {
 
       <AddRewardModal
         employee={employee}
-        isOpen={isRewardOpen}
-        onClose={() => setIsRewardOpen(false)}
-        onSubmit={handleAddReward}
-        isLoading={isSubmitting}
+        setIsRewardOpen={setIsRewardOpen}
+        isRewardOpen={isRewardOpen}
       />
     </div>
   )

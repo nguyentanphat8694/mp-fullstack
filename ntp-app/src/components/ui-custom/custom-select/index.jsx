@@ -8,7 +8,6 @@ const CustomSelect = ({triggerName, options, value, onValueChange, name, control
     control={control}
     rules={rules}
     render={({field}) => (<Select
-      className={className}
       value={value}
       onValueChange={(obj) => {
         field.onChange && field.onChange(obj);
@@ -16,7 +15,7 @@ const CustomSelect = ({triggerName, options, value, onValueChange, name, control
       }}
       {...rest}
     >
-      <SelectTrigger>
+      <SelectTrigger className={className}>
         <SelectValue placeholder={triggerName}/>
       </SelectTrigger>
       {options && options.length > 0 && (
@@ -28,12 +27,11 @@ const CustomSelect = ({triggerName, options, value, onValueChange, name, control
     </Select>)}
   />) : (
     <Select
-      className={className}
       value={value}
       onValueChange={onValueChange}
       {...rest}
     >
-      <SelectTrigger>
+      <SelectTrigger className={className}>
         <SelectValue placeholder={triggerName}/>
       </SelectTrigger>
       {options && options.length > 0 && (

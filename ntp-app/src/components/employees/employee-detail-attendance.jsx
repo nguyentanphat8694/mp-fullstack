@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react"
-import { Calendar } from "@/components/ui/calendar"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
+import {useToast} from "@/hooks/use-toast.js";
+import {useEffect, useState} from "react";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.jsx";
+import {Calendar} from "@/components/ui/calendar.jsx";
+import {vi} from "date-fns/locale";
+import {format} from "date-fns";
+import {Badge} from "@/components/ui/badge.jsx";
 
-const EmployeeAttendancePage = () => {
-  const { toast } = useToast()
+export const EmployeeDetailAttendance = () => {
+  const {toast} = useToast()
   const [attendance, setAttendance] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [summary, setSummary] = useState({
@@ -115,13 +115,13 @@ const EmployeeAttendancePage = () => {
           <CardContent>
             <div className="space-y-4">
               {attendance.map((record) => (
-                <div 
+                <div
                   key={record.date}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div>
                     <p className="font-medium">
-                      {format(new Date(record.date), 'EEEE, dd/MM/yyyy', { locale: vi })}
+                      {format(new Date(record.date), 'EEEE, dd/MM/yyyy', {locale: vi})}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {record.check_in} - {record.check_out}
@@ -129,17 +129,17 @@ const EmployeeAttendancePage = () => {
                   </div>
                   <Badge
                     variant={
-                      record.status === 'present' 
-                        ? 'success' 
-                        : record.status === 'late' 
-                          ? 'warning' 
+                      record.status === 'present'
+                        ? 'success'
+                        : record.status === 'late'
+                          ? 'warning'
                           : 'destructive'
                     }
                   >
-                    {record.status === 'present' 
-                      ? 'Có mặt' 
-                      : record.status === 'late' 
-                        ? 'Đi muộn' 
+                    {record.status === 'present'
+                      ? 'Có mặt'
+                      : record.status === 'late'
+                        ? 'Đi muộn'
                         : 'Vắng mặt'}
                   </Badge>
                 </div>
@@ -148,8 +148,5 @@ const EmployeeAttendancePage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  )
+    </div>);
 }
-
-export default EmployeeAttendancePage 

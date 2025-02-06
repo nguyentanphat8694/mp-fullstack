@@ -9,38 +9,25 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { useState } from "react"
+import {useCallback, useState} from "react"
+import {REWARD_TYPE_OPTIONS} from "@/helpers/constants.js";
+import CustomSelect from "@/components/ui-custom/custom-select/index.jsx";
+import PropTypes from "prop-types";
 
-const AddRewardModal = ({ 
-  employee, 
-  isOpen, 
-  onClose, 
-  onSubmit, 
-  isLoading 
-}) => {
+const AddRewardModal = ({ employee, setIsRewardOpen, isRewardOpen }) => {
   const [type, setType] = useState("")
   const [amount, setAmount] = useState("")
   const [reason, setReason] = useState("")
+  const isPending = false;
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit({ 
-      employeeId: employee.id, 
-      type,
-      amount: parseFloat(amount),
-      reason
-    })
   }
 
+  const onClose = useCallback(() => setIsRewardOpen && setIsRewardOpen(false), []);
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isRewardOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Thêm thưởng/phạt</DialogTitle>
@@ -53,19 +40,13 @@ const AddRewardModal = ({
           
           <div className="space-y-2">
             <Label htmlFor="type">Loại</Label>
-            <Select 
-              value={type} 
+            <CustomSelect
+              className="w-[180px]"
+              value={type}
               onValueChange={setType}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn loại" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="reward">Thưởng</SelectItem>
-                <SelectItem value="penalty">Phạt</SelectItem>
-              </SelectContent>
-            </Select>
+              triggerName="Chọn loại"
+              options={REWARD_TYPE_OPTIONS}
+            />
           </div>
 
           <div className="space-y-2">
@@ -100,9 +81,9 @@ const AddRewardModal = ({
             </Button>
             <Button 
               type="submit"
-              disabled={isLoading || !type || !amount}
+              disabled={isPending || !type || !amount}
             >
-              {isLoading ? "Đang xử lý..." : "Xác nhận"}
+              {isPending ? "Đang xử lý..." : "Xác nhận"}
             </Button>
           </DialogFooter>
         </form>
@@ -111,4 +92,10 @@ const AddRewardModal = ({
   )
 }
 
-export { AddRewardModal } 
+export { AddRewardModal }
+
+AddRewardModal.propTypes = {
+  employee: PropTypes.object,
+  setIsRewardOpen: PropTypes.func,
+  isRewardOpen: PropTypes.bool,
+}

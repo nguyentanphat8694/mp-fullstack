@@ -16,7 +16,6 @@ const EmployeeListPage = () => {
   const { toast } = useToast()
   const [employees, setEmployees] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState(null)
 
@@ -51,42 +50,6 @@ const EmployeeListPage = () => {
 
     fetchEmployees()
   }, [toast])
-
-  const handleSubmit = async (data) => {
-    try {
-      setIsSubmitting(true)
-      if (selectedEmployee) {
-        // Update existing employee
-        setEmployees(employees.map(emp => 
-          emp.id === selectedEmployee.id 
-            ? { ...emp, ...data }
-            : emp
-        ))
-        toast({
-          title: "Thành công",
-          description: "Đã cập nhật thông tin nhân viên"
-        })
-      } else {
-        // Add new employee
-        setEmployees([...employees, { id: Date.now(), ...data }])
-        toast({
-          title: "Thành công",
-          description: "Đã thêm nhân viên mới"
-        })
-      }
-      setIsOpen(false)
-      setSelectedEmployee(null)
-    } catch (error) {
-      console.error("Error submitting employee:", error)
-      toast({
-        title: "Lỗi",
-        description: "Không thể lưu thông tin",
-        variant: "destructive"
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   const handleEdit = (employee) => {
     setSelectedEmployee(employee)
@@ -134,8 +97,6 @@ const EmployeeListPage = () => {
             </DialogHeader>
             <EmployeeForm 
               employee={selectedEmployee}
-              onSubmit={handleSubmit}
-              isLoading={isSubmitting}
             />
           </DialogContent>
         </Dialog>

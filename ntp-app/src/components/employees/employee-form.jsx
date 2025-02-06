@@ -9,12 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import PropTypes from "prop-types";
+import {useCallback} from "react";
 
-const EmployeeForm = ({ employee, onSubmit, isLoading }) => {
+const EmployeeForm = ({ employee }) => {
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: employee || {}
   })
-
+  const isPending = false;
+  const onSubmit = useCallback(() => console.log('OnSubmit'), []);
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
@@ -100,11 +103,15 @@ const EmployeeForm = ({ employee, onSubmit, isLoading }) => {
         )}
       </div>
 
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Đang xử lý..." : "Lưu"}
+      <Button type="submit" disabled={isPending}>
+        {isPending ? "Đang xử lý..." : "Lưu"}
       </Button>
     </form>
   )
 }
 
-export { EmployeeForm } 
+export { EmployeeForm }
+
+EmployeeForm.propTypes = {
+  employee: PropTypes.object,
+}

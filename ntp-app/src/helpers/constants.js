@@ -21,3 +21,21 @@ export const CUSTOMER_STATUS_OPTIONS = [
   {value: 'contracted', label: 'Đã ký HĐ'},
   {value: 'completed', label: 'Hoàn thành'}
 ];
+
+export const STAFF_ROLE_OPTIONS = [
+  {value: 'all', label: 'Tất cả vai trò'},
+  {value: 'admin', label: 'Admin'},
+  {value: 'manager', label: 'Quản lý'},
+  {value: 'accountant', label: 'Kế toán'},
+  {value: 'telesale', label: 'Telesale'},
+  {value: 'facebook', label: 'Facebook'},
+  {value: 'sale', label: 'Sale'},
+  {value: 'photo-wedding', label: 'Photo Wedding'},
+  {value: 'photo-pre-wedding', label: 'Photo Pre-wedding'},
+  {value: 'tailor', label: 'Thợ may'},
+];
+
+export const REWARD_TYPE_OPTIONS = [
+  {value: 'reward', label: 'Thưởng'},
+  {value: 'penalty', label: 'Phạt'},
+];
