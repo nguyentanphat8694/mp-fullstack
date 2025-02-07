@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react"
-import { format } from "date-fns"
 import { Calendar } from "lucide-react"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import {AppointmentCard} from "@/components/appointments/appointment-card.jsx";
 
@@ -19,10 +11,6 @@ const AppointmentListPage = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        // Mock data instead of API call
-        // const response = await fetch(URLs.APPOINTMENTS.TODAY)
-        // const data = await response.json()
-        
         const mockAppointments = [
           {
             id: 1,
@@ -81,28 +69,6 @@ const AppointmentListPage = () => {
 
     fetchAppointments()
   }, [toast])
-
-  const handleTakeAppointment = async (appointmentId) => {
-    try {
-      setAppointments(appointments.map(app => 
-        app.id === appointmentId 
-          ? { ...app, status: 'taken' }
-          : app
-      ))
-
-      toast({
-        title: "Thành công",
-        description: "Đã tiếp nhận khách hàng"
-      })
-    } catch (error) {
-      console.error("Error taking appointment:", error)
-      toast({
-        title: "Lỗi",
-        description: "Không thể tiếp nhận khách hàng",
-        variant: "destructive"
-      })
-    }
-  }
 
   if (isLoading) {
     return <div>Loading...</div>

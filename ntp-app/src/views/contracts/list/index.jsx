@@ -3,15 +3,11 @@ import { useNavigate } from "react-router-dom"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { ContractTable } from "@/components/contracts/contract-table"
 import { DatePicker } from "@/components/ui/date-picker"
+import {format} from "date-fns";
+import CustomSelect from "@/components/ui-custom/custom-select/index.jsx";
+import {CONTRACT_STATUS_OPTIONS, CONTRACT_TYPE_OPTION} from "@/helpers/constants.js";
 
 // Mock data
 const MOCK_CONTRACTS = [
@@ -53,51 +49,14 @@ const MOCK_CONTRACTS = [
   }
 ]
 
-const contractTypes = [
-  { value: "all", label: "Tất cả loại" },
-  { value: "dress_rental", label: "Thuê váy cưới" },
-  { value: "wedding_photo", label: "Chụp ảnh cưới" },
-  { value: "pre_wedding_photo", label: "Chụp ảnh pre-wedding" }
-]
-
-const contractStatuses = [
-  { value: "all", label: "Tất cả trạng thái" },
-  { value: "pending", label: "Chờ xử lý" },
-  { value: "active", label: "Đang thực hiện" },
-  { value: "completed", label: "Hoàn thành" },
-  { value: "cancelled", label: "Đã hủy" }
-]
-
 const ContractListPage = () => {
   const navigate = useNavigate()
   const [contracts, setContracts] = useState(MOCK_CONTRACTS) // Use mock data
   const [filteredContracts, setFilteredContracts] = useState(MOCK_CONTRACTS)
-  const [isLoading, setIsLoading] = useState(false) // Set to false since we're using mock data
   const [searchTerm, setSearchTerm] = useState("")
   const [typeFilter, setTypeFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState(null)
-
-  // Comment out API call
-  /*
-  useEffect(() => {
-    const fetchContracts = async () => {
-      try {
-        setIsLoading(true)
-        const response = await fetch('/api/contracts')
-        const data = await response.json()
-        setContracts(data)
-        setFilteredContracts(data)
-      } catch (error) {
-        console.error('Error fetching contracts:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchContracts()
-  }, [])
-  */
 
   useEffect(() => {
     let filtered = [...contracts]
@@ -147,30 +106,21 @@ const ContractListPage = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-xs"
         />
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger>
-            <SelectValue placeholder="Loại hợp đồng" />
-          </SelectTrigger>
-          <SelectContent>
-            {contractTypes.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger>
-            <SelectValue placeholder="Trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            {contractStatuses.map((status) => (
-              <SelectItem key={status.value} value={status.value}>
-                {status.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+        <CustomSelect
+          value={typeFilter}
+          onValueChange={setTypeFilter}
+          triggerName="Loại hợp đồng"
+          options={CONTRACT_TYPE_OPTION}
+        />
+
+        <CustomSelect
+          value={statusFilter}
+          onValueChange={setStatusFilter}
+          triggerName="Trạng thái"
+          options={CONTRACT_STATUS_OPTIONS}
+        />
+
         <DatePicker
           placeholder="Lọc theo ngày"
           value={dateFilter}

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import {useCallback, useState} from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
@@ -10,14 +10,13 @@ import { vi } from "date-fns/locale"
 import { useToast } from "@/hooks/use-toast"
 import { 
   Clock, 
-  Calendar,
   User,
   MessageSquare,
-  AlertCircle,
   CheckCircle2,
   Timer,
   ArrowRight
 } from "lucide-react"
+import PropTypes from "prop-types";
 
 const STATUS_COLORS = {
   pending: "default",
@@ -37,7 +36,7 @@ const PRIORITY_COLORS = {
   high: "bg-rose-100 text-rose-700"
 }
 
-const TaskDetail = ({ task, onStatusChange, onClose }) => {
+const TaskDetail = ({ task }) => {
   const { toast } = useToast()
   const [comment, setComment] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -82,7 +81,7 @@ const TaskDetail = ({ task, onStatusChange, onClose }) => {
       setIsLoading(false)
     }
   }
-
+  const onChangeStatus = useCallback(() => console.log(task.status, task.id), []);
   return (
     <div className="space-y-6 max-h-[80vh] overflow-hidden flex flex-col">
       <div className="space-y-4">
@@ -134,7 +133,7 @@ const TaskDetail = ({ task, onStatusChange, onClose }) => {
           {task.status === 'pending' && (
             <Button 
               className="w-full"
-              onClick={() => onStatusChange(task.id, 'in_progress')}
+              onClick={onChangeStatus}
             >
               <Timer className="mr-2 h-4 w-4" />
               Bắt đầu thực hiện
@@ -143,7 +142,7 @@ const TaskDetail = ({ task, onStatusChange, onClose }) => {
           {task.status === 'in_progress' && (
             <Button 
               className="w-full"
-              onClick={() => onStatusChange(task.id, 'completed')}
+              onClick={onChangeStatus}
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
               Hoàn thành
@@ -202,4 +201,8 @@ const TaskDetail = ({ task, onStatusChange, onClose }) => {
   )
 }
 
-export { TaskDetail } 
+export { TaskDetail }
+
+TaskDetail.propTypes = {
+  task: PropTypes.object,
+}

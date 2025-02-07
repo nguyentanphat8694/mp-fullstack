@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Plus, Search, Calendar as CalendarIcon, X, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,11 +23,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
+import {CUSTOMER_SOURCE_OPTIONS, TASK_STATUS_OPTIONS} from "@/helpers/constants.js";
+import CustomSelect from "@/components/ui-custom/custom-select/index.jsx";
 
 const TASK_STATUS = {
   ALL: 'all',
@@ -264,7 +265,6 @@ const TaskListPage = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
         <Select 
           value={selectedEmployee} 
           onValueChange={setSelectedEmployee}
@@ -280,21 +280,13 @@ const TaskListPage = () => {
           </SelectContent>
         </Select>
 
-        <Select 
-          value={selectedStatus} 
+
+        <CustomSelect
+          value={selectedStatus}
           onValueChange={setSelectedStatus}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Chọn trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(STATUS_LABELS).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          triggerName="Chọn trạng thái"
+          options={TASK_STATUS_OPTIONS}
+        />
 
         <Popover>
           <PopoverTrigger asChild>
@@ -409,7 +401,7 @@ const TaskListPage = () => {
           <TaskDetail
             task={selectedTask}
             onStatusChange={handleStatusChange}
-            onClose={() => setIsDetailOpen(false)}
+            setIsDetailOpen={setIsDetailOpen}
           />
         </DialogContent>
       </Dialog>

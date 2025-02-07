@@ -30,7 +30,6 @@ const EmployeeDetailPage = lazy(() => import('@/views/employees/detail'));
 
 // Task pages
 const TaskListPage = lazy(() => import('@/views/tasks/list'));
-const TaskDetailPage = lazy(() => import('@/views/tasks/detail'));
 
 // Contract pages
 const ContractListPage = lazy(() => import('@/views/contracts/list'));
@@ -112,10 +111,6 @@ function App() {
       {
         path: PATHS.TASKS.LIST,
         element: getAuthenticatedEl(isAuthenticated, <TaskListPage/>),
-      },
-      {
-        path: PATHS.TASKS.DETAIL,
-        element: getAuthenticatedEl(isAuthenticated, <TaskDetailPage/>),
       },
 
       // Contract routes
