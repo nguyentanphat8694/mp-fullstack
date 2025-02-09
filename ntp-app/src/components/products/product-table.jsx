@@ -6,52 +6,40 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {Button} from "@/components/ui/button"
-import {Badge} from "@/components/ui/badge"
-import {Eye, Pencil, Trash2, Calendar} from "lucide-react"
 import {useState} from "react"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import {CheckAvailableModal} from "./check-available-modal"
 import {ProductTableActions} from "@/components/products/product-table-actions.jsx";
 import {DeleteProductConfirm} from "@/components/products/delete-product-confirm.jsx";
 import PropTypes from "prop-types";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+import {PRODUCT_CATEGORY_OPTIONS} from "@/helpers/constants.js";
 
-const statusColors = {
-  available: "bg-green-500",
-  rented: "bg-blue-500",
-  maintenance: "bg-yellow-500"
-}
-
-const categoryLabels = {
-  wedding_dress: "Váy cưới",
-  vest: "Vest",
-  accessories: "Phụ kiện",
-  ao_dai: "Áo dài"
-}
-
-export const ProductTable = ({products = [], onEdit}) => {
+export const ProductTable = ({
+  products = [],
+  onEdit,
+  currentPage,
+  totalPages,
+  onPageChange
+}) => {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showCheckModal, setShowCheckModal] = useState(false)
 
   return (
-    <>
+    <div className="space-y-4">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Mã SP</TableHead>
             <TableHead>Tên sản phẩm</TableHead>
             <TableHead>Danh mục</TableHead>
-            <TableHead>Trạng thái</TableHead>
             <TableHead className="text-right">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
@@ -60,14 +48,14 @@ export const ProductTable = ({products = [], onEdit}) => {
             <TableRow key={product.id}>
               <TableCell>{product.code}</TableCell>
               <TableCell>{product.name}</TableCell>
-              <TableCell>{categoryLabels[product.category]}</TableCell>
-              <TableCell>
+              <TableCell>{PRODUCT_CATEGORY_OPTIONS.filter(x => x.value === product.category)[0].label}</TableCell>
+              {/* <TableCell>
                 <Badge className={statusColors[product.status]}>
                   {product.status === 'available' && 'Có sẵn'}
                   {product.status === 'rented' && 'Đang cho thuê'}
                   {product.status === 'maintenance' && 'Đang bảo trì'}
                 </Badge>
-              </TableCell>
+              </TableCell> */}
               <TableCell className="text-right">
                 <ProductTableActions
                   product={product}
@@ -94,11 +82,43 @@ export const ProductTable = ({products = [], onEdit}) => {
         productId={selectedProduct?.id}
         productName={selectedProduct?.name}
       />
-    </>
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1}
+            />
+          </PaginationItem>
+          
+          {[...Array(totalPages)].map((_, index) => (
+            <PaginationItem key={index + 1}>
+              <PaginationLink
+                onClick={() => onPageChange(index + 1)}
+                isActive={currentPage === index + 1}
+              >
+                {index + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </div>
   )
 }
 
 ProductTable.propTypes = {
   products: PropTypes.array,
   onEdit: PropTypes.func,
+  currentPage: PropTypes.number,
+  totalPages: PropTypes.number,
+  onPageChange: PropTypes.func
 }

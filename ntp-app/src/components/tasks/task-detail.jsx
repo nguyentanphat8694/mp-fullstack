@@ -1,8 +1,6 @@
 import {useCallback, useState} from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { format } from "date-fns"
@@ -17,84 +15,105 @@ import {
   ArrowRight
 } from "lucide-react"
 import PropTypes from "prop-types";
+import useTaskCommentMutate from "@/queries/useTaskCommentMutate"
+import useTaskUpdateStatus from "@/queries/useTaskUpdateStatus"
+import {UpdateStatusConfirm} from "./update-status-confirm"
+// import useTaskDetailQuery from "@/queries/useTaskDetailQuery"
 
-const STATUS_COLORS = {
-  pending: "default",
-  in_progress: "warning",
-  completed: "success"
-}
 
-const STATUS_LABELS = {
-  pending: "Chờ xử lý",
-  in_progress: "Đang thực hiện",
-  completed: "Hoàn thành"
-}
-
-const PRIORITY_COLORS = {
-  low: "bg-slate-100 text-slate-700",
-  medium: "bg-blue-100 text-blue-700",
-  high: "bg-rose-100 text-rose-700"
-}
-
-const TaskDetail = ({ task }) => {
+const TaskDetail = ({ taskId }) => {
   const { toast } = useToast()
   const [comment, setComment] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [comments, setComments] = useState([
-    {
+  const [showStatusDialog, setShowStatusDialog] = useState(false)
+
+  // Integration code
+  // const { data: taskData, isPending } = useTaskDetailQuery(taskId);
+  // const task = taskData?.data;
+  
+  // if (isPending) {
+  //   return <div>Loading...</div>;
+  // }
+
+  // Mock data for testing UI
+  const task = {
+    title: "Kiểm tra váy cưới mã VC001",
+    description: "Kiểm tra tình trạng váy sau khi khách trả",
+    assigned_to: {
       id: 1,
-      task_id: task.id,
-      comment: "Tôi sẽ kiểm tra và báo cáo trong hôm nay",
-      created_by: { id: 1, name: "Nguyễn Văn A", avatar: null },
-      created_at: "2024-02-20T09:00:00Z"
+      name: "Nguyễn Văn A"
     },
-    {
-      id: 2,
-      task_id: task.id,
-      comment: "Đã kiểm tra xong, cần sửa một số chi tiết",
-      created_by: { id: 1, name: "Nguyễn Văn A", avatar: null },
-      created_at: "2024-02-20T11:00:00Z"
-    }
-  ])
+    status: 'pending',
+    due_date: "2024-03-25T09:00:00",
+    comments: [
+      {
+        name: "Nguyễn Văn A",
+        createdDate: "2024-02-20T09:00:00",
+        content: "Tôi sẽ kiểm tra và báo cáo trong hôm nay"
+      },
+      {
+        name: "Nguyễn Văn A",
+        createdDate: "2024-02-20T11:00:00",
+        content: "Đã kiểm tra xong, cần sửa một số chi tiết"
+      }
+    ]
+  };
+
+  const onCommentSuccess = useCallback(() => {
+    toast({
+      title: "Thành công",
+      description: "Đã thêm bình luận"
+    });
+    setComment("");
+  }, []);
+
+  const onStatusSuccess = useCallback((newStatus) => {
+    toast({
+      title: "Thành công",
+      description: `Đã chuyển trạng thái sang ${newStatus === 'in_progress' ? 'đang thực hiện' : 'hoàn thành'}`
+    });
+    setShowStatusDialog(false);
+  }, []);
+
+  const commentMutation = useTaskCommentMutate(taskId, onCommentSuccess);
+  const statusMutation = useTaskUpdateStatus(taskId, onStatusSuccess);
 
   const handleComment = async () => {
-    if (!comment.trim()) return
+    if (!comment.trim()) return;
 
     try {
-      setIsLoading(true)
-      // API call here
-      console.log("Adding comment:", comment)
-      
-      toast({
-        title: "Thành công",
-        description: "Đã thêm bình luận"
-      })
-      setComment("")
+      await commentMutation.mutateAsync({
+        id_user: 1, // TODO: Get from auth context
+        comment: comment.trim()
+      });
     } catch (error) {
-      console.error("Error adding comment:", error)
+      console.error(error);
       toast({
+        variant: "destructive",
         title: "Lỗi",
         description: "Không thể thêm bình luận",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoading(false)
+      });
     }
-  }
-  const onChangeStatus = useCallback(() => console.log(task.status, task.id), []);
+  };
+
+  const handleUpdateStatus = useCallback(async () => {
+    try {
+      const newStatus = task.status === 'pending' ? 'in_progress' : 'completed';
+      await statusMutation.mutateAsync(newStatus);
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Lỗi",
+        description: "Không thể cập nhật trạng thái",
+      });
+    }
+  }, [task?.status]);
+
   return (
     <div className="space-y-6 max-h-[80vh] overflow-hidden flex flex-col">
       <div className="space-y-4">
         <div className="flex flex-col gap-2 items-center justify-between">
           <h2 className="text-2xl font-bold">{task.title}</h2>
-          <div className="flex items-left gap-2">
-            <span className={`text-xs px-2 py-1 rounded-full ${PRIORITY_COLORS[task.priority]}`}>
-              {task.priority === 'high' ? 'Cao' : task.priority === 'medium' ? 'Trung bình' : 'Thấp'}
-            </span>
-            <Badge variant={STATUS_COLORS[task.status]}>
-              {STATUS_LABELS[task.status]}
-            </Badge>
-          </div>
         </div>
         
         <p className="text-muted-foreground">{task.description}</p>
@@ -107,10 +126,6 @@ const TaskDetail = ({ task }) => {
             <div>
               <p className="text-sm text-muted-foreground">Người thực hiện</p>
               <div className="flex items-center gap-2">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={task.assigned_to.avatar} />
-                  <AvatarFallback>{task.assigned_to.name.charAt(0)}</AvatarFallback>
-                </Avatar>
                 <p className="font-medium">{task.assigned_to.name}</p>
               </div>
             </div>
@@ -133,7 +148,7 @@ const TaskDetail = ({ task }) => {
           {task.status === 'pending' && (
             <Button 
               className="w-full"
-              onClick={onChangeStatus}
+              onClick={() => setShowStatusDialog(true)}
             >
               <Timer className="mr-2 h-4 w-4" />
               Bắt đầu thực hiện
@@ -142,7 +157,7 @@ const TaskDetail = ({ task }) => {
           {task.status === 'in_progress' && (
             <Button 
               className="w-full"
-              onClick={onChangeStatus}
+              onClick={() => setShowStatusDialog(true)}
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
               Hoàn thành
@@ -161,20 +176,16 @@ const TaskDetail = ({ task }) => {
 
         <ScrollArea className="flex-1 pr-4 -mr-4">
           <div className="space-y-4">
-            {comments.map((item) => (
-              <div key={item.id} className="flex gap-4">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={item.created_by.avatar} />
-                  <AvatarFallback>{item.created_by.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+            {task.comments.map((item, index) => (
+              <div key={index} className="flex gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{item.created_by.name}</span>
+                    <span className="font-medium">{item.name}</span>
                     <span className="text-xs text-muted-foreground">
-                      {format(new Date(item.created_at), 'HH:mm dd/MM/yyyy', { locale: vi })}
+                      {format(new Date(item.createdDate), 'HH:mm dd/MM/yyyy', { locale: vi })}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm">{item.comment}</p>
+                  <p className="mt-1 text-sm">{item.content}</p>
                 </div>
               </div>
             ))}
@@ -190,19 +201,27 @@ const TaskDetail = ({ task }) => {
           />
           <Button 
             size="icon"
-            disabled={isLoading || !comment.trim()}
+            disabled={commentMutation.isPending || !comment.trim()}
             onClick={handleComment}
           >
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
-    </div>
-  )
-}
 
-export { TaskDetail }
+      <UpdateStatusConfirm
+        showDialog={showStatusDialog}
+        setShowDialog={setShowStatusDialog}
+        currentStatus={task?.status}
+        onConfirm={handleUpdateStatus}
+        isPending={statusMutation.isPending}
+      />
+    </div>
+  );
+};
 
 TaskDetail.propTypes = {
-  task: PropTypes.object,
-}
+  taskId: PropTypes.number
+};
+
+export { TaskDetail };

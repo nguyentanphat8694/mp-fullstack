@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {useCallback, useState} from "react"
 import {REWARD_TYPE_OPTIONS} from "@/helpers/constants.js";
-import CustomSelect from "@/components/ui-custom/custom-select/index.jsx";
+import CustomSelect from "@/components/ui-custom/custom-select";
 import PropTypes from "prop-types";
 
 const AddRewardModal = ({ employee, setIsRewardOpen, isRewardOpen }) => {

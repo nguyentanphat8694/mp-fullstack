@@ -126,6 +126,10 @@ function App() {
         path: PATHS.CONTRACTS.DETAIL,
         element: getAuthenticatedEl(isAuthenticated, <ContractDetailPage/>),
       },
+      {
+        path: PATHS.CONTRACTS.EDIT,
+        element: getAuthenticatedEl(isAuthenticated, <CreateContractPage/>),
+      },
 
       // Finance routes
       {
@@ -151,6 +155,14 @@ function App() {
       navigate(PATHS.DASHBOARD);
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    // Tính toán chiều rộng của scrollbar
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    // Thêm padding-right cho body bằng với chiều rộng scrollbar
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+  }, []);
 
   return getRoutes();
 }

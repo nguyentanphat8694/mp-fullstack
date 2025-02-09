@@ -3,19 +3,42 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter,
+  AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle
 } from "@/components/ui/alert-dialog.jsx";
 import {useCallback} from "react";
 import PropTypes from "prop-types";
+import {useToast} from "@/hooks/use-toast";
+import useProductDeleteMutate from "@/queries/useProductDeleteMutate";
 
 export const DeleteProductConfirm = ({showDeleteDialog, setShowDeleteDialog, selectedProduct, setSelectedProduct}) => {
-
-  const handleDelete = useCallback(() => {
-    setShowDeleteDialog(false)
-    setSelectedProduct(null)
+  const {toast} = useToast();
+  const onDeleteSuccess = useCallback(() => {
+    toast({
+      title: "Thành công",
+      description: "Xóa sản phẩm thành công",
+    });
+    setShowDeleteDialog(false);
+    setSelectedProduct(null);
   }, []);
+
+  const deleteMutation = useProductDeleteMutate(onDeleteSuccess);
+
+  const handleDelete = useCallback(async () => {
+    try {
+      await deleteMutation.mutateAsync(selectedProduct.id);
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Lỗi",
+        description: "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
+      });
+    }
+  }, [selectedProduct?.id]);
+
   return <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
     <AlertDialogContent>
       <AlertDialogHeader>
@@ -32,8 +55,8 @@ export const DeleteProductConfirm = ({showDeleteDialog, setShowDeleteDialog, sel
         }}>
           Hủy
         </AlertDialogCancel>
-        <AlertDialogAction onClick={handleDelete}>
-          Xóa
+        <AlertDialogAction className='bg-destructive text-destructive-foreground' onClick={handleDelete} disabled={deleteMutation.isPending}>
+          {deleteMutation.isPending ? "Đang xử lý..." : "Xóa"}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

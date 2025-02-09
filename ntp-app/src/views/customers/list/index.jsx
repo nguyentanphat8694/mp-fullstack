@@ -2,7 +2,7 @@ import {useCallback, useState} from "react";
 import {Button} from "@/components/ui/button";
 import {CustomerTable} from "@/components/customers/customer-table";
 import {CustomerForm} from "@/components/customers/customer-form";
-import {Search} from "lucide-react";
+import {BookUser, Search} from "lucide-react";
 import {Plus} from "lucide-react";
 import {Input} from "@/components/ui/input";
 import CustomSelect from "@/components/ui-custom/custom-select";
@@ -12,6 +12,7 @@ import {
 } from "@/helpers/constants";
 import CustomDialog from "@/components/ui-custom/custom-dialog";
 import useCustomerListQuery from "@/queries/useCustomerListQuery.js";
+import {CustomPageTitle} from "@/components/ui-custom/custom-page-title/index.jsx";
 
 const CustomerListPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,8 +49,9 @@ const CustomerListPage = () => {
   }, [filterValues]);
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
-        <h1 className="text-2xl sm:text-3xl font-bold">Danh sách khách hàng</h1>
+      <CustomPageTitle title={'Danh sách khách hàng'} icon={<BookUser className="h-6 w-6 text-primary" />} />
+
+      <div className="flex flex-col lg:justify-end gap-4 items-start sm:flex-row sm:justify-between sm:items-center">
         <CustomDialog
           className="sm:max-w-[425px]"
           isOpen={isOpen}

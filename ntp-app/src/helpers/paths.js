@@ -44,4 +44,9 @@ export const PATHS = {
   FINANCE: {
     LIST: '/finance',
   },
+  USER: {
+    SETTINGS: '/settings',
+    ACCOUNTS: '/accounts',
+    LOGOUT: '/logout',
+  }
 }

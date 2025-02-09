@@ -1,137 +1,197 @@
-import { useState, useEffect } from "react"
+import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { Plus } from "lucide-react"
+import { Plus, ReceiptText, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ContractTable } from "@/components/contracts/contract-table"
-import { DatePicker } from "@/components/ui/date-picker"
-import {format} from "date-fns";
-import CustomSelect from "@/components/ui-custom/custom-select/index.jsx";
-import {CONTRACT_STATUS_OPTIONS, CONTRACT_TYPE_OPTION} from "@/helpers/constants.js";
+import { format } from "date-fns"
+import { vi } from "date-fns/locale"
+import CustomSelect from "@/components/ui-custom/custom-select"
+import { CONTRACT_TYPE_OPTIONS } from "@/helpers/constants"
+import { CustomPageTitle } from "@/components/ui-custom/custom-page-title"
+import useContractListQuery from "@/queries/useContractListQuery"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-// Mock data
-const MOCK_CONTRACTS = [
+// Mock data for testing UI
+const mockContracts = [
   {
     id: 1,
     code: "HD001",
-    customer_name: "Nguyễn Văn A",
+    customer: {
+      id: 1,
+      name: "Nguyễn Văn A"
+    },
     type: "dress_rental",
-    status: "active",
-    start_date: "2024-03-20",
-    total_amount: 15000000,
-    paid_amount: 5000000,
-    created_by: "Sale 1",
-    created_at: "2024-03-15"
+    start_date: "2024-02-15",
+    total_amount: 15000000
   },
   {
     id: 2,
-    code: "HD002",
-    customer_name: "Trần Thị B",
+    code: "HD002", 
+    customer: {
+      id: 2,
+      name: "Trần Thị B"
+    },
     type: "wedding_photo",
-    status: "pending",
-    start_date: "2024-03-25",
-    total_amount: 25000000,
-    paid_amount: 10000000,
-    created_by: "Sale 2",
-    created_at: "2024-03-16"
-  },
-  {
-    id: 3,
-    code: "HD003",
-    customer_name: "Lê Văn C",
-    type: "pre_wedding_photo",
-    status: "completed",
-    start_date: "2024-03-18",
-    total_amount: 20000000,
-    paid_amount: 20000000,
-    created_by: "Sale 1",
-    created_at: "2024-03-10"
+    start_date: "2024-02-25",
+    total_amount: 25000000
   }
-]
+];
 
 const ContractListPage = () => {
   const navigate = useNavigate()
-  const [contracts, setContracts] = useState(MOCK_CONTRACTS) // Use mock data
-  const [filteredContracts, setFilteredContracts] = useState(MOCK_CONTRACTS)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [dateFilter, setDateFilter] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
-  useEffect(() => {
-    let filtered = [...contracts]
+  // Filter states
+  const [filterValues, setFilterValues] = useState({
+    search: "",
+    type: "all",
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear()
+  })
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(contract =>
-        contract.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        contract.customer_name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+  // Query params state
+  const [filterParams, setFilterParams] = useState({
+    search: "",
+    type: "",
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
+    limit: itemsPerPage,
+    offset: 0
+  })
+
+  /* Integration code - commented for now
+  const { data, isPending } = useContractListQuery(filterParams)
+
+  const handleSearch = useCallback(() => {
+    setCurrentPage(1)
+    const newParams = {
+      ...filterParams,
+      search: filterValues.search,
+      type: filterValues.type !== 'all' ? filterValues.type : '',
+      month: filterValues.month,
+      year: filterValues.year,
+      offset: 0
     }
+    setFilterParams(newParams)
+  }, [filterValues])
 
-    // Filter by type
-    if (typeFilter !== "all") {
-      filtered = filtered.filter(contract => contract.type === typeFilter)
-    }
+  const handlePageChange = useCallback((page) => {
+    setCurrentPage(page)
+    setFilterParams(prev => ({
+      ...prev,
+      offset: (page - 1) * itemsPerPage
+    }))
+  }, [itemsPerPage])
+  */
 
-    // Filter by status
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(contract => contract.status === statusFilter)
-    }
+  // Generate years from 2020 to current year
+  const years = Array.from(
+    { length: new Date().getFullYear() - 2019 },
+    (_, i) => 2020 + i
+  )
 
-    // Filter by date
-    if (dateFilter) {
-      filtered = filtered.filter(contract => 
-        contract.start_date === format(dateFilter, 'yyyy-MM-dd')
-      )
-    }
-
-    setFilteredContracts(filtered)
-  }, [contracts, searchTerm, typeFilter, statusFilter, dateFilter])
+  // Generate months 1-12
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    value: i + 1,
+    label: format(new Date(2024, i, 1), 'MMMM', { locale: vi })
+  }))
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between">
-        <h1 className="text-2xl font-bold">Danh sách hợp đồng</h1>
+      <CustomPageTitle 
+        title={'Danh sách hợp đồng'} 
+        icon={<ReceiptText className="h-6 w-6 text-primary" />} 
+      />
+
+      <div className="flex justify-end">
         <Button onClick={() => navigate('/contracts/new')}>
           <Plus className="h-4 w-4 mr-2" />
           Tạo hợp đồng
         </Button>
       </div>
 
-      <div className="flex gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Input
           placeholder="Tìm theo mã HĐ, tên khách..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xs"
+          value={filterValues.search}
+          onChange={(e) => setFilterValues(prev => ({...prev, search: e.target.value}))}
+          className="w-full"
         />
 
         <CustomSelect
-          value={typeFilter}
-          onValueChange={setTypeFilter}
+          value={filterValues.type}
+          onValueChange={(value) => setFilterValues(prev => ({...prev, type: value}))}
           triggerName="Loại hợp đồng"
-          options={CONTRACT_TYPE_OPTION}
+          options={CONTRACT_TYPE_OPTIONS}
         />
 
-        <CustomSelect
-          value={statusFilter}
-          onValueChange={setStatusFilter}
-          triggerName="Trạng thái"
-          options={CONTRACT_STATUS_OPTIONS}
-        />
+        <div className="flex gap-2">
+          <Select
+            value={filterValues.month.toString()}
+            onValueChange={(value) => setFilterValues(prev => ({...prev, month: parseInt(value)}))}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Chọn tháng" />
+            </SelectTrigger>
+            <SelectContent>
+              {months.map((month) => (
+                <SelectItem key={month.value} value={month.value.toString()}>
+                  {month.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <DatePicker
-          placeholder="Lọc theo ngày"
-          value={dateFilter}
-          onChange={setDateFilter}
-        />
+          <Select
+            value={filterValues.year.toString()}
+            onValueChange={(value) => setFilterValues(prev => ({...prev, year: parseInt(value)}))}
+          >
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Chọn năm" />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((year) => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button onClick={() => {}} className="w-full">
+          <Search className="mr-2 h-4 w-4" />
+          Tìm kiếm
+        </Button>
       </div>
 
-      <ContractTable 
-        contracts={filteredContracts}
-        onView={(contract) => navigate(`/contracts/${contract.id}`)}
-        onEdit={(contract) => navigate(`/contracts/${contract.id}/edit`)}
+      {/* Integration code - commented for now 
+      {isPending ? (
+        <div>Loading...</div>
+      ) : (
+        <ContractTable
+          contracts={data?.data || []}
+          currentPage={currentPage}
+          totalPages={Math.ceil((data?.total || 0) / itemsPerPage)}
+          onPageChange={handlePageChange}
+        />
+      )}
+      */}
+
+      {/* Using mock data for testing UI */}
+      <ContractTable
+        contracts={mockContracts}
+        currentPage={1}
+        totalPages={1}
+        onPageChange={() => {}}
       />
     </div>
   )

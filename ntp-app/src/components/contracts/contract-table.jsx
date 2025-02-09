@@ -6,94 +6,104 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Eye, Pencil } from "lucide-react"
+import PropTypes from "prop-types"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
-
-const statusColors = {
-  pending: "bg-yellow-500",
-  active: "bg-blue-500",
-  completed: "bg-green-500",
-  cancelled: "bg-red-500"
-}
-
-const typeLabels = {
-  dress_rental: "Thuê váy cưới",
-  wedding_photo: "Chụp ảnh cưới",
-  pre_wedding_photo: "Chụp ảnh pre-wedding"
-}
+import { ContractTableActions } from "./contract-table-actions"
+import { TYPE_LABELS } from "@/helpers/constants.js"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 export const ContractTable = ({ 
-  contracts = [], 
-  onView,
-  onEdit
+  contracts, 
+  currentPage,
+  totalPages,
+  onPageChange
 }) => {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Mã HĐ</TableHead>
-          <TableHead>Khách hàng</TableHead>
-          <TableHead>Loại</TableHead>
-          <TableHead>Trạng thái</TableHead>
-          <TableHead>Ngày bắt đầu</TableHead>
-          <TableHead>Tổng tiền</TableHead>
-          <TableHead>Đã thanh toán</TableHead>
-          <TableHead className="text-right">Thao tác</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {contracts.map((contract) => (
-          <TableRow key={contract.id}>
-            <TableCell className="font-medium">{contract.code}</TableCell>
-            <TableCell>{contract.customer_name}</TableCell>
-            <TableCell>{typeLabels[contract.type]}</TableCell>
-            <TableCell>
-              <Badge className={statusColors[contract.status]}>
-                {contract.status === 'pending' && 'Chờ xử lý'}
-                {contract.status === 'active' && 'Đang thực hiện'}
-                {contract.status === 'completed' && 'Hoàn thành'}
-                {contract.status === 'cancelled' && 'Đã hủy'}
-              </Badge>
-            </TableCell>
-            <TableCell>
-              {format(new Date(contract.start_date), 'dd/MM/yyyy', { locale: vi })}
-            </TableCell>
-            <TableCell>
-              {new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-              }).format(contract.total_amount)}
-            </TableCell>
-            <TableCell>
-              {new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-              }).format(contract.paid_amount)}
-            </TableCell>
-            <TableCell className="text-right">
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onView(contract)}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onEdit(contract)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
-            </TableCell>
+    <div className="space-y-4">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Mã HĐ</TableHead>
+            <TableHead>Khách hàng</TableHead>
+            <TableHead>Loại HĐ</TableHead>
+            <TableHead>Ngày bắt đầu</TableHead>
+            <TableHead>Tổng tiền</TableHead>
+            <TableHead className="text-right">Thao tác</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {contracts.map((contract) => (
+            <TableRow key={contract.id}>
+              <TableCell className="font-medium">{contract.code}</TableCell>
+              <TableCell>{contract.customer.name}</TableCell>
+              <TableCell>{TYPE_LABELS[contract.type]}</TableCell>
+              <TableCell>
+                {format(new Date(contract.start_date), 'dd/MM/yyyy', { locale: vi })}
+              </TableCell>
+              <TableCell>
+                {new Intl.NumberFormat('vi-VN').format(contract.total_amount)}đ
+              </TableCell>
+              <TableCell>
+                <ContractTableActions contract={contract} />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1}
+            />
+          </PaginationItem>
+          
+          {[...Array(totalPages)].map((_, index) => (
+            <PaginationItem key={index + 1}>
+              <PaginationLink
+                onClick={() => onPageChange(index + 1)}
+                isActive={currentPage === index + 1}
+              >
+                {index + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </div>
   )
+}
+
+ContractTable.propTypes = {
+  contracts: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    code: PropTypes.string,
+    customer: PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string
+    }),
+    type: PropTypes.string,
+    start_date: PropTypes.string,
+    total_amount: PropTypes.number
+  })),
+  currentPage: PropTypes.number,
+  totalPages: PropTypes.number,
+  onPageChange: PropTypes.func
 } 

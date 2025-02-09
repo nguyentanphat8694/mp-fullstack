@@ -11,105 +11,94 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { DatePicker } from "@/components/ui/date-picker"
+import { Card, CardContent } from "@/components/ui/card"
+import { UserSelect } from "@/components/ui-custom/user-select"
+import PropTypes from "prop-types"
+import { useFormContext } from "react-hook-form"
 
-export const PhotographerSchedule = ({
-  value,
-  onChange,
-  type,
-  startDate,
-  endDate
-}) => {
-  const [photographers, setPhotographers] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [schedules, setSchedules] = useState([])
+export const PhotographerSchedule = ({ control, name, type }) => {
+  // Determine photographer role based on contract type
+  const photographerRole = type === "wedding_photo" ? "photo_wedding" : "photo_pre_wedding"
 
-  useEffect(() => {
-    const fetchPhotographers = async () => {
-      try {
-        // TODO: Call API to get photographers based on type
-        const role = type === 'wedding_photo' ? 'photo-wedding' : 'photo-pre-wedding'
-        const response = await fetch(`/api/photographers?role=${role}`)
-        const data = await response.json()
-        setPhotographers(data)
-      } catch (error) {
-        console.error('Error fetching photographers:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchPhotographers()
-  }, [type])
-
-  useEffect(() => {
-    const fetchSchedules = async () => {
-      if (startDate && endDate) {
-        try {
-          // TODO: Call API to get schedules
-          const response = await fetch(
-            `/api/schedules?start=${format(startDate, 'yyyy-MM-dd')}&end=${format(endDate, 'yyyy-MM-dd')}`
-          )
-          const data = await response.json()
-          setSchedules(data)
-        } catch (error) {
-          console.error('Error fetching schedules:', error)
-        }
-      }
-    }
-
-    fetchSchedules()
-  }, [startDate, endDate])
-
-  const isAvailable = (photographerId) => {
-    return !schedules.some(schedule => 
-      schedule.photographer_id === photographerId &&
-      schedule.status !== 'cancelled'
-    )
-  }
+  // Get form context to watch dates
+  const { watch } = useFormContext();
+  const startDate = watch(`${name}.start_date`);
+  const endDate = watch(`${name}.end_date`);
 
   return (
-    <div className="space-y-4">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Thợ chụp hình</TableHead>
-            <TableHead>Số điện thoại</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {photographers.map((photographer) => (
-            <TableRow key={photographer.id}>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <div>
-                    <p className="font-medium">{photographer.name}</p>
-                    <p className="text-sm text-muted-foreground">{photographer.email}</p>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>{photographer.phone}</TableCell>
-              <TableCell>
-                <Badge
-                  variant={isAvailable(photographer.id) ? "success" : "destructive"}
-                >
-                  {isAvailable(photographer.id) ? "Có sẵn" : "Bận"}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant={value === photographer.id ? "default" : "outline"}
-                  disabled={!isAvailable(photographer.id)}
-                  onClick={() => onChange(photographer.id)}
-                >
-                  {value === photographer.id ? "Đã chọn" : "Chọn"}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  )
-} 
+    <Card>
+      <CardContent className="pt-6 space-y-4">
+        <FormField
+          control={control}
+          name={`${name}.photographer_id`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nhiếp ảnh</FormLabel>
+              <FormControl>
+                <UserSelect
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  role={photographerRole}
+                  placeholder="Chọn nhiếp ảnh..."
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name={`${name}.start_date`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ngày bắt đầu</FormLabel>
+                <FormControl>
+                  <DatePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    toDate={endDate}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name={`${name}.end_date`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ngày kết thúc</FormLabel>
+                <FormControl>
+                  <DatePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    fromDate={startDate}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+PhotographerSchedule.propTypes = {
+  control: PropTypes.object.isRequired,
+  name: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(["wedding_photo", "pre_wedding_photo"]).isRequired
+}; 

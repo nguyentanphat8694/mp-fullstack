@@ -3,13 +3,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
@@ -20,9 +13,26 @@ import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { UserSelect } from "@/components/ui-custom/user-select"
+import useTaskCreateMutate from "@/queries/useTaskCreateMutate"
+import useTaskUpdateMutate from "@/queries/useTaskUpdateMutate"
+import { useToast } from "@/hooks/use-toast"
+import { useCallback } from "react"
 
-const TaskForm = ({ task, onSubmit, isLoading }) => {
-  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm({
+const TaskForm = ({ task, onClose }) => {
+  const { toast } = useToast()
+  const onSuccess = useCallback(() => {
+    toast({
+      title: "Thành công",
+      description: task ? "Cập nhật công việc thành công" : "Thêm công việc mới thành công",
+    });
+    onClose && onClose();
+  }, [task]);
+
+  const createMutation = useTaskCreateMutate(onSuccess);
+  const updateMutation = useTaskUpdateMutate(task?.id, onSuccess);
+
+  const { register, handleSubmit, formState: { errors }, watch, setValue, control } = useForm({
     defaultValues: task || {
       title: "",
       description: "",
@@ -30,7 +40,24 @@ const TaskForm = ({ task, onSubmit, isLoading }) => {
       due_date: new Date(),
       status: "pending"
     }
-  })
+  });
+
+  const onSubmit = async (data) => {
+    try {
+      if (task) {
+        await updateMutation.mutateAsync(data);
+      } else {
+        await createMutation.mutateAsync(data);
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Lỗi",
+        description: "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
+      });
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -56,18 +83,12 @@ const TaskForm = ({ task, onSubmit, isLoading }) => {
 
       <div className="space-y-2">
         <Label htmlFor="assigned_to">Người thực hiện</Label>
-        <Select 
-          {...register("assigned_to", { required: "Vui lòng chọn người thực hiện" })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Chọn nhân viên" />
-          </SelectTrigger>
-          <SelectContent>
-            {/* API call to get employees */}
-            <SelectItem value="1">Nguyễn Văn A</SelectItem>
-            <SelectItem value="2">Trần Thị B</SelectItem>
-          </SelectContent>
-        </Select>
+        <UserSelect
+          name="assigned_to"
+          control={control}
+          rules={{ required: "Vui lòng chọn người thực hiện" }}
+          role={["sale", "photo-wedding", "photo-pre-wedding", "tailor"]}
+        />
         {errors.assigned_to && (
           <p className="text-sm text-destructive">{errors.assigned_to.message}</p>
         )}
@@ -103,8 +124,8 @@ const TaskForm = ({ task, onSubmit, isLoading }) => {
         </Popover>
       </div>
 
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? "Đang xử lý..." : "Lưu"}
+      <Button type="submit">
+        {task ? updateMutation.isPending : createMutation.isPending ? "Đang xử lý..." : task ? "Cập nhật" : "Thêm"}
       </Button>
     </form>
   )

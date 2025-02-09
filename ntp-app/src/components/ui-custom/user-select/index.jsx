@@ -1,21 +1,36 @@
 import PropTypes from "prop-types";
-import useUserByRole from "@/queries/useUserByRole.js";
+import useUserByRole from "@/queries/useUserByRoleQuery";
 import CustomSelect from "@/components/ui-custom/custom-select";
 
-export const UserSelect = ({name, control, rules, role = ""}) => {
+const user = [
+  {
+    id: 1,
+    display_name: 'Nguyen Van A'
+  },
+  {
+    id: 2,
+    display_name: 'Doan Minh B'
+  },
+  {
+    id: 3,
+    display_name: 'Hoang Thi C'
+  }
+];
+
+const getDisplayArray = (rawArr) => rawArr.map((item) => ({value: item.id, label: item.display_name}));
+
+export const UserSelect = ({name, role = [], ...rest}) => {
   const {data} = useUserByRole(role);
   return <CustomSelect
     name={name}
-    control={control}
-    rules={rules}
     triggerName="Chọn nhân viên"
-    options={data?.data ?? []}
+    // options={data?.data ?? []}
+    options={getDisplayArray(user)}
+    {...rest}
   />;
 }
 
 UserSelect.propTypes = {
-  role: PropTypes.string,
+  role: PropTypes.array,
   name: PropTypes.string,
-  control: PropTypes.object,
-  rules: PropTypes.object,
 }

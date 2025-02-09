@@ -1,79 +1,106 @@
 import {
-  Select,
-  SelectContent, SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select.jsx';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {format} from 'date-fns';
-import {Badge} from '@/components/ui/badge.jsx';
+import {vi} from 'date-fns/locale';
 import PropTypes from 'prop-types';
-import {useState} from 'react';
+import {useState, useCallback} from 'react';
+import useProductHistoryQuery from '@/queries/useProductHistoryQuery';
 
-export const ProductHistoryTab = ({ productId, rentalHistory }) => {
-  // Filter states for rental history
-  const [yearFilter, setYearFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+export const ProductHistoryTab = ({ productId, rentalHistory  }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  return <div className="space-y-6">
-    <div className="flex gap-4">
-      <Select value={yearFilter} onValueChange={setYearFilter}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Lọc theo năm"/>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tất cả các năm</SelectItem>
-          <SelectItem value="2024">2024</SelectItem>
-          <SelectItem value="2023">2023</SelectItem>
-        </SelectContent>
-      </Select>
+  const {data: historyData, isPending} = useProductHistoryQuery(productId, {
+    limit: itemsPerPage,
+    offset: (currentPage - 1) * itemsPerPage
+  });
 
-      <Select value={statusFilter} onValueChange={setStatusFilter}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Lọc theo trạng thái"/>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tất cả trạng thái</SelectItem>
-          <SelectItem value="completed">Đã hoàn thành</SelectItem>
-          <SelectItem value="cancelled">Đã hủy</SelectItem>
-        </SelectContent>
-      </Select>
+  // const rentalHistory = historyData?.data?.data ?? [];
+  const totalItems = historyData?.data?.total ?? 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const handlePageChange = useCallback((page) => {
+    setCurrentPage(page);
+  }, []);
+
+  // if (isPending) {
+  //   return <div>Loading...</div>;
+  // }
+
+  return (
+    <div className="space-y-6">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Khách hàng</TableHead>
+            <TableHead>Ngày bắt đầu</TableHead>
+            <TableHead>Ngày kết thúc</TableHead>
+            <TableHead>Mã hợp đồng</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rentalHistory.map((item) => (
+          // {rentalHistory.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>{item.customer_name}</TableCell>
+              <TableCell>
+                {format(new Date(item.start_date), 'dd/MM/yyyy', {locale: vi})}
+              </TableCell>
+              <TableCell>
+                {format(new Date(item.end_date), 'dd/MM/yyyy', {locale: vi})}
+              </TableCell>
+              <TableCell>{item.contract_id}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1}
+            />
+          </PaginationItem>
+          
+          {[...Array(totalPages)].map((_, index) => (
+            <PaginationItem key={index + 1}>
+              <PaginationLink
+                onClick={() => handlePageChange(index + 1)}
+                isActive={currentPage === index + 1}
+              >
+                {index + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
-
-    <div className="space-y-4">
-      {rentalHistory.filter(item =>
-          (yearFilter === "all" ||
-              new Date(item.rental_start).getFullYear().toString() ===
-              yearFilter) &&
-          (statusFilter === "all" || item.status === statusFilter)
-      ).map((item) => (
-          <div
-              key={item.id}
-              className="rounded-lg border p-4 space-y-2"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-medium">{item.customer_name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {format(new Date(item.rental_start), 'dd/MM/yyyy')} - {format(
-                    new Date(item.rental_end), 'dd/MM/yyyy')}
-                </p>
-              </div>
-              <Badge className={
-                item.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
-              }>
-                {item.status === 'completed' ? 'Đã hoàn thành' : 'Đã hủy'}
-              </Badge>
-            </div>
-            {item.note && (
-                <p className="text-sm text-muted-foreground">{item.note}</p>
-            )}
-          </div>
-      ))}
-    </div>
-  </div>
-}
+  );
+};
 
 ProductHistoryTab.propTypes = {
-  productId: PropTypes.string,
-  rentalHistory: PropTypes.array
-}
+  productId: PropTypes.string.isRequired
+};

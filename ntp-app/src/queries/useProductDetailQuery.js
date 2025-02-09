@@ -3,10 +3,10 @@ import request from "@/helpers/request";
 import {QUERY_KEY} from "@/helpers/constants";
 import {useQuery} from "@tanstack/react-query";
 
-const useUserByRole = (role) =>
+const useProductDetailQuery = (id) =>
   useQuery({
-    queryKey: [QUERY_KEY.USER_BY_ROLE, role],
-    queryFn: () => request(URLs.USERS.GET_BY_ROLE(role)),
+    queryKey: [QUERY_KEY.PRODUCT_DETAIL, id],
+    queryFn: () => request(URLs.PRODUCTS.DETAIL(id))
   });
 
-export default useUserByRole;
+export default useProductDetailQuery; 
