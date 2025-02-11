@@ -38,7 +38,7 @@
 
 ##x Appointment APIs
 - `POST /mb/v1/appointment` - Create a new appointment (customer_id, appointment_date, note) 
--xx `GET /mb/v1/appointment` - Get all appointments (date, status, assigned_to) ({customer_name, customer_phone, status enum('scheduled','receiving','completed','cancelled'), appointment_date, assigned_to_name, created_at, note})
+-xx `GET /mb/v1/appointment` - Get all appointments (date, status, assigned_to) ({data: [{customer_name, customer_phone, status enum('scheduled','receiving','completed','cancelled'), appointment_date, assigned_to_name, created_at, note}], total_data)
 - `GET /mb/v1/appointment/{id}` - Get a specific appointment () ({customer_id, apointment_date, note})
 - `PUT /mb/v1/appointment/{id}` - Update an appointment (customer_id, appointment_date, note) 
 - `DELETE /mb/v1/appointment/{id}` - Delete an appointment ()
@@ -47,7 +47,7 @@
 
 ## Task APIs
 -xx `POST /mb/v1/task` - Create a new task (title, description, assigned_to, due_date)
--xx `GET /mb/v1/task` - Get all task (search (search theo field title, description), assigned_to, created_at, status) (id, title, description, created_at, due_date status, user_name (của assigned_to))
+-xx `GET /mb/v1/task` - Get all task (search (search theo field title, description), assigned_to, created_at, status) ({data: {id, title, description, created_at, due_date status, user_name (của assigned_to)Ư, total_data})
 -xx `DELETE /mb/v1/task/{id}` - Delete a specific task ()
 -xx `GET /mb/v1/task/{id}` - Get a specific task ({id: 'id', title: 'title', description: 'description', 'status', user_name: 'display name, due_date: date_time, comments: [{user_name: 'Nguyen Van A', created_at: created_at, comment: 'comment content'}]})
 -xx `PUT /mb/v1/task/{id}` - Update a task (title, description, assigned_to, due_date)
@@ -55,7 +55,7 @@
 -xx `PUT /mb/v1/task/{id}/status` - Update a status task (status)
 
 ## Contract APIs
--xx `GET /mb/v1/contract` - Get list contract (search, type, month, year, offset) [{id, customer_name, type, start_date, end_date, total_amout}]
+-xx `GET /mb/v1/contract` - Get list contract (search, type, month, year, offset) {data: [{id, customer_name, type, start_date, end_date, total_amout}], total_data}
 -xx `POST /mb/v1/contract` - Create a new contract ({main: {customer_id, type, start_date, end_date, total_amout}, note:{note}, payment:{amount, payment_date, payment_method}, product:{rental_start, rental_end}, photographer: {start_date, end_date})
 -xx `PUT /mb/v1/contract/{id}` - Edit a contract ({main: {customer_id, type, start_date, end_date, total_amout}, note:{id, note}, payment:{id, amount, payment_date, payment_method}, product:{id, rental_start, rental_end}, photographer: {id, start_date, end_date})
 -xx `GET /mb/v1/contract/{id}` () {main: {id, customer_name, type, start_date, end_date, total_amout, paid_amount}, note:[{id, note, user_created_by_name, status}], payment:[{id, amount, payment_date, payment_method}], product:[{id, product_code, product_id, product_name, rental_start, rental_end}], photographer: [{photographer_name, start_date, end_date}]}

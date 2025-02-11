@@ -126,6 +126,12 @@ class MB_Appointment_Controller {
                 ? "WHERE " . implode(" AND ", $where_conditions)
                 : "";
 
+            // Get total records
+            $count_query = "SELECT COUNT(*) 
+                FROM mb_appointments a
+                {$where_clause}";
+            $total_items = $wpdb->get_var($wpdb->prepare($count_query, $where_values));
+
             $limit = isset($args['limit']) ? absint($args['limit']) : 20;
             $offset = isset($args['offset']) ? absint($args['offset']) : 0;
 
@@ -162,17 +168,21 @@ class MB_Appointment_Controller {
                 throw new Exception($wpdb->last_error);
             }
 
-            return array_map(function($row) {
-                return array(
-                    'customer_name' => $row->customer_name,
-                    'customer_phone' => $row->customer_phone,
-                    'status' => $row->status,
-                    'appointment_date' => $row->appointment_date,
-                    'assigned_to_name' => $row->assigned_to_name,
-                    'created_at' => $row->created_at,
-                    'note' => $row->note
-                );
-            }, $results);
+            // Format response
+            return array(
+                'data' => array_map(function($row) {
+                    return array(
+                        'customer_name' => $row->customer_name,
+                        'customer_phone' => $row->customer_phone,
+                        'status' => $row->status,
+                        'appointment_date' => $row->appointment_date,
+                        'assigned_to_name' => $row->assigned_to_name,
+                        'created_at' => $row->created_at,
+                        'note' => $row->note
+                    );
+                }, $results),
+                'total_data' => (int)$total_items
+            );
 
         } catch (Exception $e) {
             return new WP_Error('get_error', $e->getMessage());

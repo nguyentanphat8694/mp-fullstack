@@ -341,6 +341,13 @@ class MB_Contract_Controller {
                 ? "WHERE " . implode(" AND ", $where_conditions)
                 : "";
 
+            // Get total records
+            $count_query = "SELECT COUNT(*) 
+                FROM mb_contracts c
+                JOIN mb_customers cu ON c.customer_id = cu.id
+                {$where_clause}";
+            $total_items = $wpdb->get_var($wpdb->prepare($count_query, $where_values));
+
             // Build final query
             $query = $wpdb->prepare(
                 "SELECT 
@@ -364,16 +371,19 @@ class MB_Contract_Controller {
             $results = $wpdb->get_results($query);
 
             // Format response
-            return array_map(function($row) {
-                return array(
-                    'id' => (int)$row->id,
-                    'customer_name' => $row->customer_name,
-                    'type' => $row->type,
-                    'start_date' => $row->start_date,
-                    'end_date' => $row->end_date,
-                    'total_amount' => (float)$row->total_amount
-                );
-            }, $results);
+            return array(
+                'data' => array_map(function($row) {
+                    return array(
+                        'id' => (int)$row->id,
+                        'customer_name' => $row->customer_name,
+                        'type' => $row->type,
+                        'start_date' => $row->start_date,
+                        'end_date' => $row->end_date,
+                        'total_amount' => (float)$row->total_amount
+                    );
+                }, $results),
+                'total_data' => (int)$total_items
+            );
 
         } catch (Exception $e) {
             return new WP_Error('get_error', $e->getMessage());
