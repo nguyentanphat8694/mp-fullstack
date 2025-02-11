@@ -67,6 +67,14 @@ class MB_Customer_API extends MB_API {
                 'permission_callback' => array($this, 'update_customer_status_permissions_check'),
             )
         ));
+
+        register_rest_route($this->namespace, '/customer/select', array(
+            array(
+                'methods' => WP_REST_Server::READABLE,
+                'callback' => array($this, 'get_customers_select'),
+                'permission_callback' => array($this, 'get_customers_select_permissions_check'),
+            )
+        ));
     }
 
     public function create_customer($request) {
@@ -195,7 +203,7 @@ class MB_Customer_API extends MB_API {
         $params = $request->get_params();
         
         // Validate required parameters
-        if (!isset($params['customer_id']) || !isset($params['status'])) {
+        if (!isset($params['customer_id']) || !isset($params['status']) || !isset($params['action_name'])) {
             return $this->error_response(
                 'Missing required parameters: customer_id and status',
                 $this->http_bad_request,
@@ -206,8 +214,9 @@ class MB_Customer_API extends MB_API {
         $customer_id = absint($params['customer_id']);
         $status = sanitize_text_field($params['status']);
         $note = isset($params['note']) ? sanitize_text_field($params['note']) : '';
+        $action_name = sanitize_text_field($params['action_name']);
         
-        $result = $this->controller->update_customer_status($customer_id, $status, $note);
+        $result = $this->controller->update_customer_status($customer_id, $status, $note, $action_name);
 
         if (is_wp_error($result)) {
             return $this->error_response(
@@ -252,5 +261,24 @@ class MB_Customer_API extends MB_API {
 
     public function update_customer_status_permissions_check($request) {
         return true; // Implement proper permission check
+    }
+
+    public function get_customers_select($request) {
+        $params = $request->get_params();
+        $result = $this->controller->get_customers_select($params);
+
+        if (is_wp_error($result)) {
+            return $this->error_response(
+                $result->get_error_message(),
+                $this->http_bad_request,
+                $result->get_error_code()
+            );
+        }
+
+        return $this->success_response($result, $this->http_ok, 'Customers retrieved successfully');
+    }
+
+    public function get_customers_select_permissions_check($request) {
+        return true;
     }
 }

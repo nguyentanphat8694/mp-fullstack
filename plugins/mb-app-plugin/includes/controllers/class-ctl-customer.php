@@ -17,14 +17,15 @@ class MB_Customer_Controller {
 
     public function create_customer($data) {
         try {
+            $user_id = get_current_user_id();
             // Prepare customer data
             $customer_data = array(
                 'name' => isset($data['name']) ? $data['name'] : null,
                 'phone' => isset($data['phone']) ? $data['phone'] : null,
                 'source' => isset($data['source']) ? $data['source'] : 'facebook',
-                'status' => isset($data['status']) ? $data['status'] : 'new',
+                'status' => 'new',
                 'assigned_to' => isset($data['assigned_to']) ? intval($data['assigned_to']) : null,
-                'created_by' => get_current_user_id(),
+                'created_by' => $user_id,
                 'created_at' => current_time('mysql')
             );
 
@@ -37,9 +38,9 @@ class MB_Customer_Controller {
             // Create customer history
             $history_data = array(
                 'customer_id' => $customer_id,
-                'action' => 'Tạo mới khách hàng',
+                'action' => 'Tạo khách hàng mới',
                 'note' => isset($data['note']) ? $data['note'] : null,
-                'created_by' => get_current_user_id(),
+                'created_by' => $user_id,
                 'created_at' => current_time('mysql')
             );
             $customer_history_id = $this->customer_history_model->create($history_data);
@@ -54,11 +55,44 @@ class MB_Customer_Controller {
 
     public function get_customer($id) {
         try {
-            $result = $this->customer_model->get($id);
-            if (!$result) {
+            global $wpdb;
+
+            $query = $wpdb->prepare(
+                "SELECT 
+                    c.id,
+                    c.name,
+                    c.phone,
+                    c.source,
+                    c.status,
+                    c.created_at,
+                    c.assigned_to,
+                    assigned.display_name as assigned_to_name,
+                    creator.display_name as created_by_name
+                FROM mb_customers c
+                LEFT JOIN {$wpdb->users} assigned ON c.assigned_to = assigned.ID 
+                JOIN {$wpdb->users} creator ON c.created_by = creator.ID
+                WHERE c.id = %d",
+                $id
+            );
+
+            $customer = $wpdb->get_row($query);
+            
+            if (!$customer) {
                 return new WP_Error('not_found', 'Customer not found');
             }
-            return $result;
+
+            return array(
+                'id' => (int)$customer->id,
+                'name' => $customer->name,
+                'phone' => $customer->phone,
+                'source' => $customer->source,
+                'status' => $customer->status,
+                'assigned_to' => $customer->assigned_to ? (int)$customer->assigned_to : null,
+                'assigned_to_name' => $customer->assigned_to_name,
+                'created_by_name' => $customer->created_by_name,
+                'created_at' => $customer->created_at
+            );
+
         } catch (Exception $e) {
             return new WP_Error('get_error', $e->getMessage());
         }
@@ -66,25 +100,118 @@ class MB_Customer_Controller {
 
     public function get_customers($args = array()) {
         try {
-            $query_args = array(
+            global $wpdb;
+
+            // Default arguments
+            $defaults = array(
+                'search' => '',
+                'source' => '',
+                'status' => '',
+                'assigned_to' => '',
+                'created_by' => '',
                 'orderby' => 'created_at',
+                'order' => 'DESC',
                 'limit' => 20,
-                'offset' => isset($args['offset']) ? absint($args['offset']) : 0,
-                'where' => array(),
-                'search' => isset($args['search']) ? sanitize_text_field($args['search']) : '',
-                'search_fields' => array('name', 'phone')
+                'offset' => 0
             );
 
-            // Add filters to where clause
-            $allowed_filters = array('source', 'status', 'assigned_to', 'created_by');
-            if (isset($args['where'])) {
-                foreach ($allowed_filters as $filter) {
-                    if (isset($args[$filter])) {
-                        $query_args['where'][$filter] = sanitize_text_field($args[$filter]);
-                    }
-                }
+            // Parse incoming args with defaults
+            $args = wp_parse_args($args, $defaults);
+
+            // Build query parts
+            $where = array('1=1');
+            $values = array();
+
+            // Handle search
+            if (!empty($args['search'])) {
+                $search_term = '%' . $wpdb->esc_like($args['search']) . '%';
+                $where[] = "(c.name LIKE %s OR c.phone LIKE %s)";
+                $values[] = $search_term;
+                $values[] = $search_term;
             }
-            return $this->customer_model->get_all($query_args);
+
+            // Handle filters
+            if (!empty($args['source'])) {
+                $where[] = "c.source = %s";
+                $values[] = sanitize_text_field($args['source']);
+            }
+
+            if (!empty($args['status'])) {
+                $where[] = "c.status = %s";
+                $values[] = sanitize_text_field($args['status']);
+            }
+
+            if (!empty($args['assigned_to'])) {
+                $where[] = "c.assigned_to = %d";
+                $values[] = absint($args['assigned_to']);
+            }
+
+            if (!empty($args['created_by'])) {
+                $where[] = "c.created_by = %d";
+                $values[] = absint($args['created_by']);
+            }
+
+            // Build WHERE clause
+            $where = implode(' AND ', $where);
+
+            // Get total records for pagination
+            $count_query = "SELECT COUNT(*) FROM mb_customers c WHERE {$where}";
+            $total_items = $wpdb->get_var($wpdb->prepare($count_query, $values));
+
+            // Handle orderby
+            $allowed_orderby = array(
+                'created_at' => 'c.created_at',
+                'name' => 'c.name',
+                'status' => 'c.status'
+            );
+            $orderby = isset($allowed_orderby[$args['orderby']]) ? $allowed_orderby[$args['orderby']] : 'c.created_at';
+            
+            // Handle order
+            $order = strtoupper($args['order']) === 'ASC' ? 'ASC' : 'DESC';
+
+            // Build final query
+            $query = $wpdb->prepare(
+                "SELECT 
+                    c.id,
+                    c.name,
+                    c.phone,
+                    c.source,
+                    c.status,
+                    c.created_at,
+                    c.assigned_to,
+                    assigned.display_name as assigned_to_name,
+                    creator.display_name as created_by_name
+                FROM mb_customers c
+                LEFT JOIN {$wpdb->users} assigned ON c.assigned_to = assigned.ID 
+                JOIN {$wpdb->users} creator ON c.created_by = creator.ID
+                WHERE {$where}
+                ORDER BY {$orderby} {$order}
+                LIMIT %d OFFSET %d",
+                array_merge(
+                    $values,
+                    array($args['limit'], $args['offset'])
+                )
+            );
+
+            $results = $wpdb->get_results($query);
+
+            // Format response
+            return array(
+                'data' => array_map(function($row) {
+                    return array(
+                        'id' => (int)$row->id,
+                        'name' => $row->name,
+                        'phone' => $row->phone, 
+                        'source' => $row->source,
+                        'assigned_to_name' => $row->assigned_to_name,
+                        'status' => $row->status,
+                        'created_by_name' => $row->created_by_name,
+                        'created_at' => $row->created_at
+                    );
+                }, $results),
+                'total_data' => (int)$total_items
+            );
+
         } catch (Exception $e) {
             return new WP_Error('get_error', $e->getMessage());
         }
@@ -97,7 +224,7 @@ class MB_Customer_Controller {
                 'name' => isset($data['name']) ? $data['name'] : null,
                 'phone' => isset($data['phone']) ? $data['phone'] : null,
                 'source' => isset($data['source']) ? $data['source'] : null,
-                'status' => isset($data['status']) ? $data['status'] : null,
+                // 'status' => isset($data['status']) ? $data['status'] : null,
                 'assigned_to' => isset($data['assigned_to']) ? intval($data['assigned_to']) : null,
             );
             
@@ -110,7 +237,7 @@ class MB_Customer_Controller {
             if (is_wp_error($result)) {
                 return $result;
             }
-            return $this->get_customer($id);
+            return $id;
         } catch (Exception $e) {
             return new WP_Error('update_error', $e->getMessage());
         }
@@ -157,19 +284,42 @@ class MB_Customer_Controller {
 
     public function get_customer_history($customer_id) {
         try {
-            $query_args = array(
-                'orderby' => 'created_at',
-                'limit' => 30,
-                'offset' => isset($args['offset']) ? absint($args['offset']) : 0,
-                'where' => array('customer_id' => $customer_id),
+            global $wpdb;
+
+            $query = $wpdb->prepare(
+                "SELECT 
+                    h.*,
+                    c.name as customer_name,
+                    u.display_name as created_by_name
+                FROM mb_customer_history h
+                JOIN mb_customers c ON h.customer_id = c.id
+                JOIN {$wpdb->users} u ON h.created_by = u.ID
+                WHERE h.customer_id = %d
+                ORDER BY h.created_at DESC
+                LIMIT 50",
+                $customer_id
             );
-            return $this->customer_history_model->get_all($query_args);
+
+            $results = $wpdb->get_results($query);
+
+            // Format response
+            return array_map(function($row) {
+                    return array(
+                        'id' => (int)$row->id,
+                        'customer_name' => $row->customer_name,
+                        'action' => $row->action,
+                        'note' => $row->note,
+                        'created_by_name' => $row->created_by_name,
+                        'created_at' => $row->created_at
+                    );
+                }, $results);
+
         } catch (Exception $e) {
             return new WP_Error('get_error', $e->getMessage());
         }
     }
 
-    public function update_customer_status($customer_id, $status, $note = '') {
+    public function update_customer_status($customer_id, $status, $note, $action_name) {
         try {
             // Validate status
             $valid_statuses = array('new', 'contacted', 'appointment', 'contracted', 'completed');
@@ -187,7 +337,7 @@ class MB_Customer_Controller {
             // Create customer history
             $history_data = array(
                 'customer_id' => $customer_id,
-                'action' => 'status_update',
+                'action' => $action_name,
                 'note' => $note,
                 'created_by' => get_current_user_id(),
                 'created_at' => current_time('mysql')
@@ -199,6 +349,51 @@ class MB_Customer_Controller {
             return $customer_id;
         } catch (Exception $e) {
             return new WP_Error('status_update_error', $e->getMessage());
+        }
+    }
+
+    public function get_customers_select($args = array()) {
+        try {
+            global $wpdb;
+
+            $where = array('1=1');
+            $values = array();
+
+            // Handle search
+            if (!empty($args['search'])) {
+                $search_term = '%' . $wpdb->esc_like($args['search']) . '%';
+                $where[] = "(c.name LIKE %s OR c.phone LIKE %s)";
+                $values[] = $search_term;
+                $values[] = $search_term;
+            }
+
+            // Build WHERE clause
+            $where = implode(' AND ', $where);
+
+            // Build query
+            $query = $wpdb->prepare(
+                "SELECT 
+                    c.id,
+                    c.name
+                FROM mb_customers c
+                WHERE {$where}
+                ORDER BY c.created_at DESC
+                LIMIT 20",
+                $values
+            );
+
+            $results = $wpdb->get_results($query);
+
+            // Format response
+            return array_map(function($row) {
+                return array(
+                    'id' => (int)$row->id,
+                    'name' => $row->name
+                );
+            }, $results);
+
+        } catch (Exception $e) {
+            return new WP_Error('get_error', $e->getMessage());
         }
     }
 }

@@ -227,8 +227,8 @@ class MB_Transaction_Controller {
             $result = $wpdb->get_row($query);
 
             return array(
-                'total_income' => (float)($result->total_income ?? 0),
-                'total_expense' => (float)($result->total_expense ?? 0)
+                'total_income' => (float)($result->total_income == null ? 0 : $result->total_income),
+                'total_expense' => (float)($result->total_expense == null ? 0 : $result->total_expense)
             );
 
         } catch (Exception $e) {

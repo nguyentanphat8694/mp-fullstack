@@ -56,25 +56,89 @@ class MB_Product_Controller {
 
     public function get_products($args = array()) {
         try {
-            $query_args = array(
-                'orderby' => 'code',
+            global $wpdb;
+
+            // Default arguments
+            $defaults = array(
+                'search' => '',
+                'category' => '',
+                'orderby' => 'created_at',
                 'order' => 'DESC',
                 'limit' => 20,
-                'offset' => isset($args['offset']) ? absint($args['offset']) : 0,
-                'where' => array(),
-                'search' => isset($args['search']) ? sanitize_text_field($args['search']) : '',
-                'search_fields' => array('code', 'name')
+                'offset' => 0
             );
 
-            // Add filters to where clause
-            $allowed_filters = array('category');
-            foreach ($allowed_filters as $filter) {
-                if (isset($args[$filter])) {
-                    $query_args['where'][$filter] = sanitize_text_field($args[$filter]);
-                }
+            // Parse incoming args with defaults
+            $args = wp_parse_args($args, $defaults);
+
+            // Build query parts
+            $where = array('1=1');
+            $values = array();
+
+            // Handle search
+            if (!empty($args['search'])) {
+                $search_term = '%' . $wpdb->esc_like($args['search']) . '%';
+                $where[] = "(p.code LIKE %s OR p.name LIKE %s)";
+                $values[] = $search_term;
+                $values[] = $search_term;
             }
 
-            return $this->product_model->get_all($query_args);
+            // Handle category filter
+            if (!empty($args['category'])) {
+                $where[] = "p.category = %s";
+                $values[] = sanitize_text_field($args['category']);
+            }
+
+            // Build WHERE clause
+            $where = implode(' AND ', $where);
+
+            // Get total records for pagination
+            $count_query = "SELECT COUNT(*) FROM mb_products p WHERE {$where}";
+            $total_items = $wpdb->get_var($wpdb->prepare($count_query, $values));
+
+            // Handle orderby
+            $allowed_orderby = array(
+                'created_at' => 'p.created_at',
+                'name' => 'p.name',
+                'code' => 'p.code'
+            );
+            $orderby = isset($allowed_orderby[$args['orderby']]) ? $allowed_orderby[$args['orderby']] : 'p.created_at';
+            
+            // Handle order
+            $order = strtoupper($args['order']) === 'ASC' ? 'ASC' : 'DESC';
+
+            // Build final query
+            $query = $wpdb->prepare(
+                "SELECT 
+                    p.id,
+                    p.code,
+                    p.name,
+                    p.category
+                FROM mb_products p
+                WHERE {$where}
+                ORDER BY {$orderby} {$order}
+                LIMIT %d OFFSET %d",
+                array_merge(
+                    $values,
+                    array($args['limit'], $args['offset'])
+                )
+            );
+
+            $results = $wpdb->get_results($query);
+
+            // Format response
+            return array(
+                'data' => array_map(function($row) {
+                    return array(
+                        'id' => (int)$row->id,
+                        'code' => $row->code,
+                        'name' => $row->name,
+                        'category' => $row->category
+                    );
+                }, $results),
+                'total_data' => (int)$total_items
+            );
+
         } catch (Exception $e) {
             return new WP_Error('get_error', $e->getMessage());
         }
@@ -137,9 +201,9 @@ class MB_Product_Controller {
             $query_args = array(
                 'orderby' => 'created_at',
                 'order' => 'DESC',
-                'limit' => 10,
+                'limit' => 20,
                 'offset' => 0,
-                'select' => array('id', 'code'),
+                'select' => array('id', 'code', 'name'),
                 'where' => array(),
                 'search' => isset($args['search']) ? sanitize_text_field($args['search']) : '',
                 'search_fields' => array('code', 'name')

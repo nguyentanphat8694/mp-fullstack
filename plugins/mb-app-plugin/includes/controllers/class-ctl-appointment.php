@@ -189,7 +189,7 @@ class MB_Appointment_Controller {
 
             // Prepare update data
             $update_data = array();
-            $allowed_fields = array('appointment_date', 'status');
+            $allowed_fields = array('appointment_date', 'status', 'note');
             foreach ($allowed_fields as $field) {
                 if (isset($data[$field])) {
                     $update_data[$field] = sanitize_text_field($data[$field]);
@@ -209,9 +209,9 @@ class MB_Appointment_Controller {
             // Create history record
             $history_data = array(
                 'appointment_id' => $id,
-                'appointment_date' => $update_data['appointment_date'] ?? $appointment['appointment_date'],
+                'appointment_date' => isset($update_data['appointment_date']) ? $update_data['appointment_date'] : $appointment['appointment_date'],
                 'action' => 'updated',
-                'note' => ,
+                'note' => isset($update_data['note']) ? $update_data['note'] : '',
                 'created_by' => get_current_user_id(),
                 'created_at' => current_time('mysql')
             );
@@ -265,7 +265,7 @@ class MB_Appointment_Controller {
             $history_data = array(
                 'appointment_id' => $id,
                 'appointment_date' => $appointment['appointment_date'],
-                'action' => $is_receiving ? 'assigned' : 'unassigned',
+                'action' => $type ? 'assigned' : 'unassigned',
                 'note' => $action_note,
                 'created_by' => $current_user_id,
                 'created_at' => current_time('mysql')

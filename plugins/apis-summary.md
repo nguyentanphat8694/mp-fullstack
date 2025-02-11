@@ -1,37 +1,37 @@
 # API Summary
 
 ##x Customer APIs
-- `POST /mb/v1/customer` - Create a new customer(name, phone, source enum('facebook','tiktok','youtube','walk_in'))
-- `POST /mb/v1/customer` - Get all customers ('source', 'status', 'assigned_to', 'created_by','offset')
-- `GET /mb/v1/customer/{id}` - Get a specific customer ()
+- `POST /mb/v1/customer` - Create a new customer(name, phone, source enum('facebook','tiktok','youtube','walk_in'), assigned_to)
+- `GET /mb/v1/customer` - Get all customers ('search' (search theo 'name', 'phone')'source', 'status', 'assigned_to', 'created_by','offset') {data: [{id, name, phone, source, assigned_to_name, status, created_by_name, created_at}], total_data}
+- `GET /mb/v1/customer/{id}` - Get a specific customer () {id, name, phone, source, assigned_to_name, status, created_by_name, created_at}
 - `PUT /mb/v1/customer/{id}` - Update a customer (name, phone, source enum('facebook','tiktok','youtube','walk_in'))
 - `DELETE /mb/v1/customer/{id}` - Delete a customer ()
 - `POST /mb/v1/customer/assign` - Assign a customer to a user (customer_id, user_id)
-- `GET /mb/v1/customer/history/{id}` - Get customer history by customer ID ()
-- `POST /mb/v1/customer/status` - Update customer status
+- `GET /mb/v1/customer/history/{id}` - Get customer history by customer ID () ([{id, customer_name, action, note, created_by_name, created_at}])
+- `POST /mb/v1/customer/status` - Update customer status (customer_id, status, action_name, note)
 -xx `GET /mb/v1/customer/select` - Option for customer status (search) ([{id, name}]}
 
 ##x Product APIs
 - `POST /mb/v1/product` - Create a new product (code, name, category enum('wedding_dress','vest','accessories','ao_dai'), description, images)
-- `GET /mb/v1/product` - Get all products (search, offset, category)
-- `GET /mb/v1/product/{id}` - Get a specific product ()
+- `GET /mb/v1/product` - Get all products (search, offset, category) {data: [{id, code, name, category}], total_data}
+- `GET /mb/v1/product/{id}` - Get a specific product () {id, code, name, category, description, images, created_at, created_by}
 - `PUT /mb/v1/product/{id}` - Update a product (code, name, category enum('wedding_dress','vest','accessories','ao_dai'), description, images)
-- `DELETE /mb/v1/product/{id}` - Delete a product ()
+- `DELETE /mb/v1/product/{id}` - Delete a product () [{id, code, name}]
 -xx `GET /mb/v1/product/select` - Get products by name for select (search)
 -xx `GET /mb/v1/product/{id}/history` - Get a specific product history (limit, offset) [{contract_id, rental_start, rental_end, customer_name}]
 -xx `GET /mb/v1/product/{id}/check` - Get a check params (start_date, end_date) ([{contract_id: 1, customer_name: 'Ong A', rental_start: 'dd/MM/yyyy HH:mm:ss', rental_end: 'dd/MM/yyyy HH:mm:ss'}])
 
 ## User APIs
-- `POST /mb/v1/user` - Create a new user
-- `GET /mb/v1/user/{id}` - Get a specific user
-- `PUT /mb/v1/user/{id}` - Update a user
+- `POST /mb/v1/user` - Create a new user (username, password, email, role, last_name, first_name)
+- `GET /mb/v1/user` - Get a list user (search (search theo first_name, last_name, display_name), role, offset) {data: [{(id, username, email, first_name, last_name, created_at)}], total_data}
+- `GET /mb/v1/user/{id}` - Get a specific user () (id, username, email, first_name, last_name, created_at)
+- `PUT /mb/v1/user/{id}` - Update a user (username, email, role, last_name, first_name)
 - `DELETE /mb/v1/user/{id}` - Delete a user
--x `GET /mb/v1/user/role/{role_name}` - Get users by role
--x `GET /mb/v1/user/role` - Get users by role (role (array string)) ([{id: 1, display_name: 'Nguyen Van A'}])
+-xx `GET /mb/v1/user/role` - Get users by role (role (array string)) ([{id: 1, display_name: 'Nguyen Van A'}])
 
 ## Setting APIs
-- `POST /mb/v1/setting` - Create a new setting
-- `GET /mb/v1/setting` - Get all settings
+- `POST /mb/v1/setting` - Create a new setting (setting_name, setting_value)
+- `GET /mb/v1/setting` - Get all settings (id, setting_name, setting_value)
 - `GET /mb/v1/setting/{id}` - Get a specific setting
 - `PUT /mb/v1/setting/{id}` - Update a setting
 - `DELETE /mb/v1/setting/{id}` - Delete a setting
@@ -66,8 +66,8 @@
 -xx `GET /mb/v1/finance/summary` - Get summary finance (month, year) {total_income, total_expense}
 -xx `POST /mb/v1/finance` - Create a new transaction (type, amount, description) 
 -xx `PUT /mb/v1/finance/{id}` - Edit a transaction (type, amount, description)
--xx `GET /mb/v1/finance/{id}` - Get a transaction ()  
--xx `DELETE /mb/v1/finance/{id}`
+-xx `GET /mb/v1/finance/{id}` - Get a transaction () {id, type, amount, description, created_by_name, created_at}
+-xx `DELETE /mb/v1/finance/{id}` - Delete transaction
 
 ## Common Response Formats
 - Success responses include: `success`, `data`, and `message` fields

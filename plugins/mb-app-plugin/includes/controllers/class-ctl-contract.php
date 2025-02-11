@@ -623,13 +623,12 @@ class MB_Contract_Controller {
 
     public function delete_contract($id) {
         try {
-            $this->contract_model->db->begin_transaction();
-
+            global $wpdb;
             // Delete related records first
-            $wpdb->delete($this->contract_product_model->table_name, array('contract_id' => $id));
-            $wpdb->delete($this->contract_photographer_model->table_name, array('contract_id' => $id));
-            $wpdb->delete($this->contract_note_model->table_name, array('contract_id' => $id));
-            $wpdb->delete($this->contract_payment_model->table_name, array('contract_id' => $id));
+            $wpdb->delete('mb_contract_products', array('contract_id' => $id));
+            $wpdb->delete('mb_contract_photographers', array('contract_id' => $id));
+            $wpdb->delete('mb_contract_notes', array('contract_id' => $id));
+            $wpdb->delete('mb_contract_payments', array('contract_id' => $id));
 
             // Delete contract
             $result = $this->contract_model->delete($id);
@@ -637,11 +636,9 @@ class MB_Contract_Controller {
                 throw new Exception($result->get_error_message());
             }
 
-            $this->contract_model->db->commit();
             return true;
 
         } catch (Exception $e) {
-            $this->contract_model->db->rollback();
             return new WP_Error('delete_error', $e->getMessage());
         }
     }

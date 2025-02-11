@@ -18,6 +18,11 @@ class MB_User_API extends MB_API {
                 'methods' => WP_REST_Server::CREATABLE,
                 'callback' => array($this, 'create_user'),
                 'permission_callback' => array($this, 'create_user_permissions_check'),
+            ),
+            array(
+                'methods' => WP_REST_Server::READABLE, 
+                'callback' => array($this, 'get_users'),
+                'permission_callback' => array($this, 'get_users_permissions_check'),
             )
         ));
 
@@ -39,11 +44,11 @@ class MB_User_API extends MB_API {
             )
         ));
 
-        register_rest_route($this->namespace, '/user/role/(?P<role>[a-zA-Z_]+)', array(
+        register_rest_route($this->namespace, '/user/role', array(
             array(
                 'methods' => WP_REST_Server::READABLE,
-                'callback' => array($this, 'get_users_by_role'),
-                'permission_callback' => array($this, 'get_users_by_role_permissions_check'),
+                'callback' => array($this, 'get_users_by_roles'),
+                'permission_callback' => array($this, 'get_users_by_roles_permissions_check'),
             )
         ));
     }
@@ -109,9 +114,34 @@ class MB_User_API extends MB_API {
         return $this->success_response(null, $this->http_ok, 'User deleted successfully');
     }
 
-    public function get_users_by_role($request) {
-        $role = $request['role'];
-        $result = $this->controller->get_users_by_role($role);
+    public function get_users($request) {
+        $params = $request->get_params();
+        $result = $this->controller->get_users($params);
+
+        if (is_wp_error($result)) {
+            return $this->error_response(
+                $result->get_error_message(),
+                $this->http_bad_request,
+                $result->get_error_code()
+            );
+        }
+
+        return $this->success_response($result, $this->http_ok, 'Users retrieved successfully');
+    }
+
+    public function get_users_by_roles($request) {
+        $params = $request->get_params();
+        
+        // Validate role parameter
+        if (empty($params['role'])) {
+            return $this->error_response(
+                'Missing required parameter: role',
+                $this->http_bad_request,
+                'missing_params'
+            );
+        }
+
+        $result = $this->controller->get_users_by_roles($params['role']);
 
         if (is_wp_error($result)) {
             return $this->error_response(
@@ -141,7 +171,11 @@ class MB_User_API extends MB_API {
         return true; // Implement proper permission check for mb_manage_users
     }
 
-    public function get_users_by_role_permissions_check($request) {
-        return true; // Implement proper permission check
+    public function get_users_permissions_check($request) {
+        return true;
+    }
+
+    public function get_users_by_roles_permissions_check($request) {
+        return true;
     }
 }
