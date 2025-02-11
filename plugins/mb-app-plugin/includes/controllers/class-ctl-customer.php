@@ -37,7 +37,7 @@ class MB_Customer_Controller {
             // Create customer history
             $history_data = array(
                 'customer_id' => $customer_id,
-                'action' => 'new',
+                'action' => 'Tạo mới khách hàng',
                 'note' => isset($data['note']) ? $data['note'] : null,
                 'created_by' => get_current_user_id(),
                 'created_at' => current_time('mysql')
@@ -159,7 +159,7 @@ class MB_Customer_Controller {
         try {
             $query_args = array(
                 'orderby' => 'created_at',
-                'limit' => 20,
+                'limit' => 30,
                 'offset' => isset($args['offset']) ? absint($args['offset']) : 0,
                 'where' => array('customer_id' => $customer_id),
             );

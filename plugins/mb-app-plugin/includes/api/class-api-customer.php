@@ -18,17 +18,13 @@ class MB_Customer_API extends MB_API {
                 'methods' => WP_REST_Server::CREATABLE,
                 'callback' => array($this, 'create_customer'),
                 'permission_callback' => array($this, 'create_customer_permissions_check'),
-            )
-        ));
-
-        register_rest_route($this->namespace, '/customers', array(
+            ),
             array(
-                'methods' => WP_REST_Server::CREATABLE,
+                'methods' => WP_REST_Server::READABLE,
                 'callback' => array($this, 'get_customers'),
                 'permission_callback' => array($this, 'get_customers_permissions_check'),
             )
         ));
-
 
         register_rest_route($this->namespace, '/customer/(?P<id>\d+)', array(
             array(

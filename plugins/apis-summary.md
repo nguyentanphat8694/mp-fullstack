@@ -1,24 +1,25 @@
 # API Summary
 
-## Customer APIs
-- `POST /mb/v1/customer` - Create a new customer
-- `POST /mb/v1/customers` - Get all customers
-- `GET /mb/v1/customer/{id}` - Get a specific customer
-- `PUT /mb/v1/customer/{id}` - Update a customer
-- `DELETE /mb/v1/customer/{id}` - Delete a customer
-- `POST /mb/v1/customer/assign` - Assign a customer to a user
-- `GET /mb/v1/customer/history/{id}` - Get customer history by customer ID
+##x Customer APIs
+- `POST /mb/v1/customer` - Create a new customer(name, phone, source enum('facebook','tiktok','youtube','walk_in'))
+- `POST /mb/v1/customer` - Get all customers ('source', 'status', 'assigned_to', 'created_by','offset')
+- `GET /mb/v1/customer/{id}` - Get a specific customer ()
+- `PUT /mb/v1/customer/{id}` - Update a customer (name, phone, source enum('facebook','tiktok','youtube','walk_in'))
+- `DELETE /mb/v1/customer/{id}` - Delete a customer ()
+- `POST /mb/v1/customer/assign` - Assign a customer to a user (customer_id, user_id)
+- `GET /mb/v1/customer/history/{id}` - Get customer history by customer ID ()
 - `POST /mb/v1/customer/status` - Update customer status
--x `GET /mb/v1/customer/select` - Option for customer status (search) ([{id, name}]}
+-xx `GET /mb/v1/customer/select` - Option for customer status (search) ([{id, name}]}
 
-## Product APIs
-- `POST /mb/v1/product` - Create a new product
-- `POST /mb/v1/products` - Get all products
-- `GET /mb/v1/product/{id}` - Get a specific product
-- `PUT /mb/v1/product/{id}` - Update a product
-- `DELETE /mb/v1/product/{id}` - Delete a product
--x `GET /mb/v1/product/{id}/history` - Get a specific product history (limit, offset)
--x `GET /mb/v1/product/{id}/check` - Get a check params (startDate, endDate) ({isAvailable: true, schedule: [{contract_id: 1, customer_name: 'Ong A', start_date: 'dd/MM/yyyy HH:mm:ss', endDate: 'dd/MM/yyyy HH:mm:ss'}]})
+##x Product APIs
+- `POST /mb/v1/product` - Create a new product (code, name, category enum('wedding_dress','vest','accessories','ao_dai'), description, images)
+- `GET /mb/v1/product` - Get all products (search, offset, category)
+- `GET /mb/v1/product/{id}` - Get a specific product ()
+- `PUT /mb/v1/product/{id}` - Update a product (code, name, category enum('wedding_dress','vest','accessories','ao_dai'), description, images)
+- `DELETE /mb/v1/product/{id}` - Delete a product ()
+-xx `GET /mb/v1/product/select` - Get products by name for select (search)
+-xx `GET /mb/v1/product/{id}/history` - Get a specific product history (limit, offset) [{contract_id, rental_start, rental_end, customer_name}]
+-xx `GET /mb/v1/product/{id}/check` - Get a check params (start_date, end_date) ([{contract_id: 1, customer_name: 'Ong A', rental_start: 'dd/MM/yyyy HH:mm:ss', rental_end: 'dd/MM/yyyy HH:mm:ss'}])
 
 ## User APIs
 - `POST /mb/v1/user` - Create a new user
@@ -35,35 +36,38 @@
 - `PUT /mb/v1/setting/{id}` - Update a setting
 - `DELETE /mb/v1/setting/{id}` - Delete a setting
 
-## Appointment APIs
-- `POST /mb/v1/appointment` - Create a new appointment
-- `GET /mb/v1/appointment` - Get all appointments
-- `GET /mb/v1/appointment/{id}` - Get a specific appointment
-- `PUT /mb/v1/appointment/{id}` - Update an appointment
-- `DELETE /mb/v1/appointment/{id}` - Delete an appointment
--x `PUT /mb/v1/appointment/{id}/assign` - Assign/unassign an appointment {type: bool}
--x `PUT /mb/v1/appointment/{id}/completed` - Assign/unassign an appointment {type: bool}
+##x Appointment APIs
+- `POST /mb/v1/appointment` - Create a new appointment (customer_id, appointment_date, note) 
+-xx `GET /mb/v1/appointment` - Get all appointments (date, status, assigned_to) ({customer_name, customer_phone, status enum('scheduled','receiving','completed','cancelled'), appointment_date, assigned_to_name, created_at, note})
+- `GET /mb/v1/appointment/{id}` - Get a specific appointment () ({customer_id, apointment_date, note})
+- `PUT /mb/v1/appointment/{id}` - Update an appointment (customer_id, appointment_date, note) 
+- `DELETE /mb/v1/appointment/{id}` - Delete an appointment ()
+-xx `PUT /mb/v1/appointment/{id}/assign` - Assign/unassign an appointment {type: bool}
+-xx `PUT /mb/v1/appointment/{id}/completed` - Complete or cancelled an appointment {type: bool, note: string}
 
 ## Task APIs
--x `POST /mb/v1/task` - Create a new task
--x `GET /mb/v1/task` - Get all task
--x `DELETE /mb/v1/task/{id}` - Delete a specific task
--x `GET /mb/v1/task/{id}` - Get a specific task ({title: 'title', description: 'description', 'status', assigned_to: {id: 1, name: 'display name}, due_date: date_time, comments: [{name: 'Nguyen Van A', createdDate: created_date, content: 'comment content'}]})
--x `PUT /mb/v1/task/{id}` - Update a task
--x `POST /mb/v1/task/{id}/comment` - Create a new task comment (id_task, id_user, comment)
--x `PUT /mb/v1/task/{id}/status` - Update a status task (status)
+-xx `POST /mb/v1/task` - Create a new task (title, description, assigned_to, due_date)
+-xx `GET /mb/v1/task` - Get all task (search (search theo field title, description), assigned_to, created_at, status) (id, title, description, created_at, due_date status, user_name (của assigned_to))
+-xx `DELETE /mb/v1/task/{id}` - Delete a specific task ()
+-xx `GET /mb/v1/task/{id}` - Get a specific task ({id: 'id', title: 'title', description: 'description', 'status', user_name: 'display name, due_date: date_time, comments: [{user_name: 'Nguyen Van A', created_at: created_at, comment: 'comment content'}]})
+-xx `PUT /mb/v1/task/{id}` - Update a task (title, description, assigned_to, due_date)
+-xx `POST /mb/v1/task/{id}/comment` - Create a new task comment (comment) (user_name, created_at, comment)
+-xx `PUT /mb/v1/task/{id}/status` - Update a status task (status)
 
 ## Contract APIs
--x `GET /mb/v1/contract` - Get list contract (search, type, month, year, limit, offset) ([{id:int,customer:{id, name},type:enum('dress_rental','wedding_photo','pre_wedding_photo'),start_date,end_date,total_amount}])
--x `POST /mb/v1/contract` - Create a new contract ({main: {customer_id, type, start_date, end_date, total_amout}, note:{note}, payment:{amount, payment_date, payment_method}, product:{id, rental_start, rental_end}, photographer: {id, start_date, end_date})
--x `PUT /mb/v1/contract/{id}` - Edit a contract ({main: {customer_id, type, start_date, end_date, total_amout}, note:{note}, payment:{amount, payment_date, payment_method}, product:{id, rental_start, rental_end}, photographer: {id, start_date, end_date})
--x `GET /mb/v1/contract/{id}
+-xx `GET /mb/v1/contract` - Get list contract (search, type, month, year, offset) [{id, customer_name, type, start_date, end_date, total_amout}]
+-xx `POST /mb/v1/contract` - Create a new contract ({main: {customer_id, type, start_date, end_date, total_amout}, note:{note}, payment:{amount, payment_date, payment_method}, product:{rental_start, rental_end}, photographer: {start_date, end_date})
+-xx `PUT /mb/v1/contract/{id}` - Edit a contract ({main: {customer_id, type, start_date, end_date, total_amout}, note:{id, note}, payment:{id, amount, payment_date, payment_method}, product:{id, rental_start, rental_end}, photographer: {id, start_date, end_date})
+-xx `GET /mb/v1/contract/{id}` () {main: {id, customer_name, type, start_date, end_date, total_amout, paid_amount}, note:[{id, note, user_created_by_name, status}], payment:[{id, amount, payment_date, payment_method}], product:[{id, product_code, product_id, product_name, rental_start, rental_end}], photographer: [{photographer_name, start_date, end_date}]}
+-xx `GET /mb/v1/contract/{id}/note/approve` Approve a note (isApprove: bool, contract_note_id)
 
 ## Finance APIs
--x `GET /mb/v1/finance` - Get list transaction (type, month, year, limit, offset)
--x `POST /mb/v1/finance` - Create a new transaction 
--x `PUT /mb/v1/finance/{id}` - Edit a transaction 
--x `DELETE /mb/v1/finance/{id}`
+-xx `GET /mb/v1/finance` - Get list transaction (type, month, year, limit, offset) {data: [{id, type, amount, description, created_by_name, created_at, contract_payment_id}], total_data: count_total_record}
+-xx `GET /mb/v1/finance/summary` - Get summary finance (month, year) {total_income, total_expense}
+-xx `POST /mb/v1/finance` - Create a new transaction (type, amount, description) 
+-xx `PUT /mb/v1/finance/{id}` - Edit a transaction (type, amount, description)
+-xx `GET /mb/v1/finance/{id}` - Get a transaction ()  
+-xx `DELETE /mb/v1/finance/{id}`
 
 ## Common Response Formats
 - Success responses include: `success`, `data`, and `message` fields

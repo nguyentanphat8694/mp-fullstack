@@ -247,11 +247,11 @@ class MB_Management_Activator {
             type enum('income','expense') NOT NULL,
             amount decimal(10,2) NOT NULL,
             description text NOT NULL,
-            contract_id bigint(20) DEFAULT NULL,
+            contract_payment_id bigint(20) DEFAULT NULL,
             created_by bigint(20) unsigned NOT NULL,
             created_at datetime NOT NULL,
             PRIMARY KEY (id),
-            KEY contract_id (contract_id),
+            KEY contract_payment_id (contract_payment_id),
             KEY created_by (created_by)
         ) $charset_collate;";
         dbDelta($sql);

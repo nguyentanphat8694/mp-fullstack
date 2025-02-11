@@ -19,10 +19,22 @@ class MB_Product_Controller {
                 'name' => isset($data['name']) ? sanitize_text_field($data['name']) : null,
                 'category' => isset($data['category']) ? sanitize_text_field($data['category']) : null,
                 'description' => isset($data['description']) ? sanitize_textarea_field($data['description']) : null,
-                'images' => isset($data['images']) ? sanitize_text_field($data['images']) : null,
                 'created_by' => get_current_user_id(),
                 'created_at' => current_time('mysql')
             );
+            $image_file = $data['images'];
+            if (!empty($image_file)) {
+                $upload = wp_handle_upload($image_file, array('test_form' => false));
+                if (isset($upload['file'])) {
+                    $image_path = $upload['file'];
+//                    $image_url = $upload['url'];
+                    $product_data['images'] = $image_path;
+                } else {
+                    return new WP_Error('upload_failed', 'Image upload failed', array('status' => 400));
+                }
+            } else {
+                $product_data['images'] = null;
+            }
 
             return $this->product_model->create($product_data);
         } catch (Exception $e) {
@@ -72,7 +84,7 @@ class MB_Product_Controller {
         try {
             // Prepare update data
             $update_data = array();
-            $allowed_fields = array('code', 'name', 'category', 'description', 'images');
+            $allowed_fields = array('code', 'name', 'category', 'description');
             
             foreach ($allowed_fields as $field) {
                 if (isset($data[$field])) {
@@ -84,6 +96,17 @@ class MB_Product_Controller {
 
             if (empty($update_data)) {
                 return new WP_Error('update_error', 'No valid fields to update');
+            }
+
+            $image_file = $data['images'];
+            if (!empty($image_file)) {
+                $upload = wp_handle_upload($image_file, array('test_form' => false));
+                if (isset($upload['file'])) {
+                    $image_path = $upload['file'];
+                    $update_data['images'] = $image_path;
+                } else {
+                    return new WP_Error('upload_failed', 'Image upload failed', array('status' => 400));
+                }
             }
 
             $result = $this->product_model->update($id, $update_data);
@@ -106,6 +129,122 @@ class MB_Product_Controller {
             return true;
         } catch (Exception $e) {
             return new WP_Error('delete_error', $e->getMessage());
+        }
+    }
+
+    public function get_products_select($args = array()) {
+        try {
+            $query_args = array(
+                'orderby' => 'created_at',
+                'order' => 'DESC',
+                'limit' => 10,
+                'offset' => 0,
+                'select' => array('id', 'code'),
+                'where' => array(),
+                'search' => isset($args['search']) ? sanitize_text_field($args['search']) : '',
+                'search_fields' => array('code', 'name')
+            );
+
+            return $this->product_model->get_all($query_args);
+        } catch (Exception $e) {
+            return new WP_Error('get_error', $e->getMessage());
+        }
+    }
+
+    public function get_product_history($product_id) {
+        try {
+            global $wpdb;
+            
+            $query = $wpdb->prepare(
+                "SELECT 
+                    cp.contract_id,
+                    cp.rental_start,
+                    cp.rental_end,
+                    c.name as customer_name
+                FROM mb_contract_products cp
+                JOIN mb_contracts ct ON cp.contract_id = ct.id
+                JOIN mb_customers c ON ct.customer_id = c.id
+                WHERE cp.product_id = %d
+                ORDER BY cp.rental_start DESC",
+                $product_id
+            );
+
+            $results = $wpdb->get_results($query);
+            
+            if ($wpdb->last_error) {
+                throw new Exception($wpdb->last_error);
+            }
+
+            return array_map(function($row) {
+                return array(
+                    'contract_id' => (int)$row->contract_id,
+                    'rental_start' => $row->rental_start,
+                    'rental_end' => $row->rental_end,
+                    'customer_name' => $row->name
+                );
+            }, $results);
+
+        } catch (Exception $e) {
+            return new WP_Error('get_error', $e->getMessage());
+        }
+    }
+
+    public function check_product_availability($product_id, $args = array()) {
+        try {
+            global $wpdb;
+            
+            $where_conditions = array();
+            $where_values = array($product_id);
+            
+            // Build date range conditions
+            if (!empty($args['start_date'])) {
+                $where_conditions[] = "(cp.rental_start <= %s AND cp.rental_end >= %s)";
+                $where_values[] = $args['start_date'];
+                $where_values[] = $args['start_date'];
+            }
+            
+            if (!empty($args['end_date'])) {
+                $where_conditions[] = "(cp.rental_start <= %s AND cp.rental_end >= %s)";
+                $where_values[] = $args['end_date'];
+                $where_values[] = $args['end_date'];
+            }
+
+            $date_condition = !empty($where_conditions) 
+                ? "AND (" . implode(" OR ", $where_conditions) . ")"
+                : "";
+                
+            $query = $wpdb->prepare(
+                "SELECT 
+                    cp.contract_id,
+                    cp.rental_start,
+                    cp.rental_end,
+                    c.name as customer_name
+                FROM mb_contract_products cp
+                JOIN mb_contracts ct ON cp.contract_id = ct.id
+                JOIN mb_customers c ON ct.customer_id = c.id
+                WHERE cp.product_id = %d
+                {$date_condition}
+                ORDER BY cp.rental_start ASC",
+                $where_values
+            );
+
+            $results = $wpdb->get_results($query);
+            
+            if ($wpdb->last_error) {
+                throw new Exception($wpdb->last_error);
+            }
+
+            return array_map(function($row) {
+                return array(
+                    'contract_id' => (int)$row->contract_id,
+                    'rental_start' => $row->rental_start,
+                    'rental_end' => $row->rental_end,
+                    'customer_name' => $row->name
+                );
+            }, $results);
+
+        } catch (Exception $e) {
+            return new WP_Error('get_error', $e->getMessage());
         }
     }
 } 

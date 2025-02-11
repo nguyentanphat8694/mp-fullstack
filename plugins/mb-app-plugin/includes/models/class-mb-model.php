@@ -32,12 +32,19 @@ abstract class MB_Model {
                 'limit' => 20,
                 'offset' => 0,
                 'where' => array(),
-                'search' => ''
+                'search' => '',
+                'select' => array()
             );
 
             $args = array_merge($defaults, $args);
             $where_conditions = array();
             $where_values = array();
+
+            // Xác định các field cần select
+            $select_fields = '*';
+            if (!empty($args['select']) && is_array($args['select'])) {
+                $select_fields = '`' . implode('`, `', $args['select']) . '`';
+            }
 
             // Xử lý điều kiện where
             if (!empty($args['where'])) {
@@ -65,7 +72,7 @@ abstract class MB_Model {
             $where_clause = !empty($where_conditions) ? 'WHERE ' . implode(' AND ', $where_conditions) : '';
 
             $query = $wpdb->prepare(
-                "SELECT * FROM {$this->table_name} 
+                "SELECT $select_fields FROM {$this->table_name} 
                 $where_clause
                 ORDER BY {$args['orderby']} {$args['order']}
                 LIMIT %d OFFSET %d",

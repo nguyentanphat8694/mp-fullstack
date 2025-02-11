@@ -51,6 +51,14 @@ class MB_Appointment_API extends MB_API {
                 'permission_callback' => array($this, 'assign_appointment_permissions_check'),
             )
         ));
+
+        register_rest_route($this->namespace, '/appointment/(?P<id>\d+)/completed', array(
+            array(
+                'methods' => WP_REST_Server::EDITABLE,
+                'callback' => array($this, 'complete_appointment'),
+                'permission_callback' => array($this, 'complete_appointment_permissions_check'),
+            )
+        ));
     }
 
     public function create_appointment($request) {
@@ -118,7 +126,7 @@ class MB_Appointment_API extends MB_API {
         $id = $request['id'];
         $params = $request->get_params();
         
-        if (!isset($params['isReceiving'])) {
+        if (!isset($params['type'])) {
             return $this->error_response(
                 'Missing isReceiving parameter',
                 $this->http_bad_request,
@@ -126,7 +134,7 @@ class MB_Appointment_API extends MB_API {
             );
         }
 
-        $result = $this->controller->assign_appointment($id, (bool)$params['isReceiving']);
+        $result = $this->controller->assign_appointment($id, (bool)$params['type']);
 
         if (is_wp_error($result)) {
             return $this->error_response(
@@ -154,6 +162,40 @@ class MB_Appointment_API extends MB_API {
         return $this->success_response(null, $this->http_ok, 'Appointment deleted successfully');
     }
 
+    public function complete_appointment($request) {
+        $id = $request['id'];
+        $params = $request->get_params();
+        
+        // Validate required parameters
+        if (!isset($params['type'])) {
+            return $this->error_response(
+                'Missing type parameter',
+                $this->http_bad_request,
+                'missing_parameter'
+            );
+        }
+
+        $result = $this->controller->complete_appointment(
+            $id, 
+            (bool)$params['type'],
+            isset($params['note']) ? $params['note'] : ''
+        );
+
+        if (is_wp_error($result)) {
+            return $this->error_response(
+                $result->get_error_message(),
+                $this->http_bad_request,
+                $result->get_error_code()
+            );
+        }
+
+        return $this->success_response(
+            $result, 
+            $this->http_ok, 
+            'Appointment status updated successfully'
+        );
+    }
+
     // Permission checks
     public function create_appointment_permissions_check($request) {
         return true; // Implement proper permission check
@@ -176,6 +218,10 @@ class MB_Appointment_API extends MB_API {
     }
 
     public function delete_appointment_permissions_check($request) {
+        return true; // Implement proper permission check
+    }
+
+    public function complete_appointment_permissions_check($request) {
         return true; // Implement proper permission check
     }
 } 

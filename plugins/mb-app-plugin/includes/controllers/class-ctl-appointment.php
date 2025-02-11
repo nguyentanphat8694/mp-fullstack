@@ -15,8 +15,6 @@ class MB_Appointment_Controller {
 
     public function create_appointment($data) {
         try {
-            $this->appointment_model->db->begin_transaction();
-
             // Validate required fields
             if (empty($data['customer_id']) || empty($data['appointment_date'])) {
                 return new WP_Error('missing_required_fields', 'Missing required fields');
@@ -42,7 +40,7 @@ class MB_Appointment_Controller {
                 'appointment_id' => $appointment_id,
                 'appointment_date' => $appointment_data['appointment_date'],
                 'action' => 'created',
-                'note' => 'Appointment scheduled',
+                'note' => isset($data['note']) ? $data['note'] : '',
                 'created_by' => get_current_user_id(),
                 'created_at' => current_time('mysql')
             );
@@ -52,21 +50,51 @@ class MB_Appointment_Controller {
                 throw new Exception($history_id->get_error_message());
             }
 
-            $this->appointment_model->db->commit();
-            return $this->get_appointment($appointment_id);
+            return $appointment_id;
         } catch (Exception $e) {
-            $this->appointment_model->db->rollback();
             return new WP_Error('create_error', $e->getMessage());
         }
     }
 
     public function get_appointment($id) {
         try {
-            $result = $this->appointment_model->get($id);
+            global $wpdb;
+            
+            $query = $wpdb->prepare(
+                "SELECT 
+                    a.customer_id,
+                    a.appointment_date,
+                    ah.note
+                FROM mb_appointments a
+                LEFT JOIN (
+                    SELECT appointment_id, note
+                    FROM mb_appointment_history
+                    WHERE id IN (
+                        SELECT MAX(id)
+                        FROM mb_appointment_history
+                        GROUP BY appointment_id
+                    )
+                ) ah ON a.id = ah.appointment_id
+                WHERE a.id = %d",
+                $id
+            );
+
+            $result = $wpdb->get_row($query);
+            
+            if ($wpdb->last_error) {
+                throw new Exception($wpdb->last_error);
+            }
+
             if (!$result) {
                 return new WP_Error('not_found', 'Appointment not found');
             }
-            return $result;
+
+            return array(
+                'customer_id' => (int)$result->customer_id,
+                'appointment_date' => $result->appointment_date,
+                'note' => $result->note
+            );
+
         } catch (Exception $e) {
             return new WP_Error('get_error', $e->getMessage());
         }
@@ -74,25 +102,78 @@ class MB_Appointment_Controller {
 
     public function get_appointments($args = array()) {
         try {
-            $query_args = array(
-                'where' => array(),
-                'limit' => isset($args['limit']) ? absint($args['limit']) : 20,
-                'offset' => isset($args['offset']) ? absint($args['offset']) : 0
-            );
+            global $wpdb;
+
+            $where_conditions = array();
+            $where_values = array();
 
             // Filter by appointment date
             $date = isset($args['date']) ? $args['date'] : current_time('Y-m-d');
-            $query_args['where_raw'] = "DATE(appointment_date) = DATE('" . sanitize_text_field($date) . "')";
+            $where_conditions[] = "DATE(a.appointment_date) = DATE(%s)";
+            $where_values[] = sanitize_text_field($date);
 
             // Additional filters
             if (isset($args['status'])) {
-                $query_args['where']['status'] = sanitize_text_field($args['status']);
+                $where_conditions[] = "a.status = %s";
+                $where_values[] = sanitize_text_field($args['status']);
             }
             if (isset($args['assigned_to'])) {
-                $query_args['where']['assigned_to'] = absint($args['assigned_to']);
+                $where_conditions[] = "a.assigned_to = %d";
+                $where_values[] = absint($args['assigned_to']);
             }
 
-            return $this->appointment_model->get_all($query_args);
+            $where_clause = !empty($where_conditions) 
+                ? "WHERE " . implode(" AND ", $where_conditions)
+                : "";
+
+            $limit = isset($args['limit']) ? absint($args['limit']) : 20;
+            $offset = isset($args['offset']) ? absint($args['offset']) : 0;
+
+            $query = $wpdb->prepare(
+                "SELECT 
+                    c.name as customer_name,
+                    c.phone as customer_phone,
+                    a.status,
+                    a.appointment_date,
+                    u.display_name as assigned_to_name,
+                    a.created_at,
+                    ah.note
+                FROM mb_appointments a
+                JOIN mb_customers c ON a.customer_id = c.id
+                LEFT JOIN {$wpdb->users} u ON a.assigned_to = u.ID
+                LEFT JOIN (
+                    SELECT appointment_id, note
+                    FROM mb_appointment_history
+                    WHERE id IN (
+                        SELECT MAX(id)
+                        FROM mb_appointment_history
+                        GROUP BY appointment_id
+                    )
+                ) ah ON a.id = ah.appointment_id
+                {$where_clause}
+                ORDER BY a.appointment_date ASC
+                LIMIT %d OFFSET %d",
+                array_merge($where_values, array($limit, $offset))
+            );
+
+            $results = $wpdb->get_results($query);
+            
+            if ($wpdb->last_error) {
+                throw new Exception($wpdb->last_error);
+            }
+
+            return array_map(function($row) {
+                return array(
+                    'customer_name' => $row->customer_name,
+                    'customer_phone' => $row->customer_phone,
+                    'status' => $row->status,
+                    'appointment_date' => $row->appointment_date,
+                    'assigned_to_name' => $row->assigned_to_name,
+                    'created_at' => $row->created_at,
+                    'note' => $row->note
+                );
+            }, $results);
+
         } catch (Exception $e) {
             return new WP_Error('get_error', $e->getMessage());
         }
@@ -100,8 +181,6 @@ class MB_Appointment_Controller {
 
     public function update_appointment($id, $data) {
         try {
-            $this->appointment_model->db->begin_transaction();
-
             // Check if appointment exists
             $appointment = $this->get_appointment($id);
             if (is_wp_error($appointment)) {
@@ -130,30 +209,30 @@ class MB_Appointment_Controller {
             // Create history record
             $history_data = array(
                 'appointment_id' => $id,
-                'appointment_date' => $update_data['appointment_date'] ?? $appointment->appointment_date,
+                'appointment_date' => $update_data['appointment_date'] ?? $appointment['appointment_date'],
                 'action' => 'updated',
-                'note' => 'Appointment updated',
+                'note' => ,
                 'created_by' => get_current_user_id(),
                 'created_at' => current_time('mysql')
             );
+
+            if (isset($data['note'])) {
+                $history_data['note'] = $data['note'];
+            }
 
             $history_id = $this->appointment_history_model->create($history_data);
             if (is_wp_error($history_id)) {
                 throw new Exception($history_id->get_error_message());
             }
 
-            $this->appointment_model->db->commit();
-            return $this->get_appointment($id);
+            return $id;
         } catch (Exception $e) {
-            $this->appointment_model->db->rollback();
             return new WP_Error('update_error', $e->getMessage());
         }
     }
 
-    public function assign_appointment($id, $is_receiving) {
+    public function assign_appointment($id, $type) {
         try {
-            $this->appointment_model->db->begin_transaction();
-
             // Check if appointment exists
             $appointment = $this->get_appointment($id);
             if (is_wp_error($appointment)) {
@@ -163,12 +242,12 @@ class MB_Appointment_Controller {
             $current_user_id = get_current_user_id();
             $update_data = array();
 
-            if ($is_receiving) {
+            if ($type) {
                 $update_data['assigned_to'] = $current_user_id;
                 $action_note = 'Appointment assigned to user';
             } else {
                 // Only allow unassign if currently assigned to the same user
-                if ($appointment->assigned_to == $current_user_id) {
+                if ($appointment['assigned_to'] == $current_user_id) {
                     $update_data['assigned_to'] = null;
                     $action_note = 'Appointment unassigned';
                 } else {
@@ -185,7 +264,7 @@ class MB_Appointment_Controller {
             // Create history record
             $history_data = array(
                 'appointment_id' => $id,
-                'appointment_date' => $appointment->appointment_date,
+                'appointment_date' => $appointment['appointment_date'],
                 'action' => $is_receiving ? 'assigned' : 'unassigned',
                 'note' => $action_note,
                 'created_by' => $current_user_id,
@@ -197,10 +276,8 @@ class MB_Appointment_Controller {
                 throw new Exception($history_id->get_error_message());
             }
 
-            $this->appointment_model->db->commit();
-            return $this->get_appointment($id);
+            return $id;
         } catch (Exception $e) {
-            $this->appointment_model->db->rollback();
             return new WP_Error('assign_error', $e->getMessage());
         }
     }
@@ -214,6 +291,47 @@ class MB_Appointment_Controller {
             return true;
         } catch (Exception $e) {
             return new WP_Error('delete_error', $e->getMessage());
+        }
+    }
+
+    public function complete_appointment($id, $type, $note = '') {
+        try {
+            // Check if appointment exists
+            $appointment = $this->get_appointment($id);
+            if (is_wp_error($appointment)) {
+                return $appointment;
+            }
+
+            // Prepare update data
+            $update_data = array(
+                'status' => $type ? 'completed' : 'cancelled'
+            );
+
+            // Update appointment
+            $result = $this->appointment_model->update($id, $update_data);
+            if (is_wp_error($result)) {
+                throw new Exception($result->get_error_message());
+            }
+
+            // Create history record
+            $history_data = array(
+                'appointment_id' => $id,
+                'appointment_date' => $appointment['appointment_date'],
+                'action' => $type ? 'completed' : 'cancelled',
+                'note' => $note,
+                'created_by' => get_current_user_id(),
+                'created_at' => current_time('mysql')
+            );
+
+            $history_id = $this->appointment_history_model->create($history_data);
+            if (is_wp_error($history_id)) {
+                throw new Exception($history_id->get_error_message());
+            }
+
+            return $id;
+
+        } catch (Exception $e) {
+            return new WP_Error('complete_error', $e->getMessage());
         }
     }
 } 

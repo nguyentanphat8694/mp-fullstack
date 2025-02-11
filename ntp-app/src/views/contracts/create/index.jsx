@@ -1,8 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ContractForm } from "@/components/contracts/contract-form"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 const CreateContractPage = () => {
