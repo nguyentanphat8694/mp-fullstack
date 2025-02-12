@@ -12,6 +12,10 @@ import {AssignCustomerModal} from "./assign-customer-modal";
 import {AddAppointmentModal} from "./add-appointment-modal";
 import {ActionButtons} from "@/components/customers/customer-table-actions";
 import {DeleteCustomerConfirm} from "@/components/customers/delete-customer-confirm.jsx";
+import {
+  CUSTOMER_SOURCE_OPTIONS,
+  CUSTOMER_STATUS_OPTIONS,
+} from '@/helpers/constants.js';
 
 const CustomerTable = ({ customers = [], onEdit }) => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -40,13 +44,13 @@ const CustomerTable = ({ customers = [], onEdit }) => {
                 <TableCell>{customer.name}</TableCell>
                 <TableCell>{customer.phone}</TableCell>
                 <TableCell className="hidden sm:table-cell">
-                  {customer.source}
+                  {CUSTOMER_SOURCE_OPTIONS[customer.source]}
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
-                  {customer.status}
+                  {CUSTOMER_STATUS_OPTIONS[customer.status]}
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
-                  {customer.assigned_to}
+                  {customer.assigned_to_name}
                 </TableCell>
                 <TableCell>
                   <ActionButtons

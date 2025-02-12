@@ -4,6 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import PropTypes from 'prop-types';
 
 const CustomerAppointments = ({ appointments = [] }) => {
   return (
@@ -24,7 +25,7 @@ const CustomerAppointments = ({ appointments = [] }) => {
                   <p className="text-sm text-muted-foreground">{appointment.note}</p>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {appointment.staff_name}
+                  {appointment.assinged_to_name}
                 </div>
               </div>
             ))}
@@ -37,4 +38,8 @@ const CustomerAppointments = ({ appointments = [] }) => {
   )
 }
 
-export { CustomerAppointments } 
+export { CustomerAppointments }
+
+CustomerAppointments.propTypes = {
+  appointments: PropTypes.array,
+}

@@ -12,20 +12,23 @@ import {UserSelect} from "@/components/ui-custom/user-select/index.jsx";
 import {useForm} from "react-hook-form";
 import request from "@/helpers/request";
 import {URLs} from "@/helpers/url.js";
-import {useMutation} from "@tanstack/react-query";
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {toast} from "@/hooks/use-toast.js";
 import PropTypes from "prop-types";
+import {QUERY_KEY} from '@/helpers/constants.js';
 
 export const AssignCustomerModal = ({customer, isAssignModalOpen, setIsAssignModalOpen, setSelectedCustomer}) => {
+  const queryClient = useQueryClient();
   const {mutate, isPending} = useMutation({
     mutationFn: (params) => request(URLs.CUSTOMERS.ASSIGN, {
       verb: 'post',
       params: {
-        "user_id": params.staff,
+        "user_id": params.user_id,
         "customer_id": customer.id,
       }
     }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CUSTOMER_LIST] });
       toast({
         title: "Thành công",
         description: "Đã gán khách hàng thành công.",
@@ -58,8 +61,8 @@ export const AssignCustomerModal = ({customer, isAssignModalOpen, setIsAssignMod
             <p className="text-sm font-medium capitalize">{customer?.status}</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="staff">Nhân viên phụ trách</Label>
-            <UserSelect name="staff" control={control} rules={{required: "Vui lòng chọn nhân viên"}} role="facebook"/>
+            <Label htmlFor="user_id">Nhân viên phụ trách</Label>
+            <UserSelect name="user_id" control={control} rules={{required: "Vui lòng chọn nhân viên"}} role="facebook"/>
             {errors.staff && (
               <p className="text-sm text-destructive">{errors.staff.message}</p>
             )}

@@ -5,20 +5,22 @@ import {Label} from "@/components/ui/label"
 import {Textarea} from "@/components/ui/textarea"
 import {useCallback} from "react";
 import CustomSelect from "@/components/ui-custom/custom-select";
-import {CUSTOMER_SOURCE_OPTIONS} from "@/helpers/constants";
-import {useMutation} from "@tanstack/react-query";
+import {CUSTOMER_SOURCE_OPTIONS, QUERY_KEY} from '@/helpers/constants';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import request from "@/helpers/request";
 import {URLs} from "@/helpers/url";
 import {toast} from "@/hooks/use-toast";
 import PropTypes from 'prop-types';
 
 const CustomerForm = ({customer, setIsOpen, setSelectedCustomer}) => {
+  const queryClient = useQueryClient();
   const {mutate, isPending} = useMutation({
     mutationFn: (params) => request(URLs.CUSTOMERS.CREATE, {
       verb: 'post',
       params
     }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CUSTOMER_LIST] });
       toast({
         title: "Thành công",
         description: customer ? "Đã cập nhật thông tin khách hàng" : "Đã thêm khách hàng mới",

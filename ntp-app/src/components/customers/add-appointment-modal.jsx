@@ -11,16 +11,19 @@ import {Label} from "@/components/ui/label"
 import {Input} from "@/components/ui/input"
 import {Textarea} from "@/components/ui/textarea"
 import {useForm} from "react-hook-form";
-import {useMutation} from "@tanstack/react-query";
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 import request from "@/helpers/request";
 import {URLs} from "@/helpers/url";
 import {toast} from "@/hooks/use-toast";
 import PropTypes from 'prop-types';
+import {QUERY_KEY} from '@/helpers/constants.js';
 
 export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsAppointmentModalOpen, setSelectedCustomer }) => {
   const [date, setDate] = useState("")
   const [time, setTime] = useState("")
   const [note, setNote] = useState("")
+
+  const queryClient = useQueryClient();
 
   const {mutate, isPending} = useMutation({
     mutationFn: (params) => request(URLs.APPOINTMENTS.CREATE, {
@@ -28,6 +31,7 @@ export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsApp
       params
     }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CUSTOMER_LIST] });
       toast({
         title: "Thành công",
         description: "Đã thêm lịch hẹn thành công.",
@@ -46,12 +50,17 @@ export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsApp
     mutate({
       customer_id: customer.id,
       appointment_date: `${data.date} ${data.time}`,
+      note: data.note,
     });
   }, []);
 
-  const {register, handleSubmit, formState: {errors}, control} = useForm({
+  const {register, handleSubmit, formState: {errors}} = useForm({
     defaultValues: customer || {}
   })
+
+  const onSetDate = useCallback((e) => setDate(e.target.value), []);
+  const onSetTime = useCallback((e) => setTime(e.target.value), []);
+  const onSetNote = useCallback((e) => setNote(e.target.value), []);
 
   return (
     <Dialog open={isAppointmentModalOpen} onOpenChange={onClose}>
@@ -70,7 +79,7 @@ export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsApp
               id="date"
               type="date"
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={onSetDate}
               {...register("date", {required: "Vui lòng ngày hẹn"})}
             />
             {errors.name && (
@@ -83,7 +92,7 @@ export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsApp
               id="time"
               type="time"
               value={time}
-              onChange={(e) => setTime(e.target.value)}
+              onChange={onSetTime}
               {...register("time", {required: "Vui lòng giờ hẹn"})}
             />
             {errors.name && (
@@ -95,7 +104,7 @@ export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsApp
             <Textarea
               id="note"
               value={note}
-              onChange={(e) => setNote(e.target.value)}
+              onChange={onSetNote}
               placeholder="Nhập ghi chú cho lịch hẹn..."
               {...register("note")}
             />

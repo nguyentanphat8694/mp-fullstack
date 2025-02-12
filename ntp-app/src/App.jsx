@@ -156,14 +156,6 @@ function App() {
     }
   }, [userInfo]);
 
-  // useEffect(() => {
-  //   // Tính toán chiều rộng của scrollbar
-  //   const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-  //
-  //   // Thêm padding-right cho body bằng với chiều rộng scrollbar
-  //   document.body.style.paddingRight = `${scrollbarWidth}px`;
-  // }, []);
-
   return getRoutes();
 }
 
