@@ -1,6 +1,6 @@
 // API Configuration
 export const API_CONFIG = {
-  HOST: 'http://localhost/testapp', // TODO: Update with actual domain
+  HOST: 'http://localhost/mb', // TODO: Update with actual domain
   PREFIX: '/wp-json',
   VERSION: '/mb/v1',
   PATH: {

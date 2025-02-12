@@ -46,8 +46,8 @@ function App() {
   const userInfo = useUserInfoStore((state) => state.userInfo);
 
   // Check if user is authenticated based on userInfo existence
-  // const isAuthenticated = userInfo
-  const isAuthenticated = true;
+  const isAuthenticated = userInfo
+  // const isAuthenticated = true;
 
   const getRoutes = () => {
     return useRoutes([

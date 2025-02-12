@@ -112,7 +112,7 @@ const CustomerListPage = () => {
           </div>
 
           <CustomerTable
-            customers={data?.data?.data ?? []}
+            customers={data?.data?.data?.data ?? []}
             onEdit={handleEdit}
           />
         </div>
