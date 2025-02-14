@@ -20,7 +20,7 @@ const useProductUpdateMutate = (id, callbackFn) => {
       });
 
       return request(URLs.PRODUCTS.UPDATE(id), {
-        verb: 'delete',
+        verb: 'put',
         params: formData,
         headers: {
           'Content-Type': 'multipart/form-data',

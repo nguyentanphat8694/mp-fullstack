@@ -1,4 +1,4 @@
-import {useCallback, useState} from "react"
+import {useCallback} from "react"
 import {
   Dialog,
   DialogContent,
@@ -19,11 +19,18 @@ import PropTypes from 'prop-types';
 import {QUERY_KEY} from '@/helpers/constants.js';
 
 export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsAppointmentModalOpen, setSelectedCustomer }) => {
-  const [date, setDate] = useState("")
-  const [time, setTime] = useState("")
-  const [note, setNote] = useState("")
-
   const queryClient = useQueryClient();
+  
+  const {register, handleSubmit, formState: {errors}, watch} = useForm({
+    defaultValues: {
+      date: "",
+      time: "",
+      note: ""
+    }
+  });
+
+  const date = watch('date');
+  const time = watch('time');
 
   const {mutate, isPending} = useMutation({
     mutationFn: (params) => request(URLs.APPOINTMENTS.CREATE, {
@@ -47,20 +54,13 @@ export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsApp
   }, []);
 
   const onSubmit = useCallback((data) => {
+    console.log('data', data);
     mutate({
       customer_id: customer.id,
       appointment_date: `${data.date} ${data.time}`,
       note: data.note,
     });
-  }, []);
-
-  const {register, handleSubmit, formState: {errors}} = useForm({
-    defaultValues: customer || {}
-  })
-
-  const onSetDate = useCallback((e) => setDate(e.target.value), []);
-  const onSetTime = useCallback((e) => setTime(e.target.value), []);
-  const onSetNote = useCallback((e) => setNote(e.target.value), []);
+  }, [customer?.id, mutate]);
 
   return (
     <Dialog open={isAppointmentModalOpen} onOpenChange={onClose}>
@@ -78,11 +78,11 @@ export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsApp
             <Input
               id="date"
               type="date"
-              value={date}
-              onChange={onSetDate}
-              {...register("date", {required: "Vui lòng ngày hẹn"})}
+              {...register("date", {
+                required: "Vui lòng chọn ngày hẹn"
+              })}
             />
-            {errors.name && (
+            {errors.date && (
               <p className="text-sm text-destructive">{errors.date.message}</p>
             )}
           </div>
@@ -91,11 +91,11 @@ export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsApp
             <Input
               id="time"
               type="time"
-              value={time}
-              onChange={onSetTime}
-              {...register("time", {required: "Vui lòng giờ hẹn"})}
+              {...register("time", {
+                required: "Vui lòng chọn giờ hẹn"
+              })}
             />
-            {errors.name && (
+            {errors.time && (
               <p className="text-sm text-destructive">{errors.time.message}</p>
             )}
           </div>
@@ -103,8 +103,6 @@ export const AddAppointmentModal = ({ customer, isAppointmentModalOpen, setIsApp
             <Label htmlFor="note">Ghi chú</Label>
             <Textarea
               id="note"
-              value={note}
-              onChange={onSetNote}
               placeholder="Nhập ghi chú cho lịch hẹn..."
               {...register("note")}
             />

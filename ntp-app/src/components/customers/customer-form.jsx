@@ -30,12 +30,34 @@ const CustomerForm = ({customer, setIsOpen, setSelectedCustomer}) => {
     },
   });
 
+  const {mutate: mutateUpdate, isPending: isPendingUpdate} = useMutation({
+    mutationFn: (params) => request(URLs.CUSTOMERS.UPDATE(customer.id), {
+      verb: 'post',
+      params
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CUSTOMER_LIST] });
+      toast({
+        title: "Thành công",
+        description: customer ? "Đã cập nhật thông tin khách hàng" : "Đã thêm khách hàng mới",
+      });
+      setIsOpen(false);
+      setSelectedCustomer(null);
+    },
+  });
+
   const onSubmitForm = useCallback((data) => {
-    mutate(data);
-  }, [])
+    if (customer) {
+      mutateUpdate(data)
+    } else{
+      mutate(data)
+    }
+  }, []);
+
   const {register, handleSubmit, formState: {errors}, control} = useForm({
     defaultValues: customer || {}
   })
+
   return (
     <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
       <div className="space-y-2">
@@ -74,16 +96,16 @@ const CustomerForm = ({customer, setIsOpen, setSelectedCustomer}) => {
         )}
       </div>
 
-      <div className="space-y-2">
+      {!customer && <div className="space-y-2">
         <Label htmlFor="note">Ghi chú</Label>
         <Textarea
           id="note"
           {...register("note")}
         />
-      </div>
+      </div>}
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Đang xử lý..." : "Lưu"}
+        {(customer ? isPendingUpdate :  isPending) ? "Đang xử lý..." : "Lưu"}
       </Button>
     </form>
   )

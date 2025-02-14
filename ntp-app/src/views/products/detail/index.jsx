@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react';
+import {useState, useCallback} from 'react';
 import {useParams} from 'react-router-dom';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
 import {Button} from '@/components/ui/button';
@@ -6,61 +6,19 @@ import {Calendar} from 'lucide-react';
 import {CheckAvailableModal} from '@/components/products/check-available-modal';
 import {ProductDetailTab} from '@/components/products/product-detail-tab.jsx';
 import {ProductHistoryTab} from '@/components/products/product-history-tab.jsx';
+import useProductDetailQuery from "@/queries/useProductDetailQuery.js";
 
 const ProductDetailPage = () => {
   const {id} = useParams();
-  const [product, setProduct] = useState(null);
   const [rentalHistory, setRentalHistory] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showCheckModal, setShowCheckModal] = useState(false);
 
   const onCheckClick = useCallback(() => setShowCheckModal(true), []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Mock product data
-        const mockProduct = {
-          id: parseInt(id),
-          code: 'WD001',
-          name: 'Váy cưới công chúa',
-          category: 'wedding_dress',
-          description: 'Váy cưới phong cách công chúa, màu trắng tinh khôi',
-          images: '/images/products/wd001.jpg',
-          created_at: '2024-01-01',
-        };
-
-        // Mock rental history
-        const mockHistory = [
-          {
-            id: '1',
-            customer_name: 'Nguyễn Văn A',
-            start_date: '2024-02-15',
-            end_date: '2024-02-17',
-            contract_id: 'CT001',
-          },
-          {
-            id: '2',
-            customer_name: 'Trần Thị B',
-            start_date: '2024-03-01',
-            end_date: '2024-03-03',
-            contract_id: 'CT002',
-          },
-        ];
-
-        setProduct(mockProduct);
-        setRentalHistory(mockHistory);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
-  if (isLoading) return <div>Loading...</div>;
+  const {data: productData, isPending} = useProductDetailQuery(id);
+  const product = productData?.data?.data;
+  console.log(productData)
+  if (isPending) return <div>Loading...</div>;
   if (!product) return <div>Không tìm thấy sản phẩm</div>;
 
   return (
@@ -91,7 +49,6 @@ const ProductDetailPage = () => {
         <TabsContent value="history">
           <ProductHistoryTab
             productId={id}
-            rentalHistory={rentalHistory}
           />
         </TabsContent>
       </Tabs>
@@ -100,7 +57,9 @@ const ProductDetailPage = () => {
         showCheckModal={showCheckModal}
         setShowCheckModal={setShowCheckModal}
         productId={product.id}
+        product={product}
         productName={product.name}
+        isPending={isPending}
       />
     </div>
   );

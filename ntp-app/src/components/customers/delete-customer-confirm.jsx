@@ -8,16 +8,19 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog.jsx";
 import PropTypes from "prop-types";
-import {useMutation} from "@tanstack/react-query";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import request from "@/helpers/request.js";
 import {URLs} from "@/helpers/url.js";
 import {toast} from "@/hooks/use-toast.js";
 import {useCallback} from "react";
+import {QUERY_KEY} from "@/helpers/constants.js";
 
 export const DeleteCustomerConfirm = ({customer, isDeleteDialogOpen, setIsDeleteDialogOpen, setSelectedCustomer}) => {
+  const queryClient = useQueryClient();
   const {mutate, isPending} = useMutation({
     mutationFn: () => request(URLs.CUSTOMERS.DELETE(customer.id), {verb: 'delete'}),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CUSTOMER_LIST] });
       toast({
         title: "Thành công",
         description: "Đã xóa khách hàng thành công.",

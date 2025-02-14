@@ -1,4 +1,4 @@
-import {useState} from "react"
+import { useState, useCallback } from "react"
 import {
   Table,
   TableBody,
@@ -7,26 +7,38 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {Input} from "@/components/ui/input"
-import {STAFF_ROLE_OPTIONS} from "@/helpers/constants.js";
-import CustomSelect from "@/components/ui-custom/custom-select/index.jsx";
-import {EmployeeTableActions} from "@/components/employees/employee-table-actions.jsx";
-import {DeleteEmployeeConfirm} from "@/components/employees/delete-employee-confirm.jsx";
-import {AddRewardModal} from "@/components/employees/add-reward-modal.jsx";
-import PropTypes from "prop-types";
+import { Input } from "@/components/ui/input"
+import { STAFF_ROLE_OPTIONS } from "@/helpers/constants"
+import CustomSelect from "@/components/ui-custom/custom-select"
+import { EmployeeTableActions } from "@/components/employees/employee-table-actions"
+import { DeleteEmployeeConfirm } from "@/components/employees/delete-employee-confirm"
+import { AddRewardModal } from "@/components/employees/add-reward-modal"
+import { Pagination } from "@/components/ui/pagination"
+import PropTypes from "prop-types"
 
-const EmployeeTable = ({ employees = [], onEdit }) => {
+const EmployeeTable = ({ 
+  employees = [], 
+  onEdit, 
+  onSearch,
+  currentPage,
+  totalPages,
+  onPageChange 
+}) => {
   const [roleFilter, setRoleFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedEmployee, setSelectedEmployee] = useState(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isRewardOpen, setIsRewardOpen] = useState(false)
 
-  const filteredEmployees = employees.filter(employee => {
-    if (roleFilter !== "all" && employee.role !== roleFilter) return false
-    if (searchQuery && !employee.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
-    return true
-  })
+  const handleSearchChange = useCallback((e) => {
+    setSearchQuery(e.target.value)
+    onSearch(e.target.value, roleFilter)
+  }, [onSearch, roleFilter])
+
+  const handleRoleChange = useCallback((value) => {
+    setRoleFilter(value)
+    onSearch(searchQuery, value)
+  }, [onSearch, searchQuery])
 
   return (
     <div className="space-y-4">
@@ -34,17 +46,16 @@ const EmployeeTable = ({ employees = [], onEdit }) => {
         <Input
           placeholder="Tìm kiếm nhân viên..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange}
           className="flex-1"
         />
         <CustomSelect
           className="w-[180px]"
           value={roleFilter}
-          onValueChange={setRoleFilter}
+          onValueChange={handleRoleChange}
           triggerName="Vai trò"
           options={STAFF_ROLE_OPTIONS}
         />
-
       </div>
 
       <div className="border rounded-lg">
@@ -53,28 +64,18 @@ const EmployeeTable = ({ employees = [], onEdit }) => {
             <TableRow>
               <TableHead>Họ tên</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Số điện thoại</TableHead>
-              <TableHead>Vai trò</TableHead>
-              <TableHead>Trạng thái</TableHead>
+              <TableHead>Username</TableHead>
+              <TableHead>Ngày tạo</TableHead>
               <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredEmployees.map((employee) => (
+            {employees.map((employee) => (
               <TableRow key={employee.id}>
-                <TableCell>{employee.name}</TableCell>
+                <TableCell>{employee.display_name}</TableCell>
                 <TableCell>{employee.email}</TableCell>
-                <TableCell>{employee.phone}</TableCell>
-                <TableCell className="capitalize">{employee.role}</TableCell>
-                <TableCell>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    employee.status === 'active'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {employee.status === 'active' ? 'Đang làm' : 'Đã nghỉ'}
-                  </span>
-                </TableCell>
+                <TableCell>{employee.username}</TableCell>
+                <TableCell>{new Date(employee.created_at).toLocaleDateString('vi-VN')}</TableCell>
                 <TableCell>
                   <EmployeeTableActions
                     employee={employee}
@@ -82,18 +83,27 @@ const EmployeeTable = ({ employees = [], onEdit }) => {
                     setSelectedEmployee={setSelectedEmployee}
                     setIsDeleteDialogOpen={setIsDeleteDialogOpen}
                     setIsRewardOpen={setIsRewardOpen}
-                    isRewardOpen={isRewardOpen}/>
+                  />
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
+
       <DeleteEmployeeConfirm
         isDeleteDialogOpen={isDeleteDialogOpen}
         setIsDeleteDialogOpen={setIsDeleteDialogOpen}
         selectedEmployee={selectedEmployee}
-        setSelectedEmployee={setSelectedEmployee}/>
+        setSelectedEmployee={setSelectedEmployee}
+      />
+      
       <AddRewardModal
         employee={selectedEmployee}
         setIsRewardOpen={setIsRewardOpen}
@@ -103,9 +113,13 @@ const EmployeeTable = ({ employees = [], onEdit }) => {
   )
 }
 
-export {EmployeeTable}
-
 EmployeeTable.propTypes = {
   employees: PropTypes.array,
   onEdit: PropTypes.func,
+  onSearch: PropTypes.func,
+  currentPage: PropTypes.number,
+  totalPages: PropTypes.number,
+  onPageChange: PropTypes.func
 }
+
+export { EmployeeTable }

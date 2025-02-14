@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/form"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Card, CardContent } from "@/components/ui/card"
-import { UserSelect } from "@/components/ui-custom/user-select"
+import { UserSelect } from "@/components/ui-custom/user-select/index.jsx"
 import PropTypes from "prop-types"
 import { useFormContext } from "react-hook-form"
 

@@ -20,7 +20,7 @@ import PropTypes from 'prop-types';
 import {useState, useCallback} from 'react';
 import useProductHistoryQuery from '@/queries/useProductHistoryQuery';
 
-export const ProductHistoryTab = ({ productId, rentalHistory  }) => {
+export const ProductHistoryTab = ({ productId  }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -29,7 +29,7 @@ export const ProductHistoryTab = ({ productId, rentalHistory  }) => {
     offset: (currentPage - 1) * itemsPerPage
   });
 
-  // const rentalHistory = historyData?.data?.data ?? [];
+  const rentalHistory = historyData?.data?.data ?? [];
   const totalItems = historyData?.data?.total ?? 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -37,9 +37,9 @@ export const ProductHistoryTab = ({ productId, rentalHistory  }) => {
     setCurrentPage(page);
   }, []);
 
-  // if (isPending) {
-  //   return <div>Loading...</div>;
-  // }
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-6">

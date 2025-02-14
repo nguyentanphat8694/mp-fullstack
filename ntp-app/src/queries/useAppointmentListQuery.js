@@ -8,10 +8,12 @@ const useAppointmentListQuery = ({ searchTerm, date, status }) => {
   return useQuery({
     queryKey: [QUERY_KEY.APPOINTMENT_LIST, searchTerm, date, status],
     queryFn: () => request(URLs.APPOINTMENTS.LIST, {
-      params: {
-        search: searchTerm,
-        date: date ? format(new Date(date), 'yyyy-MM-dd') : undefined,
-        status: status === 'all' ? undefined : status
+      config: {
+        params: {
+          search: searchTerm,
+          date: date ? format(new Date(date), 'yyyy-MM-dd') : undefined,
+          status: status === 'all' ? undefined : status
+        }
       }
     })
   });

@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import useUserByRole from "@/queries/useUserByRoleQuery";
 import CustomSelect from "@/components/ui-custom/custom-select";
 import {useMemo} from "react";
-import Select from "react-select";
 
 const getDisplayArray = (rawArr) => rawArr ? rawArr.map((item) => ({value: item.id, label: item.display_name})) : [];
 
@@ -15,18 +14,16 @@ export const UserSelect = ({control, rules, name, roles = [], onValueChange, val
       return [];
     }
   }, [data]);
-  return <Select
+  return <CustomSelect
+    value={value}
+    onValueChange={onValueChange}
+    name={name}
+    control={control}
+    rules={rules}
+    triggerName="Chọn nhân viên"
     options={users}
-    placeholder='Chọn nhân viênaaa'
+    {...rest}
   />;
-  // return <Seclect
-  //   name={name}
-  //   control={control}
-  //   rules={rules}
-  //   triggerName="Chọn nhân viên"
-  //   options={users}
-  //   {...rest}
-  // />;
 }
 
 UserSelect.propTypes = {

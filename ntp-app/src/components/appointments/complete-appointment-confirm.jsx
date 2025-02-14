@@ -26,7 +26,7 @@ export const CompleteAppointmentConfirm = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Xác nhận hoàn thành</AlertDialogTitle>
           <AlertDialogDescription>
-            Bạn có chắc chắn muốn hoàn thành lịch hẹn của khách hàng {appointment?.customer.name}?
+            Bạn có chắc chắn muốn hoàn thành lịch hẹn của khách hàng {appointment?.customer_name}?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="py-4">

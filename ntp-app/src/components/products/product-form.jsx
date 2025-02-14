@@ -8,16 +8,20 @@ import {useToast} from "@/hooks/use-toast"
 import useProductCreateMutate from "@/queries/useProductCreateMutate"
 import useProductUpdateMutate from "@/queries/useProductUpdateMutate"
 import PropTypes from "prop-types"
-import {PRODUCT_CATEGORY_OPTIONS} from "@/helpers/constants"
+import {PRODUCT_CATEGORY_OPTIONS, QUERY_KEY} from "@/helpers/constants"
 import CustomSelect from "@/components/ui-custom/custom-select/index.jsx";
+import {useQueryClient} from "@tanstack/react-query";
 
-export const ProductForm = ({product}) => {
+export const ProductForm = ({product, setIsOpen, isOpen}) => {
+  const queryClient = useQueryClient();
   const {toast} = useToast()
   const onSuccess = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEY.PRODUCT_LIST] });
     toast({
       title: "Thành công",
       description: product ? "Cập nhật sản phẩm thành công" : "Thêm sản phẩm thành công",
     })
+    setIsOpen(false);
   }, [product]);
   const createMutation = useProductCreateMutate(onSuccess);
   const updateMutation = useProductUpdateMutate(product?.id, onSuccess);

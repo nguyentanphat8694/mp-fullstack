@@ -1,12 +1,13 @@
 // API Configuration
 export const API_CONFIG = {
+  // HOST: 'https://mediumspringgreen-wolf-274309.hostingersite.com/', // TODO: Update with actual domain
   HOST: 'http://localhost/mb', // TODO: Update with actual domain
   PREFIX: '/wp-json',
   VERSION: '/mb/v1',
   PATH: {
     // Customer paths
     CUSTOMERS: '/customer',
-    APPOINTMENTS: '/appointments',
+    APPOINTMENTS: '/appointment',
     USERS: '/user',
     PRODUCT: '/product',
     TASK: '/task',
@@ -29,6 +30,7 @@ export const URLs = {
     // Main customer endpoints
     LIST: createUrl(API_CONFIG.PATH.CUSTOMERS),
     CREATE: createUrl(API_CONFIG.PATH.CUSTOMERS),
+    UPDATE: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}`),
     ASSIGN: createUrl(`${API_CONFIG.PATH.CUSTOMERS}/assign`),
     DETAIL: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/${id}`),
     HISTORY: (id) => createUrl(`${API_CONFIG.PATH.CUSTOMERS}/history/${id}`),
@@ -44,7 +46,11 @@ export const URLs = {
   },
 
   USERS: {
-    GET_BY_ROLE: createUrl(`${API_CONFIG.PATH.USERS}/role`)
+    GET_BY_ROLE: createUrl(`${API_CONFIG.PATH.USERS}/role`),
+    LIST: createUrl(API_CONFIG.PATH.USERS),
+    CREATE: createUrl(API_CONFIG.PATH.USERS),
+    UPDATE: (id) => createUrl(`${API_CONFIG.PATH.USERS}/${id}`),
+    DELETE: (id) => createUrl(`${API_CONFIG.PATH.USERS}/${id}`),
   },
 
   PRODUCTS: {

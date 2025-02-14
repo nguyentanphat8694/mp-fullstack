@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Plus } from "lucide-react"
+import { useState, useCallback } from "react"
+import { Plus, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EmployeeTable } from "@/components/employees/employee-table"
 import { EmployeeForm } from "@/components/employees/employee-form"
@@ -11,74 +11,55 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
+import useUserListQuery from "@/queries/useUserListQuery"
+import { CustomPageTitle } from "@/components/ui-custom/custom-page-title"
 
 const EmployeeListPage = () => {
   const { toast } = useToast()
-  const [employees, setEmployees] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
   const [isOpen, setIsOpen] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        // Mock data
-        const mockEmployees = [
-          {
-            id: 1,
-            name: "Nguyễn Văn A",
-            position: "Nhân viên tư vấn",
-            phone: "0123456789",
-            email: "nva@example.com",
-            status: "active",
-            join_date: "2024-01-01"
-          },
-          // ... more mock data
-        ]
-        setEmployees(mockEmployees)
-      } catch (error) {
-        console.error("Error fetching employees:", error)
-        toast({
-          title: "Lỗi",
-          description: "Không thể tải danh sách nhân viên",
-          variant: "destructive"
-        })
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  // Filter states
+  const [filterParams, setFilterParams] = useState({
+    search: "",
+    role: "all",
+    offset: 0
+  })
 
-    fetchEmployees()
-  }, [toast])
+  const { data, isLoading } = useUserListQuery(filterParams)
 
-  const handleEdit = (employee) => {
+  const handleEdit = useCallback((employee) => {
     setSelectedEmployee(employee)
     setIsOpen(true)
-  }
+  }, [])
 
-  const handleDelete = async (employeeId) => {
-    try {
-      // Mock API call
-      setEmployees(employees.filter(emp => emp.id !== employeeId))
-      toast({
-        title: "Thành công",
-        description: "Đã xóa nhân viên"
-      })
-    } catch (error) {
-      console.error("Error deleting employee:", error)
-      toast({
-        title: "Lỗi",
-        description: "Không thể xóa nhân viên",
-        variant: "destructive"
-      })
-      throw error
-    }
-  }
+  const handlePageChange = useCallback((page) => {
+    setCurrentPage(page)
+    setFilterParams(prev => ({
+      ...prev,
+      offset: (page - 1) * itemsPerPage
+    }))
+  }, [])
+
+  const handleSearch = useCallback((searchValue, roleValue) => {
+    setCurrentPage(1)
+    setFilterParams({
+      search: searchValue,
+      role: roleValue,
+      offset: 0
+    })
+  }, [])
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Danh sách nhân viên</h1>
+      <CustomPageTitle 
+        title="Danh sách nhân viên" 
+        icon={<Users className="h-6 w-6 text-primary" />} 
+      />
+
+      <div className="flex justify-end">
         <Dialog open={isOpen} onOpenChange={(open) => {
           setIsOpen(open)
           if (!open) setSelectedEmployee(null)
@@ -97,18 +78,24 @@ const EmployeeListPage = () => {
             </DialogHeader>
             <EmployeeForm 
               employee={selectedEmployee}
+              onClose={() => setIsOpen(false)}
             />
           </DialogContent>
         </Dialog>
       </div>
 
       {isLoading ? (
-        <div>Loading...</div>
+        <div className="flex items-center justify-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
       ) : (
         <EmployeeTable 
-          employees={employees}
+          employees={data?.data?.data?.data || []}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onSearch={handleSearch}
+          currentPage={currentPage}
+          totalPages={Math.ceil((data?.data?.data?.total_data || 0) / itemsPerPage)}
+          onPageChange={handlePageChange}
         />
       )}
     </div>

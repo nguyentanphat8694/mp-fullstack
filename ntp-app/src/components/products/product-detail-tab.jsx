@@ -7,13 +7,13 @@ import PropTypes from 'prop-types';
 import useProductDetailQuery from '@/queries/useProductDetailQuery';
 import {PRODUCT_CATEGORY_OPTIONS} from '@/helpers/constants';
 
-export const ProductDetailTab = ({productId, product}) => {
-  const {data: productData, isPending} = useProductDetailQuery(productId);
-  // const product = productData?.data;
-
-  // if (isPending) {
-  //   return <div>Loading...</div>;
-  // }
+export const ProductDetailTab = ({productId, product, isPending}) => {
+  // const {data: productData, isPending} = useProductDetailQuery(productId);
+  // const product = productData?.data?.data;
+  // console.log(product);
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
 
   if (!product) {
     return <div>Không tìm thấy thông tin sản phẩm</div>;

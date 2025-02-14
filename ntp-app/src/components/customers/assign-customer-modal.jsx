@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog"
 import {Button} from "@/components/ui/button"
 import {Label} from "@/components/ui/label"
-import {useCallback} from "react";
+import {useCallback, useState} from "react";
 import {UserSelect} from "@/components/ui-custom/user-select/index.jsx";
 import {useForm} from "react-hook-form";
 import request from "@/helpers/request";
@@ -28,7 +28,7 @@ export const AssignCustomerModal = ({customer, isAssignModalOpen, setIsAssignMod
       }
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.CUSTOMER_LIST] });
+      queryClient.invalidateQueries({queryKey: [QUERY_KEY.CUSTOMER_LIST]});
       toast({
         title: "Thành công",
         description: "Đã gán khách hàng thành công.",
@@ -42,9 +42,11 @@ export const AssignCustomerModal = ({customer, isAssignModalOpen, setIsAssignMod
     setSelectedCustomer(null);
   }, [])
   const onAssign = useCallback((data) => {
+    console.log(data);
     mutate(data);
   }, []);
   const {handleSubmit, formState: {errors}, control} = useForm();
+  const [assignUser, setAssignUser] = useState();
   return (
     <Dialog open={isAssignModalOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -62,9 +64,10 @@ export const AssignCustomerModal = ({customer, isAssignModalOpen, setIsAssignMod
           </div>
           <div className="space-y-2">
             <Label htmlFor="user_id">Nhân viên phụ trách</Label>
-            <UserSelect name="user_id" control={control} rules={{required: "Vui lòng chọn nhân viên"}} role="facebook"/>
-            {errors.staff && (
-              <p className="text-sm text-destructive">{errors.staff.message}</p>
+            <UserSelect name="user_id" control={control}
+                        rules={{required: "Vui lòng chọn nhân viên"}} roles={["facebook", "telesale"]}/>
+            {errors.user_id && (
+              <p className="text-sm text-destructive">{errors.user_id.message}</p>
             )}
           </div>
           <DialogFooter>

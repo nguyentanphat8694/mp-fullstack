@@ -18,14 +18,14 @@ import useProductListQuery from "@/queries/useProductListQuery"
 import CustomSelect from "@/components/ui-custom/custom-select";
 import {PRODUCT_CATEGORY_OPTIONS} from "@/helpers/constants";
 
-const mockProducts = [
-  {
-    id: 1,
-    code: '123',
-    name: 'Váy cưới nhẹ nhàng',
-    category: 'wedding_dress',
-  }
-]
+// const mockProducts = [
+//   {
+//     id: 1,
+//     code: '123',
+//     name: 'Váy cưới nhẹ nhàng',
+//     category: 'wedding_dress',
+//   }
+// ]
 
 const ProductListPage = () => {
   const navigate = useNavigate()
@@ -77,8 +77,8 @@ const ProductListPage = () => {
       // TODO: Implement API call for create/update
       toast({
         title: "Thành công",
-        description: selectedProduct 
-          ? "Đã cập nhật sản phẩm" 
+        description: selectedProduct
+          ? "Đã cập nhật sản phẩm"
           : "Đã thêm sản phẩm mới"
       })
       setIsOpen(false)
@@ -125,8 +125,9 @@ const ProductListPage = () => {
             </DialogHeader>
             <ProductForm
               product={selectedProduct}
-              onSubmit={handleSubmit}
-              isLoading={isSubmitting}
+              // onSubmit={handleSubmit}
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
             />
           </DialogContent>
         </Dialog>
@@ -151,27 +152,27 @@ const ProductListPage = () => {
         </Button>
       </div>
 
-      {/* {isPending ? (
+      {isPending ? (
         <div>Loading...</div>
       ) : (
         <ProductTable
-          products={data?.data?.data ?? []}
+          products={data?.data?.data?.data ?? []}
           onEdit={handleEdit}
           onViewDetail={(product) => navigate(`/products/${product.id}`)}
           currentPage={currentPage}
           totalPages={Math.ceil((data?.data?.total ?? 0) / itemsPerPage)}
           onPageChange={handlePageChange}
         />
-      )} */}
+      )}
 
-      <ProductTable
-          products={mockProducts}
-          onEdit={handleEdit}
-          onViewDetail={(product) => navigate(`/products/${product.id}`)}
-          currentPage={currentPage}
-          totalPages={Math.ceil((data?.data?.total ?? 0) / itemsPerPage)}
-          onPageChange={handlePageChange}
-        />
+      {/*<ProductTable*/}
+      {/*    products={mockProducts}*/}
+      {/*    onEdit={handleEdit}*/}
+      {/*    onViewDetail={(product) => navigate(`/products/${product.id}`)}*/}
+      {/*    currentPage={currentPage}*/}
+      {/*    totalPages={Math.ceil((data?.data?.total ?? 0) / itemsPerPage)}*/}
+      {/*    onPageChange={handlePageChange}*/}
+      {/*  />*/}
     </div>
   )
 }

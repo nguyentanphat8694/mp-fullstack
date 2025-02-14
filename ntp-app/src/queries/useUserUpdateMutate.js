@@ -3,20 +3,19 @@ import { URLs } from '@/helpers/url';
 import request from '@/helpers/request';
 import { QUERY_KEY } from '@/helpers/constants';
 
-const useAppointmentCompleteMutate = (appointmentId, callbackFn) => {
+const useUserUpdateMutate = (id, callbackFn) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params) =>
-      request(URLs.APPOINTMENTS.COMPLETE(appointmentId), {
-        verb: 'put',
-        params
-      }),
+    mutationFn: (params) => request(URLs.USERS.UPDATE(id), {
+      verb: 'put',
+      params
+    }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.APPOINTMENT_LIST] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.USER_LIST] });
       callbackFn && callbackFn();
     },
   });
 };
 
-export default useAppointmentCompleteMutate; 
+export default useUserUpdateMutate; 

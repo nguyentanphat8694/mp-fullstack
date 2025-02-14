@@ -67,7 +67,7 @@ const ContractListPage = () => {
     offset: 0
   })
 
-  /* Integration code - commented for now
+  //Integration code - commented for now
   const { data, isPending } = useContractListQuery(filterParams)
 
   const handleSearch = useCallback(() => {
@@ -90,7 +90,7 @@ const ContractListPage = () => {
       offset: (page - 1) * itemsPerPage
     }))
   }, [itemsPerPage])
-  */
+
 
   // Generate years from 2020 to current year
   const years = Array.from(
@@ -107,7 +107,7 @@ const ContractListPage = () => {
   return (
     <div className="space-y-6">
       <CustomPageTitle 
-        title={'Danh sách hợp đồng'} 
+        title={'Danh sách hợp đồng (Chưa có phần dữ liệu)'}
         icon={<ReceiptText className="h-6 w-6 text-primary" />} 
       />
 
@@ -173,26 +173,26 @@ const ContractListPage = () => {
         </Button>
       </div>
 
-      {/* Integration code - commented for now 
+      {/*Integration code - commented for now*/}
       {isPending ? (
         <div>Loading...</div>
       ) : (
         <ContractTable
-          contracts={data?.data || []}
+          contracts={data?.data?.data?.data || []}
           currentPage={currentPage}
           totalPages={Math.ceil((data?.total || 0) / itemsPerPage)}
           onPageChange={handlePageChange}
         />
       )}
-      */}
 
-      {/* Using mock data for testing UI */}
-      <ContractTable
-        contracts={mockContracts}
-        currentPage={1}
-        totalPages={1}
-        onPageChange={() => {}}
-      />
+
+      {/*/!* Using mock data for testing UI *!/*/}
+      {/*<ContractTable*/}
+      {/*  contracts={mockContracts}*/}
+      {/*  currentPage={1}*/}
+      {/*  totalPages={1}*/}
+      {/*  onPageChange={() => {}}*/}
+      {/*/>*/}
     </div>
   )
 }

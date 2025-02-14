@@ -9,7 +9,7 @@ const useAppointmentAssignMutate = (appointmentId, callbackFn) => {
   return useMutation({
     mutationFn: (isAssign) =>
       request(URLs.APPOINTMENTS.ASSIGN(appointmentId), {
-        verb: 'put',
+        verb: 'post',
         params: {
           type: isAssign
         }

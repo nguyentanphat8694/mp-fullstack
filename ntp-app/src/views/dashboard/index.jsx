@@ -47,6 +47,7 @@ const DashboardPage = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Dashboard</h1>
+      <h2 className="text-2xl font-bold">Dữ liệu giả</h2>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
@@ -57,7 +58,7 @@ const DashboardPage = () => {
         />
         <StatsCard
           title="Tổng hợp đồng"
-          value={stats.total_contracts} 
+          value={stats.total_contracts}
           icon={FileText}
           trend={2}
         />
@@ -75,7 +76,7 @@ const DashboardPage = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <RecentContracts contracts={recentContracts} />
+        <RecentContracts contracts={recentContracts}/>
         {/* Add more dashboard widgets here */}
       </div>
     </div>

@@ -64,7 +64,10 @@ export const AppointmentCard = ({ appointment, currentUserId }) => {
   const handleComplete = useCallback(async () => {
     try {
       // Note: If you need to send the note, you'll need to update the API and mutation
-      await completeMutation.mutateAsync();
+      await completeMutation.mutateAsync({
+        type: true,
+        note: completeNote ?? '',
+      });
     } catch (error) {
       console.error(error);
       toast({
@@ -74,12 +77,10 @@ export const AppointmentCard = ({ appointment, currentUserId }) => {
       });
     }
   }, [appointment.id, completeNote]);
-
-  const isAssignedToCurrentUser = appointment.assigned?.id === currentUserId
+  const isAssignedToCurrentUser = appointment.assigned_to?.toString() === currentUserId?.toString();
   const canReceive = appointment.status === 'scheduled'
   const canCancel = appointment.status === 'receiving' && isAssignedToCurrentUser
   const canComplete = appointment.status === 'receiving' && isAssignedToCurrentUser
-
   return (
     <>
       <div className="bg-card rounded-lg border p-4 space-y-4">
@@ -97,11 +98,11 @@ export const AppointmentCard = ({ appointment, currentUserId }) => {
         <div className="space-y-2 flex justify-between">
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-primary" />
-            <span className="font-medium">{appointment.customer.name}</span>
+            <span className="font-medium">{appointment.customer_name}</span>
           </div>
           <div className="flex items-center gap-2">
             <Phone className="h-4 w-4 text-primary" />
-            <span>{appointment.customer.phone}</span>
+            <span>{appointment.customer_phone}</span>
           </div>
         </div>
 
@@ -118,10 +119,10 @@ export const AppointmentCard = ({ appointment, currentUserId }) => {
         </div>
 
         {/* Assigned To */}
-        {appointment.assigned && (
+        {appointment.assigned_to_name && (
           <div className="flex items-center gap-2 text-sm">
             <User className="h-4 w-4 text-primary" />
-            <span>Người tiếp nhận: {appointment.assigned.name}</span>
+            <span>Người tiếp nhận: {appointment.assigned_to_name}</span>
           </div>
         )}
 
@@ -192,21 +193,6 @@ export const AppointmentCard = ({ appointment, currentUserId }) => {
 }
 
 AppointmentCard.propTypes = {
-  appointment: PropTypes.shape({
-    id: PropTypes.number,
-    customer: PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-      phone: PropTypes.string
-    }),
-    appointment_date: PropTypes.string,
-    created_at: PropTypes.string,
-    note: PropTypes.string,
-    status: PropTypes.oneOf(['scheduled', 'receiving', 'completed', 'cancelled']),
-    assigned: PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string
-    })
-  }),
+  appointment: PropTypes.object,
   currentUserId: PropTypes.number
 }

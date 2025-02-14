@@ -1,16 +1,16 @@
-import { useState } from "react"
+import {useState} from "react"
 import {Plus, Search, Calendar as CalendarIcon, Edit, Trash2, FolderKanban, ChevronDown} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { TaskForm } from "@/components/tasks/task-form"
-import { TaskDetail } from "@/components/tasks/task-detail"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {TaskForm} from "@/components/tasks/task-form"
+import {TaskDetail} from "@/components/tasks/task-detail"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Calendar } from "@/components/ui/calendar"
+import {Calendar} from "@/components/ui/calendar"
 import {
   Popover,
   PopoverContent,
@@ -21,16 +21,17 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useToast } from "@/hooks/use-toast"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
+import {useToast} from "@/hooks/use-toast"
+import {format} from "date-fns"
+import {vi} from "date-fns/locale"
 import {TASK_STATUS_OPTIONS} from "@/helpers/constants.js";
 import CustomSelect from "@/components/ui-custom/custom-select/index.jsx";
 import {CustomPageTitle} from "@/components/ui-custom/custom-page-title/index.jsx";
 import {DeleteTaskConfirm} from "@/components/tasks/delete-task-confirm"
 import {UserSelect} from "@/components/ui-custom/user-select/index.jsx";
-import { cn } from "@/lib/utils"
+import {cn} from "@/lib/utils"
+import useTaskListQuery from "@/queries/useTaskListQuery.js";
 
 const TASK_STATUS = {
   ALL: 'all',
@@ -51,11 +52,11 @@ const MOCK_TASKS = [
     id: 1,
     title: "Kiểm tra váy cưới mã VC001",
     description: "Kiểm tra tình trạng váy sau khi khách trả",
-    assigned_to: { id: 1, name: "Nguyễn Văn A", avatar: null },
+    assigned_to: {id: 1, name: "Nguyễn Văn A", avatar: null},
     status: TASK_STATUS.PENDING,
     due_date: "2024-02-21",
     priority: "high",
-    created_by: { id: 1, name: "Admin" },
+    created_by: {id: 1, name: "Admin"},
     created_at: "2024-02-20T08:00:00Z",
     updated_at: "2024-02-20T08:00:00Z"
   },
@@ -63,11 +64,11 @@ const MOCK_TASKS = [
     id: 2,
     title: "Chụp ảnh cưới cho khách hàng Trần Thị B",
     description: "Buổi chụp tại studio",
-    assigned_to: { id: 2, name: "Trần Văn B", avatar: null },
+    assigned_to: {id: 2, name: "Trần Văn B", avatar: null},
     status: TASK_STATUS.IN_PROGRESS,
     due_date: "2024-02-22",
     priority: "medium",
-    created_by: { id: 1, name: "Admin" },
+    created_by: {id: 1, name: "Admin"},
     created_at: "2024-02-20T09:00:00Z",
     updated_at: "2024-02-20T09:00:00Z"
   },
@@ -75,33 +76,25 @@ const MOCK_TASKS = [
     id: 3,
     title: "Sửa váy cưới mã VC002",
     description: "Chỉnh sửa theo yêu cầu khách hàng",
-    assigned_to: { id: 3, name: "Lê Thị C", avatar: null },
+    assigned_to: {id: 3, name: "Lê Thị C", avatar: null},
     status: TASK_STATUS.COMPLETED,
     due_date: "2024-02-20",
     priority: "low",
-    created_by: { id: 1, name: "Admin" },
+    created_by: {id: 1, name: "Admin"},
     created_at: "2024-02-19T08:00:00Z",
     updated_at: "2024-02-20T10:00:00Z"
   }
 ]
 
-const PRIORITY_COLORS = {
-  low: "bg-slate-100 text-slate-700",
-  medium: "bg-blue-100 text-blue-700",
-  high: "bg-rose-100 text-rose-700"
-}
-
 const TaskListPage = () => {
-  const { toast } = useToast()
+  const {toast} = useToast()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [tasks, setTasks] = useState(MOCK_TASKS)
   const [isPendingOpen, setIsPendingOpen] = useState(true)
   const [isInProgressOpen, setIsInProgressOpen] = useState(true)
   const [isCompletedOpen, setIsCompletedOpen] = useState(true)
-  
+
   // Filters
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedEmployee, setSelectedEmployee] = useState("all")
@@ -109,92 +102,31 @@ const TaskListPage = () => {
   const [selectedStatus, setSelectedStatus] = useState(TASK_STATUS.ALL)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
-  // Group tasks by status
-  const groupedTasks = tasks.reduce((acc, task) => {
-    if (!acc[task.status]) {
-      acc[task.status] = [];
-    }
-    acc[task.status].push(task);
-    return acc;
-  }, {});
-
-  const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesEmployee = selectedEmployee === "all" || task.assigned_to.id.toString() === selectedEmployee
-    const matchesDate = format(new Date(task.created_at), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
-    const matchesStatus = selectedStatus === TASK_STATUS.ALL || task.status === selectedStatus
-    return matchesSearch && matchesEmployee && matchesDate && matchesStatus
+  const {data, isPending} = useTaskListQuery({
+    search: searchTerm,
+    assigned_to: selectedEmployee === 'all' ? undefined : selectedEmployee,
+    created_at: selectedDate,
+    status: selectedStatus === 'all' ? undefined : selectedStatus
   })
-
-  const handleCreate = async (data) => {
-    try {
-      setIsLoading(true)
-      // API call here
-      const newTask = {
-        id: tasks.length + 1,
-        ...data,
-        created_by: { id: 1, name: "Admin" },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+  console.log('data', data)
+  // Group tasks by status
+  const groupedTasks = data?.data?.data?.data?.reduce((acc, task) => {
+        if (!acc[task.status]) {
+          acc[task.status] = [];
+        }
+        acc[task.status].push(task);
+        return acc;
+      }, {})
+      ??
+      {
+        'pending': [],
+        'in_progress': [],
+        'completed': []
       }
-      setTasks([...tasks, newTask])
-      setIsCreateOpen(false)
-      toast({
-        title: "Thành công",
-        description: "Đã tạo công việc mới"
-      })
-    } catch (error) {
-      console.error("Error creating task:", error)
-      toast({
-        title: "Lỗi",
-        description: "Không thể tạo công việc",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoading(false)
-      setSelectedTask(null)
-    }
-  }
-
-  const handleEdit = async (data) => {
-    try {
-      setIsLoading(true)
-      // API call here
-      const updatedTasks = tasks.map(task => 
-        task.id === selectedTask.id 
-          ? { 
-              ...task, 
-              ...data,
-              updated_at: new Date().toISOString() 
-            }
-          : task
-      )
-      setTasks(updatedTasks)
-      setIsCreateOpen(false)
-      toast({
-        title: "Thành công",
-        description: "Đã cập nhật công việc"
-      })
-    } catch (error) {
-      console.error("Error updating task:", error)
-      toast({
-        title: "Lỗi",
-        description: "Không thể cập nhật công việc",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoading(false)
-      setSelectedTask(null)
-    }
-  }
+  ;
 
   const handleDelete = async (taskId) => {
     try {
-      setIsLoading(true)
-      // API call here
-      const updatedTasks = tasks.filter(task => task.id !== taskId)
-      setTasks(updatedTasks)
       toast({
         title: "Thành công",
         description: "Đã xóa công việc"
@@ -206,25 +138,12 @@ const TaskListPage = () => {
         description: "Không thể xóa công việc",
         variant: "destructive"
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
   const handleStatusChange = async (taskId, newStatus) => {
     try {
-      setIsLoading(true)
       // API call here
-      const updatedTasks = tasks.map(task =>
-        task.id === taskId
-          ? {
-              ...task,
-              status: newStatus,
-              updated_at: new Date().toISOString()
-            }
-          : task
-      )
-      setTasks(updatedTasks)
       setIsDetailOpen(false)
       toast({
         title: "Thành công",
@@ -238,14 +157,8 @@ const TaskListPage = () => {
         variant: "destructive"
       })
     } finally {
-      setIsLoading(false)
       setSelectedTask(null)
     }
-  }
-
-  const handleTaskClick = (task) => {
-    setSelectedTask(task)
-    setIsDetailOpen(true)
   }
 
   const handleEditClick = (e, task) => {
@@ -288,9 +201,9 @@ const TaskListPage = () => {
         </div>
         <CollapsibleContent>
           <div className="flex flex-col gap-4">
-            {Array.from({ length: Math.ceil(tasks.length / 3) }).map((_, rowIndex) => (
-              <div 
-                key={rowIndex} 
+            {Array.from({length: Math.ceil(tasks.length / 3)}).map((_, rowIndex) => (
+              <div
+                key={rowIndex}
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
               >
                 {tasks.slice(rowIndex * 3, (rowIndex + 1) * 3).map((task) => (
@@ -321,10 +234,10 @@ const TaskListPage = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-6 w-6">
-                          <AvatarImage src={task.assigned_to.avatar}/>
-                          <AvatarFallback>{task.assigned_to.name.charAt(0)}</AvatarFallback>
+                          <AvatarImage src={task.user_name}/>
+                          <AvatarFallback>{task.user_name.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <span className="text-sm">{task.assigned_to.name}</span>
+                        <span className="text-sm">{task.user_name}</span>
                       </div>
                     </div>
                   </div>
@@ -370,13 +283,12 @@ const TaskListPage = () => {
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-lg">{STATUS_LABELS[status]}</h2>
               <span className="bg-muted text-muted-foreground px-2 py-1 rounded-md text-sm">
-                {tasks.filter(t => t.status === status).length}
+                {data?.data?.data?.data?.filter(t => t.status === status).length}
               </span>
             </div>
-            
+
             <div className="space-y-3">
-              {tasks
-                .filter(task => task.status === status)
+              {data?.data?.data?.data?.filter(task => task.status === status)
                 .map(task => (
                   <div
                     key={task.id}
@@ -397,7 +309,7 @@ const TaskListPage = () => {
                           className="h-8 w-8"
                           onClick={(e) => handleEditClick(e, task)}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-4 w-4"/>
                         </Button>
                         <Button
                           variant="ghost"
@@ -405,7 +317,7 @@ const TaskListPage = () => {
                           className="h-8 w-8 hover:text-destructive"
                           onClick={(e) => handleDeleteClick(e, task)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4"/>
                         </Button>
                       </div>
                     </div>
@@ -423,10 +335,10 @@ const TaskListPage = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-6 w-6">
-                          <AvatarImage src={task.assigned_to.avatar}/>
-                          <AvatarFallback>{task.assigned_to.name.charAt(0)}</AvatarFallback>
+                          <AvatarImage src={task.user_name}/>
+                          <AvatarFallback>{task.user_name.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <span className="text-sm">{task.assigned_to.name}</span>
+                        <span className="text-sm">{task.user_name}</span>
                       </div>
                     </div>
                   </div>
@@ -441,9 +353,9 @@ const TaskListPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <CustomPageTitle title={'Công việc'} icon={<FolderKanban className="h-6 w-6 text-primary" />} />
+        <CustomPageTitle title={'Công việc'} icon={<FolderKanban className="h-6 w-6 text-primary"/>}/>
         <Button onClick={() => setIsCreateOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Thêm công việc
+          <Plus className="mr-2 h-4 w-4"/> Thêm công việc
         </Button>
       </div>
 
@@ -469,9 +381,9 @@ const TaskListPage = () => {
                 !selectedDate && "text-muted-foreground"
               )}
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <CalendarIcon className="mr-2 h-4 w-4"/>
               {selectedDate ? (
-                format(selectedDate, "PPP", { locale: vi })
+                format(selectedDate, "PPP", {locale: vi})
               ) : (
                 <span>Chọn ngày</span>
               )}
@@ -499,8 +411,8 @@ const TaskListPage = () => {
       {/* Responsive Views */}
       {renderMobileView()}
       {renderDesktopView()}
-      
-      {!tasks.length && (
+
+      {!data?.data?.data?.data?.length && (
         <p className="text-muted-foreground text-center">
           Không có công việc nào
         </p>
@@ -516,8 +428,8 @@ const TaskListPage = () => {
           </DialogHeader>
           <TaskForm
             task={selectedTask}
-            onSubmit={selectedTask ? handleEdit : handleCreate}
-            isLoading={isLoading}
+            setSelectedTask={setSelectedTask}
+            onClose={() => setIsCreateOpen(false)}
           />
         </DialogContent>
       </Dialog>

@@ -30,11 +30,13 @@ const userNavigation = [
     name: 'Cài đặt',
     path: PATHS.USER.SETTINGS,
     icon: <Settings className="mr-2 h-4 w-4"/>,
+    disabled: true,
   },
   {
     name: 'Tài khoản',
     path: PATHS.USER.ACCOUNTS,
     icon: <User className="mr-2 h-4 w-4"/>,
+    disabled: true,
   },
   {
     name: 'Nhân viên',
@@ -45,6 +47,7 @@ const userNavigation = [
     name: 'Đăng xuất',
     path: PATHS.USER.LOGOUT,
     icon: <LogOut className="mr-2 h-4 w-4"/>,
+    disabled: true,
   },
 ];
 
@@ -129,7 +132,8 @@ const MainLayout = ({children}) => {
                           <DropdownMenuItem
                               key={`menu-${item.name}-${index}`}
                               className="hover:bg-muted"
-                              onClick={() => navigate(item.path)}>
+                              onClick={() => navigate(item.path)}
+                              disabled={item.disabled}>
                             {item.icon}
                             <span>{item.name}</span>
                           </DropdownMenuItem>
@@ -168,6 +172,7 @@ const MainLayout = ({children}) => {
                               ' text-red-500 hover:text-red-600' :
                               ''}`}
                           onClick={() => navigate(item.path)}
+                          disabled={item.disabled}
                       >
                         {item.icon}
                         <span>{item.name}</span>
@@ -179,7 +184,7 @@ const MainLayout = ({children}) => {
         </header>
 
         {/* Main content */}
-        <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 mt-16">
+        <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 mt-0">
           {children}
         </main>
       </div>

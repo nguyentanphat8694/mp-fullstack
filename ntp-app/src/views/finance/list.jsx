@@ -151,7 +151,7 @@ const FinanceListPage = () => {
 
   return (
     <div className="space-y-6">
-      <CustomPageTitle title={'Quản lý tài chính'} icon={<Wallet className="h-6 w-6 text-primary" />} />
+      <CustomPageTitle title={'Quản lý tài chính (Chưa có phần dữ liệu)'} icon={<Wallet className="h-6 w-6 text-primary" />} />
       
       <div className="flex flex-col gap-4">
         <div className="flex justify-end">

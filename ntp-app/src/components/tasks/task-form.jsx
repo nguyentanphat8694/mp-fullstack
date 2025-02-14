@@ -13,19 +13,20 @@ import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { UserSelect } from "@/components/ui-custom/user-select"
+import { UserSelect } from "@/components/ui-custom/user-select/index.jsx"
 import useTaskCreateMutate from "@/queries/useTaskCreateMutate"
 import useTaskUpdateMutate from "@/queries/useTaskUpdateMutate"
 import { useToast } from "@/hooks/use-toast"
-import { useCallback } from "react"
+import {useCallback, useState} from "react"
 
-const TaskForm = ({ task, onClose }) => {
+const TaskForm = ({ task, onClose, setSelectedTask }) => {
   const { toast } = useToast()
   const onSuccess = useCallback(() => {
     toast({
       title: "Thành công",
       description: task ? "Cập nhật công việc thành công" : "Thêm công việc mới thành công",
     });
+    setSelectedTask && setSelectedTask(null);
     onClose && onClose();
   }, [task]);
 
@@ -47,7 +48,7 @@ const TaskForm = ({ task, onClose }) => {
       if (task) {
         await updateMutation.mutateAsync(data);
       } else {
-        await createMutation.mutateAsync(data);
+        await createMutation.mutateAsync({...data, assigned_to: task.assigned_to});
       }
     } catch (error) {
       console.error(error);
@@ -81,18 +82,18 @@ const TaskForm = ({ task, onClose }) => {
         />
       </div>
 
-      <div className="space-y-2">
+      {!task && (<div className="space-y-2">
         <Label htmlFor="assigned_to">Người thực hiện</Label>
         <UserSelect
           name="assigned_to"
           control={control}
-          rules={{ required: "Vui lòng chọn người thực hiện" }}
-          role={["sale", "photo-wedding", "photo-pre-wedding", "tailor"]}
+          rules={{required: "Vui lòng chọn người thực hiện"}}
+          roles={["sale", "photo-wedding", "photo-pre-wedding", "tailor"]}
         />
         {errors.assigned_to && (
           <p className="text-sm text-destructive">{errors.assigned_to.message}</p>
         )}
-      </div>
+      </div>)}
 
       <div className="space-y-2">
         <Label>Hạn hoàn thành</Label>
@@ -105,7 +106,7 @@ const TaskForm = ({ task, onClose }) => {
                 !watch("due_date") && "text-muted-foreground"
               )}
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <CalendarIcon className="mr-2 h-4 w-4"/>
               {watch("due_date") ? (
                 format(watch("due_date"), "PPP", { locale: vi })
               ) : (
@@ -125,7 +126,7 @@ const TaskForm = ({ task, onClose }) => {
       </div>
 
       <Button type="submit">
-        {task ? updateMutation.isPending : createMutation.isPending ? "Đang xử lý..." : task ? "Cập nhật" : "Thêm"}
+        {(task ? updateMutation.isPending : createMutation.isPending) ? "Đang xử lý..." : (task ? "Cập nhật" : "Thêm")}
       </Button>
     </form>
   )
