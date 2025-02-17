@@ -37,10 +37,22 @@ class MB_Management {
         // Load controllers
         require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/controllers/class-ctl-user.php';
         require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/controllers/class-ctl-customer.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/controllers/class-ctl-appointment.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/controllers/class-ctl-contract.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/controllers/class-ctl-product.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/controllers/class-ctl-setting.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/controllers/class-ctl-task.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/controllers/class-ctl-transaction.php';
         // Load api
         require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/api/class-mb-api.php';
         require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/api/class-api-user.php';
         require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/api/class-api-customer.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/api/class-api-appointment.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/api/class-api-contract.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/api/class-api-product.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/api/class-api-setting.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/api/class-api-task.php';
+        require_once MB_MANAGEMENT_PLUGIN_DIR . 'includes/api/class-api-transaction.php';
     }
 
     public function run() {
@@ -55,7 +67,14 @@ class MB_Management {
     public function register_api_routes() {
         // Initialize and register all API endpoints
         $api_classes = array(
-            'MB_Customer_API'
+            'MB_Customer_API',
+            'MB_Appointment_API',
+            'MB_Contract_API',
+            'MB_Product_API',
+            'MB_Setting_API',
+            'MB_Task_API',
+            'MB_Transaction_API',
+            'MB_User_API'
         );
 
         foreach ($api_classes as $class) {

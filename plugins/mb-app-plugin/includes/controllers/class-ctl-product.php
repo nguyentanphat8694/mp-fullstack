@@ -23,18 +23,19 @@ class MB_Product_Controller {
                 'created_at' => current_time('mysql')
             );
             $image_file = $data['images'];
-            if (!empty($image_file)) {
-                $upload = wp_handle_upload($image_file, array('test_form' => false));
-                if (isset($upload['file'])) {
-                    $image_path = $upload['file'];
-//                    $image_url = $upload['url'];
-                    $product_data['images'] = $image_path;
-                } else {
-                    return new WP_Error('upload_failed', 'Image upload failed', array('status' => 400));
-                }
-            } else {
-                $product_data['images'] = null;
-            }
+//            if (!empty($image_file)) {
+//                require_once( ABSPATH . 'wp-admin/includes/file.php' );
+//                $upload = wp_handle_upload($image_file, array('test_form' => false));
+//                if (isset($upload['file'])) {
+//                    $image_path = $upload['file'];
+////                    $image_url = $upload['url'];
+//                    $product_data['images'] = $image_path;
+//                } else {
+//                    return new WP_Error('upload_failed', 'Image upload failed', array('status' => 400));
+//                }
+//            } else {
+//                $product_data['images'] = null;
+//            }
 
             return $this->product_model->create($product_data);
         } catch (Exception $e) {

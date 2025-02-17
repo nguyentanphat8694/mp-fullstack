@@ -62,7 +62,9 @@ class MB_Appointment_Controller {
             
             $query = $wpdb->prepare(
                 "SELECT 
+                    a.id,
                     a.customer_id,
+                    a.assigned_to,
                     a.appointment_date,
                     ah.note
                 FROM mb_appointments a
@@ -90,6 +92,8 @@ class MB_Appointment_Controller {
             }
 
             return array(
+                'id' => $result->id,
+                'assigned_to' => $result->assigned_to,
                 'customer_id' => (int)$result->customer_id,
                 'appointment_date' => $result->appointment_date,
                 'note' => $result->note
@@ -137,11 +141,13 @@ class MB_Appointment_Controller {
 
             $query = $wpdb->prepare(
                 "SELECT 
+                    a.id,
                     c.name as customer_name,
                     c.phone as customer_phone,
                     a.status,
                     a.appointment_date,
                     u.display_name as assigned_to_name,
+                    u.id as assigned_to,
                     a.created_at,
                     ah.note
                 FROM mb_appointments a
@@ -172,11 +178,13 @@ class MB_Appointment_Controller {
             return array(
                 'data' => array_map(function($row) {
                     return array(
+                        'id' => $row->id,
                         'customer_name' => $row->customer_name,
                         'customer_phone' => $row->customer_phone,
                         'status' => $row->status,
                         'appointment_date' => $row->appointment_date,
                         'assigned_to_name' => $row->assigned_to_name,
+                        'assigned_to' => $row->assigned_to,
                         'created_at' => $row->created_at,
                         'note' => $row->note
                     );
@@ -254,12 +262,15 @@ class MB_Appointment_Controller {
 
             if ($type) {
                 $update_data['assigned_to'] = $current_user_id;
-                $action_note = 'Appointment assigned to user';
+                $update_data['status'] = 'receiving';
+                $action_note = 'Cuộc hẹn được tiếp nhận';
             } else {
                 // Only allow unassign if currently assigned to the same user
+                var_dump($appointment);
                 if ($appointment['assigned_to'] == $current_user_id) {
                     $update_data['assigned_to'] = null;
-                    $action_note = 'Appointment unassigned';
+                    $update_data['status'] = 'scheduled';
+                    $action_note = 'Cuộc hẹn đã hủy tiếp nhận';
                 } else {
                     return new WP_Error('unauthorized', 'Cannot unassign appointment not assigned to you');
                 }

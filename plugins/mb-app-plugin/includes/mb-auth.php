@@ -23,6 +23,7 @@ class MB_App_Auth {
         $primary_role = !empty($roles) ? $roles[0] : '';
 
         // Add roles to response
+        $data['id'] = $user->id;
         $data['roles'] = $roles;
         $data['primary_role'] = $primary_role;
 

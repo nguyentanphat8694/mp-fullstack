@@ -116,7 +116,6 @@ class MB_Task_Controller {
             if (isset($args['assigned_to']) && $args['assigned_to'] !== null) {
                 $query_args['where']['assigned_to'] = absint($args['assigned_to']);
             }
-
             // Filter by status
             if (isset($args['status']) && $args['status'] !== null) {
                 $query_args['where']['status'] = sanitize_text_field($args['status']);
@@ -164,7 +163,6 @@ class MB_Task_Controller {
             // Get total records
             $count_query = "SELECT COUNT(*) FROM mb_tasks t {$where_clause}";
             $total_items = $wpdb->get_var($wpdb->prepare($count_query, $where_values));
-
             $query = $wpdb->prepare(
                 "SELECT 
                     t.id,
@@ -173,6 +171,7 @@ class MB_Task_Controller {
                     t.created_at,
                     t.due_date,
                     t.status,
+                    t.assigned_to,
                     u.display_name as user_name
                 FROM mb_tasks t
                 LEFT JOIN {$wpdb->users} u ON t.assigned_to = u.ID
@@ -194,6 +193,7 @@ class MB_Task_Controller {
                         'created_at' => $row->created_at,
                         'due_date' => $row->due_date,
                         'status' => $row->status,
+                        'assigned_to' => $row->assigned_to,
                         'user_name' => $row->user_name
                     );
                 }, $results),

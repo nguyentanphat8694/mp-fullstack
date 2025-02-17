@@ -195,8 +195,7 @@ class MB_User_Controller {
                     u.ID,
                     u.user_login as username,
                     u.user_email as email,
-                    u.first_name,
-                    u.last_name,
+                    u.display_name as display_name,
                     u.user_registered as created_at
                 FROM {$wpdb->users} u
                 LEFT JOIN {$wpdb->usermeta} um ON u.ID = um.user_id AND um.meta_key = '{$wpdb->prefix}capabilities'
@@ -218,8 +217,7 @@ class MB_User_Controller {
                         'id' => (int)$row->ID,
                         'username' => $row->username,
                         'email' => $row->email,
-                        'first_name' => $row->first_name,
-                        'last_name' => $row->last_name,
+                        'display_name' => $row->display_name,
                         'created_at' => $row->created_at
                     );
                 }, $results),
