@@ -9,10 +9,8 @@ import {
 import {Button} from '@/components/ui/button';
 import {Label} from '@/components/ui/label';
 import {Alert, AlertDescription} from '@/components/ui/alert';
-import {CheckCircle, XCircle, Calendar as CalendarIcon} from 'lucide-react';
+import {CheckCircle, XCircle} from 'lucide-react';
 import {Input} from '@/components/ui/input';
-import {Calendar} from '@/components/ui/calendar';
-import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
 import PropTypes from 'prop-types';
 import useProductCheckQuery from '@/queries/useProductCheckQuery';
 import {useForm} from 'react-hook-form';

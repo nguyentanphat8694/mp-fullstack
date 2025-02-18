@@ -17,6 +17,20 @@ export const QUERY_KEY = {
   FINANCE_LIST: 'finance_list',
 };
 
+export const INPUT_TYPE = {
+  TEXT: 'TEXT',
+  TEXTAREA: 'TEXTAREA',
+  DATE: 'DATE',
+  TIME: 'TIME',
+  IMAGE_UPLOAD: 'IMAGE_UPLOAD',
+};
+
+export const ALIGN = {
+  LEFT: 'left',
+  RIGHT: 'right',
+  CENTER: 'center',
+}
+
 export const STATUS_COLORS = {
   scheduled: "default",
   receiving: "warning",
@@ -101,3 +115,23 @@ export const APPOINTMENT_STATUS_OPTIONS = [
   { value: "completed", label: "Hoàn thành" },
   { value: "cancelled", label: "Đã hủy" }
 ];
+
+export const ICON_NAME = {
+  CALENDAR: 'Calendar',
+  CHECK_CIRCLE: 'Check_Circle',
+  EDIT: 'Edit',
+  EYE: 'Eye',
+  INFO: 'Info',
+  LOGOUT: 'Logout',
+  MENU: 'Menu',
+  MORE_VERTICAL: 'More_Vertical',
+  SETTINGS: 'Settings',
+  SHOPPING_BAG: 'Shopping_Bag',
+  TAG: 'Tag',
+  TRASH: 'Trash2',
+  USER: 'User',
+  USER_PLUS: 'User_Plus',
+  USERS: 'Users',
+  X: 'X',
+  X_CIRCLE: 'X_Circle',
+};
